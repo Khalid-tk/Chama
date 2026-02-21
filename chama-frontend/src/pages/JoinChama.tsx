@@ -45,7 +45,7 @@ export function JoinChama() {
     const q = (searchQuery ?? query).trim()
     setSearchLoading(true)
     try {
-      const res = await api.get('/chamas/search', { params: { q: q || undefined } })
+      const res = await api.get('/api/chamas/search', { params: { q: q || undefined } })
       setSearchResults(res.data.data?.data ?? [])
     } catch (e) {
       console.error(e)
@@ -80,7 +80,7 @@ export function JoinChama() {
   const loadMyRequests = async () => {
     setMyRequestsLoading(true)
     try {
-      const res = await api.get('/chamas/my/join-requests')
+      const res = await api.get('/api/chamas/my/join-requests')
       setMyRequests(res.data.data ?? [])
     } catch (e) {
       console.error(e)

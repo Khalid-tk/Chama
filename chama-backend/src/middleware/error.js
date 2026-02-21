@@ -31,6 +31,16 @@ export function errorHandler(err, req, res, next) {
     })
   }
 
+  if (err.message === 'Not allowed by CORS') {
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end()
+    }
+    return res.status(403).json({
+      success: false,
+      message: 'Not allowed by CORS',
+    })
+  }
+
   // Default error
   const statusCode = err.statusCode || 500
   const message = err.message || 'Internal server error'

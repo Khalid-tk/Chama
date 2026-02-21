@@ -27,7 +27,7 @@ export function SuperUsers() {
 
   const loadUsers = async () => {
     try {
-      const response = await api.get('/super/users')
+      const response = await api.get('/api/super/users')
       setUsers(response.data.data || [])
     } catch (error) {
       console.error('Failed to load users:', error)
@@ -39,7 +39,7 @@ export function SuperUsers() {
   const handleToggleSuperAdmin = async (userId: string, currentRole: string) => {
     const newRole = currentRole === 'SUPER_ADMIN' ? 'USER' : 'SUPER_ADMIN'
     try {
-      await api.patch(`/super/users/${userId}/global-role`, { globalRole: newRole })
+      await api.patch(`/api/super/users/${userId}/global-role`, { globalRole: newRole })
       loadUsers()
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to update role')

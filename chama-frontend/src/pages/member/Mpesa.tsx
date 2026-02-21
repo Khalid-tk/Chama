@@ -106,7 +106,7 @@ export function MemberMpesa() {
       if (isDev && checkoutRequestId) {
         setTimeout(async () => {
           try {
-            await api.post('/mpesa/dev/simulate-callback', {
+            await api.post('/api/mpesa/dev/simulate-callback', {
               checkoutRequestId,
               resultCode: 0,
               mpesaReceiptNo: `SIM-${Date.now()}`,

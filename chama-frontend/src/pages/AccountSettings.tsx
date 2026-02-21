@@ -35,7 +35,7 @@ export function AccountSettings() {
     setSaving(true)
     setMessage(null)
     try {
-      await api.post('/auth/change-password', { currentPassword, newPassword })
+      await api.post('/api/auth/change-password', { currentPassword, newPassword })
       setMessage({ type: 'success', text: 'Password changed successfully!' })
       setCurrentPassword('')
       setNewPassword('')

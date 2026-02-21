@@ -20,8 +20,8 @@ export function SuperDashboard() {
   const loadStats = async () => {
     try {
       const [chamasRes, usersRes] = await Promise.all([
-        api.get('/super/chamas'),
-        api.get('/super/users'),
+        api.get('/api/super/chamas'),
+        api.get('/api/super/users'),
       ])
 
       const chamas = chamasRes.data.data || []

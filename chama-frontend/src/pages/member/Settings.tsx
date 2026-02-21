@@ -56,7 +56,7 @@ export function MemberSettings() {
     setMessage(null)
 
     try {
-      await api.post('/auth/change-password', {
+      await api.post('/api/auth/change-password', {
         currentPassword,
         newPassword,
       })

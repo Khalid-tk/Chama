@@ -19,7 +19,7 @@ export function ForgotPassword() {
     setLoading(true)
 
     try {
-      await api.post('/auth/forgot-password', { email })
+      await api.post('/api/auth/forgot-password', { email })
       setSuccess(true)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to send reset email. Please try again.')

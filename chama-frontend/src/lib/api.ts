@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-
+// Origin only (no /api) so we can prefix every path with /api consistently
+const origin = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '')
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: origin,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -33,18 +33,18 @@ api.interceptors.response.use(
   }
 )
 
-// Helper to build chama-scoped routes (baseURL already includes /api)
+// Helper to build chama-scoped routes (all paths under /api)
 export function chamaRoute(chamaId: string, path: string): string {
   if (path.startsWith('/stkpush')) {
-    return `/mpesa/${chamaId}/stkpush`
+    return `/api/mpesa/${chamaId}/stkpush`
   }
   if (path.startsWith('/my/mpesa')) {
-    return `/mpesa/${chamaId}/my/mpesa`
+    return `/api/mpesa/${chamaId}/my/mpesa`
   }
   if (path === '/mpesa' || path.startsWith('/mpesa')) {
-    return `/mpesa/${chamaId}/mpesa${path.replace('/mpesa', '')}`
+    return `/api/mpesa/${chamaId}/mpesa${path.replace('/mpesa', '')}`
   }
-  return `/chamas/${chamaId}${path}`
+  return `/api/chamas/${chamaId}${path}`
 }
 
 export default api

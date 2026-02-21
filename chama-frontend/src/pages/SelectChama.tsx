@@ -27,7 +27,7 @@ export function SelectChama() {
 
   const loadMyChamas = async () => {
     try {
-      const response = await api.get('/chamas/my')
+      const response = await api.get('/api/chamas/my')
       setMyChamas(response.data.data)
     } catch (error) {
       console.error('Failed to load chamas:', error)
@@ -252,7 +252,7 @@ function CreateChamaModal({ onClose }: { onClose: () => void }) {
     setLoading(true)
 
     try {
-      const response = await api.post('/chamas', {
+      const response = await api.post('/api/chamas', {
         name,
         description,
         joinMode,
@@ -399,7 +399,7 @@ function JoinChamaModal({ onClose }: { onClose: () => void }) {
     setLoading(true)
 
     try {
-      const response = await api.post('/chamas/join', {
+      const response = await api.post('/api/chamas/join', {
         chamaCode: chamaCode.toUpperCase(),
         joinCode: joinCode || undefined,
       })

@@ -51,7 +51,7 @@ export function Profile() {
     try {
       const formData = new FormData()
       formData.append('avatar', file)
-      const res = await api.post('/users/me/avatar', formData, {
+      const res = await api.post('/api/users/me/avatar', formData, {
         headers: { 'Content-Type': undefined } as any,
       })
       const url = res.data?.data?.avatarUrl
@@ -71,7 +71,7 @@ export function Profile() {
     setRemoving(true)
     setError(null)
     try {
-      await api.delete('/users/me/avatar')
+      await api.delete('/api/users/me/avatar')
       updateUser({ avatarUrl: null })
       setPreview(null)
     } catch (err: any) {

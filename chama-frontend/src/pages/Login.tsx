@@ -36,7 +36,7 @@ export function Login() {
     setLoading(true)
 
     try {
-      const response = await api.post('/auth/login', { email, password })
+      const response = await api.post('/api/auth/login', { email, password })
       const { token, user, memberships } = response.data.data
 
       login(token, user, memberships)
@@ -60,7 +60,7 @@ export function Login() {
     setError('')
 
     try {
-      const response = await api.post('/auth/google', {
+      const response = await api.post('/api/auth/google', {
         idToken: credentialResponse.credential,
       })
       // Backend returns { success, data: { token, user, memberships } }

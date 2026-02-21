@@ -2,6 +2,26 @@ import 'dotenv/config'
 import prisma from '../src/prisma.js'
 import bcrypt from 'bcrypt'
 
+async function runWithRetry(fn, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn()
+    } catch (err) {
+      const msg = String(err?.message || err)
+      const isTransient =
+        msg.includes('terminating connection') ||
+        msg.includes('Connection terminated unexpectedly') ||
+        msg.includes('ECONNRESET') ||
+        msg.includes('server closed the connection')
+      if (!isTransient || i === retries - 1) {
+        throw err
+      }
+      console.log(`Retrying seed after transient DB error... attempt ${i + 1}`)
+      await new Promise((r) => setTimeout(r, 3000 * (i + 1)))
+    }
+  }
+}
+
 const PASS = 'Member123!'
 const ADMIN_PASS = 'Admin123!'
 const SEED = 4242
@@ -39,174 +59,109 @@ const LAST_NAMES = [
   'Kamau', 'Wambui', 'Mwangi', 'Wanjiku', 'Kariuki', 'Nyambura', 'Njoroge', 'Wanjiru',
 ]
 
-async function upsertUser(email, data) {
-  return prisma.user.upsert({
-    where: { email },
-    update: { ...data, updatedAt: new Date() },
-    create: { email, ...data },
-  })
-}
-
 function avatarUrl(filename) {
   const base = (process.env.PUBLIC_BASE_URL || process.env.API_URL || 'http://localhost:5000').replace(/\/$/, '')
   return `${base}/uploads/avatars/${filename}`
 }
 
-async function upsertChama(chamaCode, data) {
-  const existing = await prisma.chama.findUnique({ where: { chamaCode } })
-  if (existing) {
-    return prisma.chama.update({ where: { id: existing.id }, data })
-  }
-  return prisma.chama.create({ data: { chamaCode, ...data } })
-}
-
-async function upsertMembership(userId, chamaId, role) {
-  const existing = await prisma.membership.findUnique({
-    where: { userId_chamaId: { userId, chamaId } },
-  })
-  if (existing) {
-    return prisma.membership.update({ where: { id: existing.id }, data: { role, isActive: true } })
-  }
-  return prisma.membership.create({ data: { userId, chamaId, role, isActive: true } })
-}
-
-function monthKey(d) {
-  const x = new Date(d)
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`
-}
-
 async function main() {
   console.log('🌱 Starting realistic database seed...\n')
+
+  // Optional safety: log existing counts before wipe
+  const existingUsers = await prisma.user.count()
+  const existingChamas = await prisma.chama.count()
+  console.log('Existing users:', existingUsers)
+  console.log('Existing chamas:', existingChamas)
+
+  // Idempotent wipe: child tables first, then parents
+  await prisma.repayment.deleteMany()
+  await prisma.loan.deleteMany()
+  await prisma.auditLog.deleteMany()
+  await prisma.contribution.deleteMany()
+  await prisma.transaction.deleteMany()
+  await prisma.mpesaPayment.deleteMany()
+  await prisma.joinRequest.deleteMany()
+  await prisma.invite.deleteMany()
+  await prisma.notification.deleteMany()
+  await prisma.passwordResetToken.deleteMany()
+  await prisma.membership.deleteMany()
+  await prisma.emailJob.deleteMany()
+  await prisma.user.deleteMany()
+  await prisma.chama.deleteMany()
+  console.log('✅ Tables wiped (idempotent)\n')
 
   const passwordHash = await bcrypt.hash(PASS, 10)
   const adminHash = await bcrypt.hash(ADMIN_PASS, 10)
 
-  // Remove old test chamas so only the 5 new ones exist (legacy users get new chamas only)
-  const oldChamas = await prisma.chama.findMany({
-    where: { chamaCode: { in: ['TESTA01', 'TESTB01'] } },
-    select: { id: true },
-  })
-  if (oldChamas.length) {
-    await prisma.chama.deleteMany({ where: { chamaCode: { in: ['TESTA01', 'TESTB01'] } } })
-    console.log(`✅ Removed ${oldChamas.length} old test chama(s)\n`)
-  }
-
-  // ---------- 0. PLATFORM CHAMA (for super-admin audit logs) ----------
-  await upsertChama('PLATFORM', {
-    name: 'Platform',
-    description: 'System platform for audit',
-    joinCode: null,
-    joinMode: 'OPEN',
-    isPublic: false,
-    contributionAmount: null,
-    cycleDay: null,
-    loanInterestRate: null,
-    penaltyRate: null,
-  })
-  console.log('✅ Platform chama (for audit)\n')
-
-  // ---------- 1. CHAMAS (10) ----------
+  // ---------- 0 + 1. CHAMAS (Platform + 10) — createMany then resolve IDs ----------
   const chamaSpecs = [
-    { chamaCode: 'KRU001', name: 'Kisumu United Sacco', joinMode: 'OPEN', contributionAmount: 5000, cycleDay: 1, loanInterestRate: 10, penaltyRate: 5 },
-    { chamaCode: 'NBO002', name: 'Nairobi Boda Sacco', joinMode: 'APPROVAL', contributionAmount: 3000, cycleDay: 15, loanInterestRate: 12, penaltyRate: 3 },
-    { chamaCode: 'MBS003', name: 'Mombasa Beach Sacco', joinMode: 'OPEN', contributionAmount: 7000, cycleDay: 5, loanInterestRate: 8, penaltyRate: 4 },
-    { chamaCode: 'NKR004', name: 'Nakuru Farmers Chama', joinMode: 'APPROVAL', contributionAmount: 4000, cycleDay: 20, loanInterestRate: 15, penaltyRate: 6 },
-    { chamaCode: 'ELD005', name: 'Eldoret Traders Sacco', joinMode: 'OPEN', contributionAmount: 6000, cycleDay: 10, loanInterestRate: 11, penaltyRate: 4 },
-    { chamaCode: 'KSM006', name: 'Kisii Women Sacco', joinMode: 'APPROVAL', contributionAmount: 3500, cycleDay: 5, loanInterestRate: 12, penaltyRate: 4 },
-    { chamaCode: 'THK007', name: 'Thika Traders Chama', joinMode: 'OPEN', contributionAmount: 5500, cycleDay: 12, loanInterestRate: 9, penaltyRate: 3 },
-    { chamaCode: 'MAL008', name: 'Malindi Coast Sacco', joinMode: 'APPROVAL', contributionAmount: 4500, cycleDay: 25, loanInterestRate: 11, penaltyRate: 5 },
-    { chamaCode: 'GAR009', name: 'Garissa Unity Chama', joinMode: 'OPEN', contributionAmount: 4000, cycleDay: 1, loanInterestRate: 14, penaltyRate: 6 },
-    { chamaCode: 'KAK010', name: 'Kakamega Savings Sacco', joinMode: 'APPROVAL', contributionAmount: 5000, cycleDay: 15, loanInterestRate: 10, penaltyRate: 4 },
+    { chamaCode: 'PLATFORM', name: 'Platform', description: 'System platform for audit', joinMode: 'OPEN', contributionAmount: null, cycleDay: null, loanInterestRate: null, penaltyRate: null, joinCode: null },
+    { chamaCode: 'KRU001', name: 'Kisumu United Sacco', joinMode: 'OPEN', contributionAmount: 5000, cycleDay: 1, loanInterestRate: 10, penaltyRate: 5, joinCode: 'JOIN-KRU001' },
+    { chamaCode: 'NBO002', name: 'Nairobi Boda Sacco', joinMode: 'APPROVAL', contributionAmount: 3000, cycleDay: 15, loanInterestRate: 12, penaltyRate: 3, joinCode: 'JOIN-NBO002' },
+    { chamaCode: 'MBS003', name: 'Mombasa Beach Sacco', joinMode: 'OPEN', contributionAmount: 7000, cycleDay: 5, loanInterestRate: 8, penaltyRate: 4, joinCode: 'JOIN-MBS003' },
+    { chamaCode: 'NKR004', name: 'Nakuru Farmers Chama', joinMode: 'APPROVAL', contributionAmount: 4000, cycleDay: 20, loanInterestRate: 15, penaltyRate: 6, joinCode: 'JOIN-NKR004' },
+    { chamaCode: 'ELD005', name: 'Eldoret Traders Sacco', joinMode: 'OPEN', contributionAmount: 6000, cycleDay: 10, loanInterestRate: 11, penaltyRate: 4, joinCode: 'JOIN-ELD005' },
+    { chamaCode: 'KSM006', name: 'Kisii Women Sacco', joinMode: 'APPROVAL', contributionAmount: 3500, cycleDay: 5, loanInterestRate: 12, penaltyRate: 4, joinCode: 'JOIN-KSM006' },
+    { chamaCode: 'THK007', name: 'Thika Traders Chama', joinMode: 'OPEN', contributionAmount: 5500, cycleDay: 12, loanInterestRate: 9, penaltyRate: 3, joinCode: 'JOIN-THK007' },
+    { chamaCode: 'MAL008', name: 'Malindi Coast Sacco', joinMode: 'APPROVAL', contributionAmount: 4500, cycleDay: 25, loanInterestRate: 11, penaltyRate: 5, joinCode: 'JOIN-MAL008' },
+    { chamaCode: 'GAR009', name: 'Garissa Unity Chama', joinMode: 'OPEN', contributionAmount: 4000, cycleDay: 1, loanInterestRate: 14, penaltyRate: 6, joinCode: 'JOIN-GAR009' },
+    { chamaCode: 'KAK010', name: 'Kakamega Savings Sacco', joinMode: 'APPROVAL', contributionAmount: 5000, cycleDay: 15, loanInterestRate: 10, penaltyRate: 4, joinCode: 'JOIN-KAK010' },
   ]
-
-  const chamas = []
-  for (const s of chamaSpecs) {
-    const chama = await upsertChama(s.chamaCode, {
+  await prisma.chama.createMany({
+    data: chamaSpecs.map((s) => ({
+      chamaCode: s.chamaCode,
       name: s.name,
-      description: `${s.name} - Savings and loans`,
-      joinCode: `JOIN-${s.chamaCode}`,
+      description: s.chamaCode === 'PLATFORM' ? s.description : `${s.name} - Savings and loans`,
+      joinCode: s.joinCode,
       joinMode: s.joinMode,
       isPublic: s.joinMode === 'OPEN',
       contributionAmount: s.contributionAmount,
       cycleDay: s.cycleDay,
       loanInterestRate: s.loanInterestRate,
       penaltyRate: s.penaltyRate,
-    })
-    chamas.push({ ...chama, spec: s })
-  }
-  console.log('✅ 10 chamas created\n')
+    })),
+    skipDuplicates: true,
+  })
+  const chamasById = await prisma.chama.findMany({ orderBy: { createdAt: 'asc' } })
+  // chamas = 10 sacco chamas only (exclude PLATFORM) for contributions/loans/etc.
+  const chamas = chamaSpecs.slice(1).map((spec, idx) => ({ ...chamasById[idx + 1], spec }))
+  console.log('✅ Platform + 10 chamas created\n')
 
-  // ---------- 2. USERS: 120 total — 1 SUPER_ADMIN, 10 chama admins, rest members ----------
+  // ---------- 2. USERS: 120 total — createMany then resolve IDs ----------
+  const treasurerHash = await bcrypt.hash('Treasurer123!', 10)
   const usedEmails = new Set()
-  const users = []
-  const chamaAdmins = [] // 10 users who get ADMIN/CHAIR/TREASURER in at least one chama
+  const userData = []
 
-  // Legacy demo users + demo avatar URLs (super admin, 2 admins, 3 members, treasurer)
-  const legacyAdmin = await upsertUser('admin@chama.com', {
-    fullName: 'System Admin',
-    phone: '254712345678',
-    passwordHash: adminHash,
-    authProvider: 'LOCAL',
-    globalRole: 'SUPER_ADMIN',
-    avatarUrl: avatarUrl('admin.jpg'),
-  })
-  const legacyTreasurer = await upsertUser('treasurer@chama.com', {
-    fullName: 'Treasurer User',
-    phone: '254712345681',
-    passwordHash: await bcrypt.hash('Treasurer123!', 10),
-    authProvider: 'LOCAL',
-    avatarUrl: avatarUrl('treasurer.jpg'),
-  })
-  const legacyMember1 = await upsertUser('member1@chama.com', {
-    fullName: 'John Member',
-    phone: '254712345679',
-    passwordHash,
-    authProvider: 'LOCAL',
-    avatarUrl: avatarUrl('member1.jpg'),
-  })
-  const legacyMember2 = await upsertUser('member2@chama.com', {
-    fullName: 'Jane Member',
-    phone: '254712345680',
-    passwordHash,
-    authProvider: 'LOCAL',
-    avatarUrl: avatarUrl('member2.jpg'),
-  })
-  const legacyMember3 = await upsertUser('member3@chama.com', {
-    fullName: 'Peter Ochieng',
-    phone: '254712345682',
-    passwordHash,
-    authProvider: 'LOCAL',
-    avatarUrl: avatarUrl('member1.jpg'), // reuse; only 4 avatar files
-  })
-  chamaAdmins.push(legacyAdmin, legacyTreasurer)
-  users.push(legacyAdmin, legacyTreasurer, legacyMember1, legacyMember2, legacyMember3)
+  // Legacy 5
+  userData.push(
+    { email: 'admin@chama.com', fullName: 'System Admin', phone: '254712345678', passwordHash: adminHash, authProvider: 'LOCAL', globalRole: 'SUPER_ADMIN', avatarUrl: avatarUrl('admin.jpg') },
+    { email: 'treasurer@chama.com', fullName: 'Treasurer User', phone: '254712345681', passwordHash: treasurerHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('treasurer.jpg') },
+    { email: 'member1@chama.com', fullName: 'John Member', phone: '254712345679', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
+    { email: 'member2@chama.com', fullName: 'Jane Member', phone: '254712345680', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member2.jpg') },
+    { email: 'member3@chama.com', fullName: 'Peter Ochieng', phone: '254712345682', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
+  )
   usedEmails.add('admin@chama.com')
   usedEmails.add('treasurer@chama.com')
   usedEmails.add('member1@chama.com')
   usedEmails.add('member2@chama.com')
   usedEmails.add('member3@chama.com')
 
-  // 8 more chama admins (10 total with admin + treasurer)
   for (let i = 0; i < 8; i++) {
     const first = pick(FIRST_NAMES)
     const last = pick(LAST_NAMES)
     const email = `admin${i + 1}.${last.toLowerCase()}@chama.co.ke`
     if (usedEmails.has(email)) continue
     usedEmails.add(email)
-    const u = await upsertUser(email, {
+    userData.push({
+      email,
       fullName: `${first} ${last}`,
       phone: phone254(),
       passwordHash: adminHash,
       authProvider: 'LOCAL',
       globalRole: 'USER',
     })
-    chamaAdmins.push(u)
-    users.push(u)
   }
-
-  // Rest are members (120 - 5 legacy - 8 = 107 more)
-  const memberCount = 107
-  for (let i = 0; i < memberCount; i++) {
+  for (let i = 0; i < 107; i++) {
     const first = pick(FIRST_NAMES)
     const last = pick(LAST_NAMES)
     let email = `${first.toLowerCase()}.${last.toLowerCase()}${i}@chama.co.ke`
@@ -214,53 +169,69 @@ async function main() {
       email = `${first.toLowerCase()}.${last.toLowerCase()}${i}.${Math.floor(rand() * 100)}@chama.co.ke`
     }
     usedEmails.add(email)
-    const u = await upsertUser(email, {
+    userData.push({
+      email,
       fullName: `${first} ${last}`,
       phone: phone254(),
       passwordHash,
       authProvider: 'LOCAL',
     })
-    users.push(u)
   }
+
+  await prisma.user.createMany({ data: userData, skipDuplicates: true })
+  const allUsers = await prisma.user.findMany({ where: { email: { in: userData.map((u) => u.email) } } })
+  const userByEmail = Object.fromEntries(allUsers.map((u) => [u.email, u]))
+  const users = userData.map((u) => userByEmail[u.email])
+  const legacyAdmin = userByEmail['admin@chama.com']
+  const legacyTreasurer = userByEmail['treasurer@chama.com']
+  const legacyMember1 = userByEmail['member1@chama.com']
+  const legacyMember2 = userByEmail['member2@chama.com']
+  const legacyMember3 = userByEmail['member3@chama.com']
+  const chamaAdmins = [legacyAdmin, legacyTreasurer, ...users.slice(5, 13)]
   console.log(`✅ ${users.length} users (1 SUPER_ADMIN, 10 chama admins, ${users.length - 11} members)\n`)
 
-  // ---------- 3. MEMBERSHIPS (spread across chamas, varied roles) ----------
+  // ---------- 3. MEMBERSHIPS — createMany ----------
   const adminRoles = ['ADMIN', 'TREASURER', 'CHAIR']
   const memberPool = users.filter((u) => !chamaAdmins.includes(u))
+  const membershipData = []
   for (let c = 0; c < chamas.length; c++) {
-    const chama = chamas[c].id
+    const chamaId = chamas[c].id
     const chamaCode = chamas[c].chamaCode
     const nAdmins = 2 + (c % 3)
     const nMembers = 8 + Math.floor(rand() * 8)
     for (let a = 0; a < nAdmins; a++) {
       const admin = chamaAdmins[(c * 2 + a) % chamaAdmins.length]
-      await upsertMembership(admin.id, chama, pick(adminRoles))
+      membershipData.push({ userId: admin.id, chamaId, role: pick(adminRoles), isActive: true })
     }
     const shuffled = [...memberPool].sort(() => rand() - 0.5)
     for (let i = 0; i < nMembers; i++) {
       const u = shuffled[i % shuffled.length]
       const role = i < 2 ? pick(['AUDITOR', 'MEMBER']) : 'MEMBER'
-      await upsertMembership(u.id, chama, role)
+      membershipData.push({ userId: u.id, chamaId, role, isActive: true })
     }
   }
-  // Legacy demo: admin in all chamas; treasurer + member1/2/3 in KRU001, NBO002
   for (const ch of chamas) {
-    await upsertMembership(legacyAdmin.id, ch.id, 'ADMIN')
+    membershipData.push({ userId: legacyAdmin.id, chamaId: ch.id, role: 'ADMIN', isActive: true })
   }
   for (const ch of chamas) {
     if (ch.chamaCode === 'KRU001' || ch.chamaCode === 'NBO002') {
-      await upsertMembership(legacyTreasurer.id, ch.id, 'TREASURER')
-      await upsertMembership(legacyMember1.id, ch.id, 'MEMBER')
-      await upsertMembership(legacyMember2.id, ch.id, 'MEMBER')
-      await upsertMembership(legacyMember3.id, ch.id, 'MEMBER')
+      membershipData.push({ userId: legacyTreasurer.id, chamaId: ch.id, role: 'TREASURER', isActive: true })
+      membershipData.push({ userId: legacyMember1.id, chamaId: ch.id, role: 'MEMBER', isActive: true })
+      membershipData.push({ userId: legacyMember2.id, chamaId: ch.id, role: 'MEMBER', isActive: true })
+      membershipData.push({ userId: legacyMember3.id, chamaId: ch.id, role: 'MEMBER', isActive: true })
     }
   }
+  await prisma.membership.createMany({ data: membershipData, skipDuplicates: true })
   console.log('✅ Memberships with varied roles (incl. legacy demo users)\n')
 
-  // ---------- 3b. JOIN REQUESTS for APPROVAL chamas: PENDING, some APPROVED/REJECTED ----------
+  // ---------- 3b. JOIN REQUESTS — createMany; then notifications + email jobs + extra memberships ----------
   const approvalChamas = chamas.filter((c) => c.spec.joinMode === 'APPROVAL')
   const baseYearAgo = new Date()
   baseYearAgo.setFullYear(baseYearAgo.getFullYear() - 1)
+  const joinRequestData = []
+  const joinRequestNotifications = []
+  const joinRequestEmailJobs = []
+  const approvedMemberships = []
   for (const ch of approvalChamas) {
     const existingMemberIds = new Set(
       (await prisma.membership.findMany({ where: { chamaId: ch.id }, select: { userId: true } })).map((m) => m.userId)
@@ -271,62 +242,67 @@ async function main() {
       const u = toRequest[i]
       const createdAt = new Date(baseYearAgo.getTime() + rand() * 360 * 24 * 60 * 60 * 1000)
       const status = rand() < 0.5 ? 'PENDING' : rand() < 0.6 ? 'APPROVED' : 'REJECTED'
-      const jr = await prisma.joinRequest.upsert({
-        where: { chamaId_userId: { chamaId: ch.id, userId: u.id } },
-        update: { status, createdAt, updatedAt: createdAt },
-        create: { chamaId: ch.id, userId: u.id, status, createdAt, updatedAt: createdAt },
-      })
+      joinRequestData.push({ chamaId: ch.id, userId: u.id, status, createdAt, updatedAt: createdAt })
       if (status === 'APPROVED') {
-        await upsertMembership(u.id, ch.id, 'MEMBER')
-        const actionUrl = `/member/${ch.id}/dashboard`
-        await prisma.notification.create({
-          data: {
-            userId: u.id,
-            chamaId: ch.id,
-            type: 'JOIN_APPROVED',
-            title: 'Join request approved',
-            message: `You have been approved to join ${ch.name}.`,
-            actionUrl,
-            isRead: rand() < 0.4,
-            createdAt,
-          },
+        approvedMemberships.push({ userId: u.id, chamaId: ch.id, role: 'MEMBER', isActive: true })
+        joinRequestNotifications.push({
+          userId: u.id,
+          chamaId: ch.id,
+          type: 'JOIN_APPROVED',
+          title: 'Join request approved',
+          message: `You have been approved to join ${ch.name}.`,
+          actionUrl: `/member/${ch.id}/dashboard`,
+          isRead: rand() < 0.4,
+          createdAt,
         })
-        await prisma.emailJob.create({
-          data: {
-            to: u.email,
-            subject: `Approved: ${ch.name}`,
-            html: `<p>You have been approved to join ${ch.name}.</p>`,
-            status: 'SENT',
-            attempts: 1,
-            sendAfter: createdAt,
-            sentAt: createdAt,
-            createdAt,
-            updatedAt: createdAt,
-          },
+        joinRequestEmailJobs.push({
+          to: u.email,
+          subject: `Approved: ${ch.name}`,
+          html: `<p>You have been approved to join ${ch.name}.</p>`,
+          status: 'SENT',
+          attempts: 1,
+          sendAfter: createdAt,
+          sentAt: createdAt,
+          createdAt,
+          updatedAt: createdAt,
         })
       } else if (status === 'REJECTED') {
-        await prisma.notification.create({
-          data: {
-            userId: u.id,
-            chamaId: ch.id,
-            type: 'JOIN_REJECTED',
-            title: 'Join request declined',
-            message: `Your request to join ${ch.name} was declined.`,
-            actionUrl: `/chamas/search`,
-            isRead: rand() < 0.5,
-            createdAt,
-          },
+        joinRequestNotifications.push({
+          userId: u.id,
+          chamaId: ch.id,
+          type: 'JOIN_REJECTED',
+          title: 'Join request declined',
+          message: `Your request to join ${ch.name} was declined.`,
+          actionUrl: `/chamas/search`,
+          isRead: rand() < 0.5,
+          createdAt,
         })
       }
     }
   }
+  await prisma.joinRequest.createMany({ data: joinRequestData, skipDuplicates: true })
+  if (approvedMemberships.length) {
+    await prisma.membership.createMany({ data: approvedMemberships, skipDuplicates: true })
+  }
+  if (joinRequestNotifications.length) {
+    for (let i = 0; i < joinRequestNotifications.length; i += 200) {
+      await prisma.notification.createMany({ data: joinRequestNotifications.slice(i, i + 200) })
+    }
+  }
+  if (joinRequestEmailJobs.length) {
+    for (let i = 0; i < joinRequestEmailJobs.length; i += 100) {
+      await prisma.emailJob.createMany({ data: joinRequestEmailJobs.slice(i, i + 100) })
+    }
+  }
   console.log('✅ Join requests (PENDING + APPROVED/REJECTED) with notifications and emails\n')
 
-  // ---------- 4. CONTRIBUTIONS (12 months) — 70–90% MPESA, rest CASH ----------
+  // ---------- 4. CONTRIBUTIONS (12 months) — batched createMany ----------
+  console.log('Seeding contributions (12 months)...')
   const twelveMonthsAgo = new Date()
   twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
 
-  for (const ch of chamas) {
+  for (let chIdx = 0; chIdx < chamas.length; chIdx++) {
+    const ch = chamas[chIdx]
     const chamaId = ch.id
     const amountBase = ch.spec.contributionAmount || 5000
     const mems = await prisma.membership.findMany({
@@ -334,9 +310,9 @@ async function main() {
       include: { user: true },
     })
 
-    await prisma.transaction.deleteMany({ where: { chamaId } })
-    await prisma.contribution.deleteMany({ where: { chamaId } })
-    await prisma.mpesaPayment.deleteMany({ where: { chamaId } })
+    const contribBatch = []
+    const txBatch = []
+    const mpesaBatch = []
 
     for (let m = 0; m < 12; m++) {
       const monthDate = new Date(twelveMonthsAgo)
@@ -350,53 +326,52 @@ async function main() {
         const method = rand() < 0.82 ? 'MPESA' : 'CASH'
         const ref = method === 'MPESA' ? `MP${ch.chamaCode}${m}${mem.userId.slice(0, 8)}${rand().toString(36).slice(2, 8)}` : null
 
-        await prisma.contribution.create({
-          data: {
-            chamaId,
-            userId: mem.userId,
-            amount: amt,
-            method,
-            reference: ref,
-            paidAt: monthDate,
-          },
-        })
-        await prisma.transaction.create({
-          data: {
-            chamaId,
-            userId: mem.userId,
-            type: 'CONTRIBUTION',
-            direction: 'IN',
-            amount: amt,
-            description: `Contribution - ${mem.user.fullName}`,
-            ref,
-            createdAt: monthDate,
-          },
+        contribBatch.push({ chamaId, userId: mem.userId, amount: amt, method, reference: ref, paidAt: monthDate })
+        txBatch.push({
+          chamaId,
+          userId: mem.userId,
+          type: 'CONTRIBUTION',
+          direction: 'IN',
+          amount: amt,
+          description: `Contribution - ${mem.user.fullName}`,
+          ref,
+          createdAt: monthDate,
         })
         if (method === 'MPESA') {
-          await prisma.mpesaPayment.create({
-            data: {
-              chamaId,
-              userId: mem.userId,
-              purpose: 'CONTRIBUTION',
-              amount: amt,
-              phone: mem.user.phone || '254700000000',
-              status: 'SUCCESS',
-              mpesaReceiptNo: ref,
-              resultCode: '0',
-              resultDesc: 'Success',
-              createdAt: monthDate,
-              updatedAt: monthDate,
-            },
+          mpesaBatch.push({
+            chamaId,
+            userId: mem.userId,
+            purpose: 'CONTRIBUTION',
+            amount: amt,
+            phone: mem.user.phone || '254700000000',
+            status: 'SUCCESS',
+            mpesaReceiptNo: ref,
+            resultCode: '0',
+            resultDesc: 'Success',
+            createdAt: monthDate,
+            updatedAt: monthDate,
           })
         }
       }
     }
+
+    for (let i = 0; i < contribBatch.length; i += 200) {
+      await prisma.contribution.createMany({ data: contribBatch.slice(i, i + 200) })
+      await prisma.transaction.createMany({ data: txBatch.slice(i, i + 200) })
+    }
+    for (let i = 0; i < mpesaBatch.length; i += 200) {
+      await prisma.mpesaPayment.createMany({ data: mpesaBatch.slice(i, i + 200) })
+    }
+    console.log(`  Chama ${chIdx + 1}/${chamas.length} (${ch.chamaCode}) contributions done`)
   }
   console.log('✅ Contributions (12 months) + Transactions + Mpesa SUCCESS\n')
 
-  // ---------- 4b. THIS CYCLE (current month) contributions ----------
+  // ---------- 4b. THIS CYCLE (current month) contributions — batched ----------
   const now = new Date()
   const thisCycleDate = new Date(now.getFullYear(), now.getMonth(), 15)
+  const thisCycleContrib = []
+  const thisCycleTx = []
+  const thisCycleMpesa = []
   for (const ch of chamas) {
     const chamaId = ch.id
     const amountBase = ch.spec.contributionAmount || 5000
@@ -409,45 +384,48 @@ async function main() {
       const amount = Math.max(Math.floor(amountBase * 0.8), amt)
       const method = rand() < 0.8 ? 'MPESA' : 'CASH'
       const ref = method === 'MPESA' ? `MPCYCLE${ch.chamaCode}${mem.userId.slice(0, 8)}` : null
-      await prisma.contribution.create({
-        data: { chamaId, userId: mem.userId, amount, method, reference: ref, paidAt: thisCycleDate },
-      })
-      await prisma.transaction.create({
-        data: {
-          chamaId,
-          userId: mem.userId,
-          type: 'CONTRIBUTION',
-          direction: 'IN',
-          amount,
-          description: `Contribution (this cycle) - ${mem.user.fullName}`,
-          ref,
-          createdAt: thisCycleDate,
-        },
+      thisCycleContrib.push({ chamaId, userId: mem.userId, amount, method, reference: ref, paidAt: thisCycleDate })
+      thisCycleTx.push({
+        chamaId,
+        userId: mem.userId,
+        type: 'CONTRIBUTION',
+        direction: 'IN',
+        amount,
+        description: `Contribution (this cycle) - ${mem.user.fullName}`,
+        ref,
+        createdAt: thisCycleDate,
       })
       if (method === 'MPESA') {
-        await prisma.mpesaPayment.create({
-          data: {
-            chamaId,
-            userId: mem.userId,
-            purpose: 'CONTRIBUTION',
-            amount,
-            phone: mem.user.phone || '254700000000',
-            status: 'SUCCESS',
-            mpesaReceiptNo: ref,
-            resultCode: '0',
-            resultDesc: 'Success',
-            createdAt: thisCycleDate,
-            updatedAt: thisCycleDate,
-          },
+        thisCycleMpesa.push({
+          chamaId,
+          userId: mem.userId,
+          purpose: 'CONTRIBUTION',
+          amount,
+          phone: mem.user.phone || '254700000000',
+          status: 'SUCCESS',
+          mpesaReceiptNo: ref,
+          resultCode: '0',
+          resultDesc: 'Success',
+          createdAt: thisCycleDate,
+          updatedAt: thisCycleDate,
         })
       }
     }
   }
+  if (thisCycleContrib.length) {
+    await prisma.contribution.createMany({ data: thisCycleContrib })
+    await prisma.transaction.createMany({ data: thisCycleTx })
+  }
+  if (thisCycleMpesa.length) {
+    await prisma.mpesaPayment.createMany({ data: thisCycleMpesa })
+  }
   console.log('✅ This cycle (current month) contributions\n')
 
   // ---------- 5. LOANS (35–50% of members) + REPAYMENTS + DISBURSEMENT ----------
+  console.log('Seeding loans and repayments...')
   const loanStatuses = ['PENDING', 'ACTIVE', 'ACTIVE', 'PAID', 'PAID', 'LATE', 'REJECTED']
-  for (const ch of chamas) {
+  for (let chIdx = 0; chIdx < chamas.length; chIdx++) {
+    const ch = chamas[chIdx]
     const chamaId = ch.id
     const rate = (ch.spec.loanInterestRate || 10) / 100
     const mems = await prisma.membership.findMany({
@@ -459,13 +437,6 @@ async function main() {
       const one = mems[0]
       if (one) loanTakers.push(one)
     }
-
-    await prisma.repayment.deleteMany({ where: { chamaId } })
-    await prisma.loan.deleteMany({ where: { chamaId } })
-    await prisma.mpesaPayment.deleteMany({ where: { chamaId, purpose: 'REPAYMENT' } })
-    await prisma.mpesaPayment.deleteMany({ where: { chamaId, purpose: 'LOAN_DISBURSE' } })
-    await prisma.transaction.deleteMany({ where: { chamaId, direction: 'OUT' } })
-    await prisma.transaction.deleteMany({ where: { chamaId, type: 'REPAYMENT' } })
 
     for (const mem of loanTakers) {
       const principal = (ch.spec.contributionAmount || 5000) * (5 + Math.floor(rand() * 15))
@@ -580,10 +551,12 @@ async function main() {
         await prisma.loan.update({ where: { id: loan.id }, data: { status: 'LATE' } })
       }
     }
+    console.log(`  Chama ${chIdx + 1}/${chamas.length} loans done`)
   }
   console.log('✅ Loans + repayments + LOAN_DISBURSE (Mpesa + Transaction)\n')
 
   // ---------- 5b. THIS CYCLE loans + repayments ----------
+  console.log('Seeding this cycle loans...')
   for (const ch of chamas) {
     const chamaId = ch.id
     const rate = (ch.spec.loanInterestRate || 10) / 100
@@ -672,6 +645,7 @@ async function main() {
   console.log('✅ This cycle loans + repayments\n')
 
   // ---------- 6. MPESA FAILED / TIMEOUT / PENDING (no Contribution/Repayment) ----------
+  console.log('Seeding Mpesa failed/pending records...')
   const mpesaFailStatuses = ['FAILED', 'FAILED', 'TIMEOUT', 'PENDING']
   for (const ch of chamas) {
     const mems = await prisma.membership.findMany({ where: { chamaId: ch.id, isActive: true }, include: { user: true }, take: 5 })
@@ -697,6 +671,7 @@ async function main() {
   console.log('✅ Mpesa FAILED/TIMEOUT/PENDING records (no contributions)\n')
 
   // ---------- 6b. NOTIFICATIONS (2000+) — all types, spread over 12 months ----------
+  console.log('Seeding notifications (2000+)...')
   await prisma.notification.deleteMany({})
   const yearMs = 365 * 24 * 60 * 60 * 1000
   const notifBase = new Date()
@@ -774,6 +749,7 @@ async function main() {
   console.log(`✅ ${emailBatch.length} email jobs (SENT/FAILED/PENDING)\n`)
 
   // ---------- 7. AUDIT LOGS (rich seed data) ----------
+  console.log('Seeding audit logs...')
   for (const ch of chamas) {
     const chamaId = ch.id
     await prisma.auditLog.deleteMany({ where: { chamaId } })
@@ -992,11 +968,13 @@ async function main() {
   console.log('')
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Seed failed:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
+runWithRetry(main)
+  .then(async () => {
+    console.log('Seed completed')
     await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error('Seed failed:', e)
+    await prisma.$disconnect()
+    process.exit(1)
   })

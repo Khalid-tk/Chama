@@ -31,10 +31,10 @@ export function errorHandler(err, req, res, next) {
     })
   }
 
-  if (err.message === 'Not allowed by CORS') {
+  if (err.message && err.message.startsWith('Not allowed by CORS')) {
     return res.status(403).json({
       success: false,
-      message: 'Not allowed by CORS',
+      message: err.message,
     })
   }
 

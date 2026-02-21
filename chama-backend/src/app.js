@@ -8,29 +8,47 @@ import { errorHandler, notFoundHandler } from './middleware/error.js'
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://chama-eta.vercel.app',
   'https://chama-1e62.vercel.app',
-  'https://chama-1e62-bgkdedwwi-khalid-tks-projects.vercel.app',
-  'https://chama-1e62-5v2fwl8fd-khalid-tks-projects.vercel.app',
 ]
 
 const corsOptions = {
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true)
-    if (allowedOrigins.includes(origin)) return cb(null, true)
-    return cb(null, false)
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true)
+    }
+
+    return callback(new Error('Not allowed by CORS: ' + origin))
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204,
 }
 
 const app = express()
 
-// CORS before all routes and auth so OPTIONS preflight gets CORS headers from cors()
+// Global CORS – MUST be first so OPTIONS preflight gets CORS headers from cors() (no manual 204)
 app.use(cors(corsOptions))
 app.options('*', cors(corsOptions))
 
-// Serve uploaded files (avatars) at /uploads - use process.cwd() for dev and production (e.g. Render)
+// JSON parser immediately after CORS
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// COOP for Google Sign-in popups
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+  next()
+})
+
+// Serve uploaded files (avatars)
 const uploadsPath = path.join(process.cwd(), 'uploads')
 app.use('/uploads', express.static(uploadsPath))
 
@@ -40,14 +58,9 @@ app.use(
   })
 )
 
-// Logging
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'))
 }
-
-// Body parsing
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -59,13 +72,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// Temporary: debug CORS – GET from Vercel origin to verify Access-Control-* headers are present
+// Debug CORS – call from Vercel origin to verify Access-Control-* headers in production
 app.get('/api/debug/cors', (req, res) => {
   res.json({
     ok: true,
-    message: 'CORS debug',
     origin: req.headers.origin || null,
-    timestamp: new Date().toISOString(),
   })
 })
 

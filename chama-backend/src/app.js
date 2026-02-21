@@ -6,41 +6,29 @@ import morgan from 'morgan'
 import routes from './routes/index.js'
 import { errorHandler, notFoundHandler } from './middleware/error.js'
 
-// Strict CORS allowlist (no wildcard). Add production frontend URLs here or via CORS_ORIGIN env.
-// Google Sign-In "origin not allowed" must be fixed in Google Cloud Console by adding the Vercel
-// domain to Authorized JavaScript origins for your OAuth client.
-const DEFAULT_ALLOWED_ORIGINS = [
+const allowedOrigins = [
   'http://localhost:5173',
   'https://chama-1e62.vercel.app',
   'https://chama-1e62-bgkdedwwi-khalid-tks-projects.vercel.app',
   'https://chama-1e62-5v2fwl8fd-khalid-tks-projects.vercel.app',
 ]
 
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
-  : DEFAULT_ALLOWED_ORIGINS
-
-function corsOrigin(origin, callback) {
-  if (!origin) return callback(null, true)
-  if (allowedOrigins.includes(origin)) return callback(null, true)
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn('CORS rejected origin:', origin)
-  }
-  callback(new Error('Not allowed by CORS'))
-}
-
 const corsOptions = {
-  origin: corsOrigin,
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true)
+    if (allowedOrigins.includes(origin)) return cb(null, true)
+    return cb(null, false)
+  },
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }
 
 const app = express()
 
-// CORS must be first so OPTIONS preflight always succeeds before any auth/rate-limit/routes
-app.options('*', cors(corsOptions))
+// CORS before all routes and auth so OPTIONS preflight gets CORS headers from cors()
 app.use(cors(corsOptions))
+app.options('*', cors(corsOptions))
 
 // Serve uploaded files (avatars) at /uploads - use process.cwd() for dev and production (e.g. Render)
 const uploadsPath = path.join(process.cwd(), 'uploads')
@@ -71,7 +59,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
-// API routes
+// Temporary: debug CORS – GET from Vercel origin to verify Access-Control-* headers are present
+app.get('/api/debug/cors', (req, res) => {
+  res.json({
+    ok: true,
+    message: 'CORS debug',
+    origin: req.headers.origin || null,
+    timestamp: new Date().toISOString(),
+  })
+})
+
+// API routes (404 handler is after this)
 app.use('/api', routes)
 
 // Error handling

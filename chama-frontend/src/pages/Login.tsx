@@ -12,7 +12,7 @@
  *   to the OAuth 2.0 Client ID under "Authorized JavaScript origins".
  * - From our API: Backend now sends Cross-Origin-Resource-Policy: cross-origin so the SPA can call it.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, AlertCircle } from 'lucide-react'
 import { BrandLogo } from '../components/BrandLogo'
@@ -36,7 +36,7 @@ export function Login() {
     setLoading(true)
 
     try {
-      const response = await api.post('/api/auth/login', { email, password })
+      const response = await api.post('/auth/login', { email, password })
       const { token, user, memberships } = response.data.data
 
       login(token, user, memberships)
@@ -60,7 +60,7 @@ export function Login() {
     setError('')
 
     try {
-      const response = await api.post('/api/auth/google', {
+      const response = await api.post('/auth/google', {
         idToken: credentialResponse.credential,
       })
       // Backend returns { success, data: { token, user, memberships } }
@@ -87,6 +87,11 @@ export function Login() {
   }
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
+  // Test proxy: call same-origin /api/health to confirm Vercel rewrite works
+  useEffect(() => {
+    api.get('/health').then((r) => console.log('[Login] API health:', r.data)).catch((e) => console.warn('[Login] API health failed:', e.message))
+  }, [])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F6F7FB] p-4 overflow-x-hidden">

@@ -36,7 +36,7 @@ export function Register() {
     setLoading(true)
 
     try {
-      const response = await api.post('/api/auth/register', {
+      const response = await api.post('/auth/register', {
         fullName,
         email,
         phone: phone || undefined,
@@ -65,7 +65,7 @@ export function Register() {
     setError('')
 
     try {
-      const response = await api.post('/api/auth/google', {
+      const response = await api.post('/auth/google', {
         idToken: credentialResponse.credential,
       })
       const { token, user, memberships } = response.data.data

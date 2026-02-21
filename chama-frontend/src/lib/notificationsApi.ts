@@ -16,15 +16,15 @@ export async function fetchNotifications(params?: { unread?: boolean; limit?: nu
   if (params?.unread) q.set('unread', 'true')
   if (params?.limit) q.set('limit', String(params.limit))
   const res = await api.get<{ success: boolean; data: ApiNotification[] }>(
-    `/api/notifications${q.toString() ? `?${q.toString()}` : ''}`
+    `/notifications${q.toString() ? `?${q.toString()}` : ''}`
   )
   return res.data.data ?? []
 }
 
 export async function markNotificationRead(id: string): Promise<void> {
-  await api.patch(`/api/notifications/${id}/read`)
+  await api.patch(`/notifications/${id}/read`)
 }
 
 export async function markAllNotificationsRead(): Promise<void> {
-  await api.patch('/api/notifications/read-all')
+  await api.patch('/notifications/read-all')
 }

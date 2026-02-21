@@ -34,7 +34,7 @@ export function SuperAudit() {
 
   const loadLogs = async () => {
     try {
-      const response = await api.get(`/api/super/audit?page=${page}&limit=50`)
+      const response = await api.get(`/super/audit?page=${page}&limit=50`)
       setLogs(response.data.data.logs || [])
       setTotalPages(response.data.data.pagination?.pages || 1)
     } catch (error) {

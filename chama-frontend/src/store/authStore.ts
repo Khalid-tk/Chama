@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState>()(
       },
       refreshMemberships: async () => {
         try {
-          const response = await api.get('/api/auth/me')
+          const response = await api.get('/auth/me')
           const data = response.data.data
           set({
             user: {

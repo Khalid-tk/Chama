@@ -37,7 +37,7 @@ export function AcceptInvite() {
 
     // Fetch invite preview
     api
-      .get('/api/invites/preview', { params: { token } })
+      .get('/invites/preview', { params: { token } })
       .then((res) => {
         setInviteData(res.data.data)
         setError('')
@@ -63,7 +63,7 @@ export function AcceptInvite() {
     setError('')
 
     try {
-      const res = await api.post('/api/invites/accept', { token })
+      const res = await api.post('/invites/accept', { token })
       const { chamaId, role } = res.data.data
 
       // Refresh memberships

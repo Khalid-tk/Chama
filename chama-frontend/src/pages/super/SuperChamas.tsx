@@ -25,7 +25,7 @@ export function SuperChamas() {
 
   const loadChamas = async () => {
     try {
-      const response = await api.get('/api/super/chamas')
+      const response = await api.get('/super/chamas')
       setChamas(response.data.data || [])
     } catch (error) {
       console.error('Failed to load chamas:', error)

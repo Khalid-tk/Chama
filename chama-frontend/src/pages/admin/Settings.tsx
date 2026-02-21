@@ -90,7 +90,7 @@ export function AdminSettings() {
     setChangingPassword(true)
     setPasswordMessage(null)
     try {
-      await api.post('/api/auth/change-password', { currentPassword, newPassword })
+      await api.post('/auth/change-password', { currentPassword, newPassword })
       setPasswordMessage({ type: 'success', text: 'Password changed successfully!' })
       setCurrentPassword('')
       setNewPassword('')

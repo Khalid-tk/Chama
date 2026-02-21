@@ -89,6 +89,8 @@ export async function processCallbackByCheckoutRequestId(checkoutRequestId, resu
   return { updatedPayment }
 }
 
+const MPESA_DEMO_MODE = process.env.MPESA_DEMO_MODE === 'true'
+
 export async function initiateStkPush(req, res, next) {
   let payment = null
   try {
@@ -106,6 +108,50 @@ export async function initiateStkPush(req, res, next) {
         status: 'PENDING',
       },
     })
+
+    if (MPESA_DEMO_MODE) {
+      const ts = Date.now()
+      const merchantRequestId = `demo-${ts}`
+      const checkoutRequestId = `demo-${ts}`
+
+      const updatedPayment = await prisma.mpesaPayment.update({
+        where: { id: payment.id },
+        data: {
+          checkoutRequestId,
+          merchantRequestId,
+        },
+      })
+
+      const stkResponse = {
+        MerchantRequestID: merchantRequestId,
+        CheckoutRequestID: checkoutRequestId,
+        ResponseCode: '0',
+        ResponseDescription: 'Success. Request accepted for processing',
+        CustomerMessage: 'Success. Request accepted',
+      }
+
+      res.json({
+        success: true,
+        message: 'STK push initiated. Please check your phone.',
+        data: {
+          id: updatedPayment.id,
+          payment: updatedPayment,
+          safaricom: stkResponse,
+          demoMode: true,
+        },
+      })
+
+      setTimeout(async () => {
+        try {
+          await processCallbackByCheckoutRequestId(checkoutRequestId, 0, 'DEMO123456')
+          console.log('MPESA DEMO MODE — Payment simulated successfully')
+        } catch (err) {
+          console.error('MPESA DEMO MODE — Simulated callback failed:', err)
+        }
+      }, 2000)
+
+      return
+    }
 
     const { config } = await import('../config/env.js')
     const callbackUrl = config.mpesa.callbackUrl

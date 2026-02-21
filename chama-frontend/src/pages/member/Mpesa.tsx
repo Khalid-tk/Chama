@@ -8,6 +8,7 @@ import { Badge } from '../../components/ui/Badge'
 import { formatKES } from '../../lib/format'
 import { RecentMpesaPayments } from '../../components/mpesa/RecentMpesaPayments'
 import { useChamaId } from '../../hooks/useChamaId'
+import { useToast } from '../../hooks/useToast'
 import api, { chamaRoute } from '../../lib/api'
 
 type PaymentStatus = 'idle' | 'pending' | 'success' | 'failed'
@@ -15,6 +16,7 @@ type PaymentStatus = 'idle' | 'pending' | 'success' | 'failed'
 export function MemberMpesa() {
   const chamaId = useChamaId()
   const location = useLocation()
+  const { showToast, ToastContainer } = useToast()
   const state = (location.state as { purpose?: 'REPAYMENT'; loanId?: string }) || {}
   const [phoneNumber, setPhoneNumber] = useState('')
   const [amount, setAmount] = useState('')
@@ -100,10 +102,15 @@ export function MemberMpesa() {
       const paymentId = data?.id ?? data?.payment?.id
       const checkoutRequestId =
         data?.safaricom?.CheckoutRequestID ?? data?.payment?.checkoutRequestId
+      const isDemoMode = data?.demoMode === true
 
-      // In dev: if we got a checkout ID (mock or real), simulate callback after short delay so payment completes
+      if (data?.safaricom?.ResponseCode === '0') {
+        showToast('Payment request sent', 'info')
+      }
+
+      // In dev (non-demo): simulate callback so payment completes without Safaricom
       const isDev = import.meta.env.DEV
-      if (isDev && checkoutRequestId) {
+      if (isDev && checkoutRequestId && !isDemoMode) {
         setTimeout(async () => {
           try {
             await api.post('/mpesa/dev/simulate-callback', {
@@ -136,6 +143,9 @@ export function MemberMpesa() {
               clearInterval(pollInterval)
               setStatus('success')
               setPayments(updatedPayments)
+              if (updatedPayment.mpesaReceiptNo === 'DEMO123456') {
+                showToast('Demo payment completed successfully', 'success')
+              }
               setTimeout(() => {
                 setStatus('idle')
                 setPhoneNumber('')
@@ -161,7 +171,7 @@ export function MemberMpesa() {
           console.error('Polling error:', err)
           // Continue polling on error
         }
-      }, 3000) // Poll every 3 seconds
+      }, 2000) // Poll every 2s so demo completion (~2s) is picked up quickly
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to initiate payment')
       setStatus('failed')
@@ -191,6 +201,7 @@ export function MemberMpesa() {
 
   return (
     <div className="space-y-6">
+      <ToastContainer />
       <div>
         <h1 className="text-2xl font-semibold text-slate-800">Mpesa Payments</h1>
         <p className="text-sm text-slate-500">Make payments and view your payment history</p>

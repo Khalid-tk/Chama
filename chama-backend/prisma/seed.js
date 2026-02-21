@@ -161,7 +161,7 @@ async function main() {
       globalRole: 'USER',
     })
   }
-  for (let i = 0; i < 107; i++) {
+  for (let i = 0; i < 207; i++) {
     const first = pick(FIRST_NAMES)
     const last = pick(LAST_NAMES)
     let email = `${first.toLowerCase()}.${last.toLowerCase()}${i}@chama.co.ke`
@@ -198,7 +198,7 @@ async function main() {
     const chamaId = chamas[c].id
     const chamaCode = chamas[c].chamaCode
     const nAdmins = 2 + (c % 3)
-    const nMembers = 8 + Math.floor(rand() * 8)
+    const nMembers = 35 + Math.floor(rand() * 25)
     for (let a = 0; a < nAdmins; a++) {
       const admin = chamaAdmins[(c * 2 + a) % chamaAdmins.length]
       membershipData.push({ userId: admin.id, chamaId, role: pick(adminRoles), isActive: true })
@@ -432,11 +432,19 @@ async function main() {
       where: { chamaId, isActive: true },
       include: { user: true },
     })
-    const loanTakers = mems.filter(() => rand() < 0.42)
-    if (loanTakers.length === 0) {
-      const one = mems[0]
-      if (one) loanTakers.push(one)
+    let loanTakers = mems.filter(() => rand() < 0.55)
+    if (loanTakers.length < 25) {
+      const shuffled = [...mems].sort(() => rand() - 0.5)
+      const needed = 25 - loanTakers.length
+      const used = new Set(loanTakers.map((m) => m.userId))
+      for (const m of shuffled) {
+        if (used.has(m.userId)) continue
+        loanTakers.push(m)
+        used.add(m.userId)
+        if (loanTakers.length >= 25) break
+      }
     }
+    if (loanTakers.length === 0 && mems[0]) loanTakers.push(mems[0])
 
     for (const mem of loanTakers) {
       const principal = (ch.spec.contributionAmount || 5000) * (5 + Math.floor(rand() * 15))
@@ -965,6 +973,19 @@ async function main() {
   console.log('📦 CHAMA CODES: ' + chamas.map((c) => c.chamaCode).join(', '))
   console.log('   Avatars are set for: super admin, 2 admins, 3 members, treasurer.')
   console.log('='.repeat(70))
+  console.log('')
+
+  // ---------- Summary: per-chama counts ----------
+  console.log('📊 Seed summary (per chama):')
+  for (const ch of chamas) {
+    const [members, contributions, loans, repayments] = await Promise.all([
+      prisma.membership.count({ where: { chamaId: ch.id, isActive: true } }),
+      prisma.contribution.count({ where: { chamaId: ch.id } }),
+      prisma.loan.count({ where: { chamaId: ch.id } }),
+      prisma.repayment.count({ where: { chamaId: ch.id } }),
+    ])
+    console.log(`   ${ch.chamaCode}: members=${members}, contributions=${contributions}, loans=${loans}, repayments=${repayments}`)
+  }
   console.log('')
 }
 

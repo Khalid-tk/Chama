@@ -102,6 +102,34 @@ export async function createRepayment(req, res, next) {
       })
     }
 
+    if (loan.status !== 'ACTIVE' && loan.status !== 'LATE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only ACTIVE or LATE loans can be repaid',
+      })
+    }
+
+    const totalPaid = loan.repayments.reduce((sum, r) => sum + r.amount, 0)
+    const outstandingBalance = loan.totalDue - totalPaid
+    if (outstandingBalance <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'This loan is already fully repaid',
+      })
+    }
+    if (amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Amount must be greater than zero',
+      })
+    }
+    if (amount > outstandingBalance) {
+      return res.status(400).json({
+        success: false,
+        message: `Amount cannot exceed outstanding balance (KES ${outstandingBalance.toLocaleString()})`,
+      })
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       // Create repayment
       const repayment = await tx.repayment.create({

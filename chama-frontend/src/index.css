@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+@layer base {
+  html {
+    overflow-x: hidden;
+  }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    @apply antialiased text-slate-800 bg-[#F6F7FB];
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  h1 {
+    @apply text-xl font-semibold sm:text-2xl;
+  }
+  h2 {
+    @apply text-lg font-semibold sm:text-xl;
+  }
+  h3 {
+    @apply text-base font-semibold sm:text-lg;
+  }
+  .amount-cell {
+    @apply min-w-0 break-words;
+  }
+}
+
+@layer utilities {
+  .page-enter {
+    animation: pageEnter 0.2s ease-out;
+  }
+  .page-container {
+    @apply w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-6;
+  }
+  .responsive-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

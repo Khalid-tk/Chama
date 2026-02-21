@@ -1,0 +1,308 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+  TREASURER
+  CHAIR
+  AUDITOR
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  PAID
+  LATE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  TIMEOUT
+}
+
+enum JoinMode {
+  OPEN
+  APPROVAL
+}
+
+enum GlobalRole {
+  USER
+  SUPER_ADMIN
+}
+
+model User {
+  id           String     @id @default(uuid())
+  fullName     String
+  email        String     @unique
+  phone        String?    @unique
+  passwordHash String?
+  googleId     String?    @unique
+  authProvider String     @default("LOCAL")
+  globalRole   GlobalRole @default(USER)
+  avatarUrl    String?
+  avatarKey    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  memberships         Membership[]
+  contributions       Contribution[]
+  loans               Loan[]
+  repayments          Repayment[]
+  transactions        Transaction[]
+  mpesaPayments       MpesaPayment[]
+  auditLogs           AuditLog[] @relation("ActorAuditLogs")
+  joinRequests        JoinRequest[]
+  invitesSent         Invite[] @relation("InviterInvites")
+  passwordResetTokens PasswordResetToken[]
+  notifications       Notification[]
+
+  @@map("users")
+}
+
+model Chama {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  chamaCode         String    @unique
+  joinCode          String?
+  joinMode          JoinMode  @default(OPEN)
+  isPublic          Boolean   @default(false)
+  contributionAmount Int?
+  cycleDay          Int?
+  loanInterestRate  Float?
+  penaltyRate       Float?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  memberships       Membership[]
+  contributions     Contribution[]
+  loans             Loan[]
+  repayments        Repayment[]
+  transactions      Transaction[]
+  mpesaPayments     MpesaPayment[]
+  auditLogs         AuditLog[]
+  joinRequests      JoinRequest[]
+  invites           Invite[]
+  notifications     Notification[]
+
+  @@map("chamas")
+}
+
+model Membership {
+  id        String   @id @default(uuid())
+  userId    String
+  chamaId   String
+  role      Role     @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chama     Chama    @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chamaId])
+  @@map("memberships")
+}
+
+model Contribution {
+  id          String    @id @default(uuid())
+  chamaId     String
+  userId      String
+  amount      Int
+  method      String
+  reference   String?
+  paidAt      DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  chama       Chama     @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("contributions")
+}
+
+model Loan {
+  id          String      @id @default(uuid())
+  chamaId     String
+  userId      String
+  principal   Int
+  interest    Int         @default(0)
+  totalDue    Int
+  status      LoanStatus  @default(PENDING)
+  requestedAt DateTime    @default(now())
+  approvedAt DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  chama       Chama       @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repayments  Repayment[]
+
+  @@map("loans")
+}
+
+model Repayment {
+  id          String    @id @default(uuid())
+  chamaId     String
+  loanId      String
+  userId      String
+  amount      Int
+  method      String
+  reference   String?
+  paidAt      DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+
+  chama       Chama     @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  loan        Loan      @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("repayments")
+}
+
+model Transaction {
+  id          String    @id @default(uuid())
+  chamaId     String
+  userId      String?
+  type        String
+  direction   String    // IN or OUT
+  amount      Int
+  description String?
+  ref         String?
+  createdAt   DateTime  @default(now())
+
+  chama       Chama     @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("transactions")
+}
+
+model MpesaPayment {
+  id                String        @id @default(uuid())
+  chamaId           String
+  userId            String
+  purpose           String        // CONTRIBUTION or REPAYMENT
+  amount            Int
+  phone             String
+  loanId            String?       // For REPAYMENT purpose
+  status            PaymentStatus @default(PENDING)
+  checkoutRequestId String?
+  merchantRequestId String?
+  mpesaReceiptNo    String?
+  resultCode        String?
+  resultDesc        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  chama             Chama         @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("mpesa_payments")
+}
+
+model JoinRequest {
+  id        String   @id @default(uuid())
+  chamaId   String
+  userId    String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chama     Chama    @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chamaId, userId])
+  @@map("join_requests")
+}
+
+model Invite {
+  id             String   @id @default(uuid())
+  chamaId        String
+  email          String
+  role           Role     @default(MEMBER)
+  tokenHash      String
+  expiresAt      DateTime
+  status         String   @default("PENDING") // PENDING/ACCEPTED/EXPIRED/CANCELLED
+  invitedByUserId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  chama          Chama    @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  invitedBy      User     @relation("InviterInvites", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([chamaId, email, status])
+  @@map("invites")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  chamaId   String
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  createdAt DateTime  @default(now())
+
+  chama     Chama    @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  actor     User?    @relation("ActorAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model EmailJob {
+  id        String    @id @default(uuid())
+  to        String
+  subject   String
+  html      String
+  status    String    @default("PENDING") // PENDING | SENT | FAILED
+  attempts  Int       @default(0)
+  lastError String?
+  sendAfter DateTime  @default(now())
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("email_jobs")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  chamaId   String?
+  type      String    // INVITE, JOIN_APPROVED, JOIN_REJECTED, LOAN_APPROVED, LOAN_REJECTED, LOAN_DISBURSED, PAYMENT_SUCCESS, CONTRIBUTION_RECEIVED, REPAYMENT_RECEIVED, ROLE_CHANGED, PASSWORD_RESET, etc.
+  title     String
+  message   String
+  actionUrl String?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chama Chama? @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}

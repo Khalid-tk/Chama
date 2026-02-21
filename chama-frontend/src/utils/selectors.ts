@@ -3,8 +3,6 @@
  * In real app, these would filter by userId from API
  */
 
-import type { Role } from '../store/authStore'
-
 /**
  * Select member's own contributions
  */

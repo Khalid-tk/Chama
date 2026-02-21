@@ -16,7 +16,6 @@ import { useChamaId } from '../../hooks/useChamaId'
 import { chamaRoute } from '../../lib/api'
 import api from '../../lib/api'
 import { Button } from '../../components/ui/Button'
-import { Card, CardHeader, CardContent } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import { ChartCard } from '../../components/charts/ChartCard'
 import { ContributionsTrendChart } from '../../components/charts/ContributionsTrendChart'
@@ -31,7 +30,7 @@ import { ChamaHealthWidget } from '../../components/member/ChamaHealthWidget'
 import { generateMemberInsights } from '../../utils/memberInsights'
 
 export function MemberDashboard() {
-  const { user } = useAuthStore()
+  useAuthStore()
   const chamaId = useChamaId()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -86,6 +85,7 @@ export function MemberDashboard() {
       amount: c.amount,
       date: c.paidAt || c.createdAt,
       method: c.method,
+      status: c.status ?? 'Paid',
     }))
   }, [contributions, loading])
 
@@ -104,10 +104,10 @@ export function MemberDashboard() {
     if (loading) return []
     return transactions.map((t: any) => ({
       id: t.id,
-      type: t.type,
+      type: t.direction === 'IN' ? 'credit' as const : 'debit' as const,
       amount: t.amount,
       date: t.createdAt,
-      description: t.description,
+      desc: t.desc ?? t.description ?? '',
     }))
   }, [transactions, loading])
 

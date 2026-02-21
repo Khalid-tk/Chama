@@ -5,7 +5,6 @@ import { Card, CardContent } from '../ui/Card'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import type { ApiNotification } from '../../lib/notificationsApi'
-import { fetchNotifications, markNotificationRead, markAllNotificationsRead } from '../../lib/notificationsApi'
 import { formatDateShort } from '../../lib/format'
 
 function formatTimeAgo(date: string): string {

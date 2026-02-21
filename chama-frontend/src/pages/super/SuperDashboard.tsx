@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Users, Building2, FileText, TrendingUp } from 'lucide-react'
+import { Users, Building2, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '../../components/ui/Card'
 import { StatCard } from '../../components/ui/StatCard'
 import api from '../../lib/api'

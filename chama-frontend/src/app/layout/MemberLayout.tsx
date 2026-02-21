@@ -8,7 +8,6 @@ import {
   Smartphone,
   PieChart,
   Menu,
-  PanelLeft,
   PanelLeftClose,
   Building2,
   ChevronDown,
@@ -21,7 +20,6 @@ import { QuickActionsFAB } from '../../components/layout/QuickActionsFAB'
 import { AvatarDropdown } from '../../components/layout/AvatarDropdown'
 import { useAuthStore } from '../../store/authStore'
 import { useChamaStore } from '../../store/chamaStore'
-import api from '../../lib/api'
 import type { ChamaMembership } from '../../store/authStore'
 
 const getMemberNavItems = (chamaId: string) => [
@@ -33,22 +31,13 @@ const getMemberNavItems = (chamaId: string) => [
   { to: `/member/${chamaId}/analytics`, icon: PieChart, label: 'Analytics' },
 ]
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
-
 export function MemberLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showChamaSwitcher, setShowChamaSwitcher] = useState(false)
   const navigate = useNavigate()
   const { chamaId } = useParams<{ chamaId: string }>()
-  const { user, logout, memberships, refreshMemberships } = useAuthStore()
+  const { logout, memberships } = useAuthStore()
   const { activeChama, setActiveChama, clearActiveChama } = useChamaStore()
 
   useEffect(() => {

@@ -17,12 +17,23 @@ export function RoleRoute({ allowedRoles }: RoleRouteProps) {
     return <Navigate to="/login" replace />
   }
 
-  const membershipForChama = memberships?.find((m) => m.chamaId === chamaId)
-  const role = activeChama?.chamaId === chamaId ? activeChama.role : membershipForChama?.role
-
-  if (!chamaId || !membershipForChama) {
+  if (!chamaId) {
     return <Navigate to="/select-chama" replace />
   }
+
+  if (!activeChama || activeChama.chamaId !== chamaId) {
+    const membershipForChama = memberships?.find((m) => m.chamaId === chamaId)
+    if (!membershipForChama) {
+      return <Navigate to="/select-chama" replace />
+    }
+    const role = membershipForChama.role
+    if (!role || !allowedRoles.includes(role)) {
+      return <Navigate to="/unauthorized" replace />
+    }
+    return <Outlet />
+  }
+
+  const role = activeChama.role
 
   if (!role || !allowedRoles.includes(role)) {
     return <Navigate to="/unauthorized" replace />

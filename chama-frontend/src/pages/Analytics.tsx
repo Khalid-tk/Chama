@@ -18,7 +18,6 @@ import {
   TableCell,
 } from '../components/ui/TableShell'
 import { formatKES } from '../lib/format'
-import { Badge } from '../components/ui/Badge'
 import { exportToCSV } from '../utils/csvExport'
 import {
   LineChart,
@@ -283,7 +282,7 @@ export function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
                 <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `KES ${(Number(v) / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: number) => [formatKES(Number(v)), 'Total']} />
+                <Tooltip formatter={(v: number | undefined) => [formatKES(Number(v ?? 0)), 'Total'] as const} />
                 <Line type="monotone" dataKey="totalAmount" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name="Total" />
               </LineChart>
             </ResponsiveContainer>
@@ -357,7 +356,7 @@ export function Analytics() {
                       <Cell key={entry.status} fill={['#f59e0b', '#10b981', '#ef4444', '#2563eb', '#8b5cf6', '#64748b'][i % 6]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v: number) => [v, 'Count']} />
+                  <Tooltip formatter={(v: number | undefined) => [Number(v ?? 0), 'Count'] as const} />
                 </PieChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -395,7 +394,7 @@ export function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
                 <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip formatter={(v: number) => [formatKES(v), '']} />
+                <Tooltip formatter={(v: number | undefined) => [formatKES(Number(v ?? 0)), ''] as const} />
                 <Legend />
                 <Line type="monotone" dataKey="disbursements" stroke="#ef4444" strokeWidth={2} name="Disbursements" dot={{ r: 4 }} />
                 <Line type="monotone" dataKey="repayments" stroke="#10b981" strokeWidth={2} name="Repayments" dot={{ r: 4 }} />
@@ -463,7 +462,7 @@ export function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
                 <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip formatter={(v: number) => [v, 'New members']} />
+                <Tooltip formatter={(v: number | undefined) => [Number(v ?? 0), 'New members'] as const} />
                 <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} name="New members" />
               </BarChart>
             </ResponsiveContainer>
@@ -489,7 +488,7 @@ export function Analytics() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
                 <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `KES ${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: number) => [formatKES(v), '']} />
+                <Tooltip formatter={(v: number | undefined) => [formatKES(Number(v ?? 0)), ''] as const} />
                 <Legend />
                 <Line type="monotone" dataKey="in" stroke="#10b981" strokeWidth={2} name="Inflow" dot={{ r: 4 }} />
                 <Line type="monotone" dataKey="out" stroke="#ef4444" strokeWidth={2} name="Outflow" dot={{ r: 4 }} />

@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
 export function TableShell({
   className = '',
@@ -40,16 +40,17 @@ export function TableRow({
 type TableEmptyProps = {
   colSpan: number
   message?: string
+  children?: ReactNode
 }
 
-export function TableEmpty({ colSpan, message = 'No data found.' }: TableEmptyProps) {
+export function TableEmpty({ colSpan, message = 'No data found.', children }: TableEmptyProps) {
   return (
     <tr>
       <td
         colSpan={colSpan}
         className="py-16 text-center text-slate-500 text-sm"
       >
-        {message}
+        {children ?? message}
       </td>
     </tr>
   )

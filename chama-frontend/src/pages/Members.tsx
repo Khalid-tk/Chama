@@ -316,7 +316,7 @@ export function Members() {
             {loading ? (
               <div className="p-8 text-center text-slate-500">Loading...</div>
             ) : invites.length === 0 ? (
-              <TableEmpty colSpan={5}>No invites found</TableEmpty>
+              <TableEmpty colSpan={5} message="No invites found" />
             ) : (
               <div className="overflow-x-auto">
                 <TableShell>

@@ -43,7 +43,7 @@ function exportToCSV(data: typeof mockReports) {
 export function Reports() {
   const chamaId = useChamaId()
   const [search, setSearch] = useState('')
-  const [reportType, setReportType] = useState<string>('all')
+  const [reportType] = useState<string>('all')
   const [loading, setLoading] = useState(true)
   const [analytics, setAnalytics] = useState<{
     series: {

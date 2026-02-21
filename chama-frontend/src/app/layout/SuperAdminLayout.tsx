@@ -4,7 +4,6 @@ import { LayoutDashboard, Building2, Users, FileText, Menu, Shield, PanelLeftClo
 import { Button } from '../../components/ui/Button'
 import { Drawer } from '../../components/ui/Drawer'
 import { AvatarDropdown } from '../../components/layout/AvatarDropdown'
-import { useAuthStore } from '../../store/authStore'
 
 const superNavItems = [
   { to: '/super/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -122,7 +121,7 @@ export function SuperAdminLayout() {
           </Button>
           <span className="text-sm font-medium text-slate-600 hidden md:block">Super Admin</span>
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-            <Button variant="outline" size="sm" onClick={() => navigate('/select-chama')} className="gap-2 shrink-0">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/select-chama')} className="gap-2 shrink-0">
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Chama dashboard</span>
             </Button>

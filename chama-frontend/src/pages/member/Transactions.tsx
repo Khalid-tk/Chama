@@ -13,7 +13,7 @@ import {
   TableCell,
   TableEmpty,
 } from '../../components/ui/TableShell'
-import { formatKES, formatDateShort, statusChipColor } from '../../lib/format'
+import { formatKES, formatDateShort } from '../../lib/format'
 import { useChamaId } from '../../hooks/useChamaId'
 import { chamaRoute } from '../../lib/api'
 import api from '../../lib/api'

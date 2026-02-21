@@ -29,7 +29,7 @@ export function buildMonthlySeries<T>(
     const dateValue = item[dateField]
     if (!dateValue) return
     
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : (dateValue as Date)
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : (dateValue as unknown as Date)
     const month = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     
     const value = groupFn 

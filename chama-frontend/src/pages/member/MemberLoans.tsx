@@ -27,7 +27,7 @@ export function MemberLoans() {
   const chamaId = useChamaId()
   const { showToast, ToastContainer } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
-  const [loading, setLoading] = useState(true)
+  const [_loading, setLoading] = useState(true)
   const [loans, setLoans] = useState<any[]>([])
   const navigate = useNavigate()
   const [showRequestModal, setShowRequestModal] = useState(false)

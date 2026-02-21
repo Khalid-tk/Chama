@@ -111,7 +111,7 @@ export function ResetPassword() {
             <Input
               label="New Password"
               type="password"
-              icon={Lock}
+              icon={<Lock className="h-4 w-4" />}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -122,7 +122,7 @@ export function ResetPassword() {
             <Input
               label="Confirm Password"
               type="password"
-              icon={Lock}
+              icon={<Lock className="h-4 w-4" />}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required

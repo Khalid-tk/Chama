@@ -11,7 +11,7 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { formatKES, formatDateShort } from '../../lib/format'
 import { exportToCSV } from '../../utils/csvExport'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 type MemberAnalyticsData = {
   kpis: {
@@ -262,7 +262,7 @@ export function MemberAnalytics() {
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
               <YAxis stroke="#64748b" fontSize={12} />
-              <Tooltip formatter={(v: number) => [formatKES(v), 'Repaid']} />
+              <Tooltip formatter={(v: number | undefined) => [formatKES(Number(v ?? 0)), 'Repaid'] as const} />
               <Bar dataKey="totalAmount" fill="#10b981" radius={[4, 4, 0, 0]} name="Repayments" />
             </BarChart>
           </ResponsiveContainer>
@@ -311,7 +311,7 @@ export function MemberAnalytics() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
                   <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip formatter={(v: number) => [v, 'New members']} />
+                  <Tooltip formatter={(v: number | undefined) => [Number(v ?? 0), 'New members'] as const} />
                   <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} name="New members" />
                 </BarChart>
               </ResponsiveContainer>

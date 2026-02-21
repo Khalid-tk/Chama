@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { Plus, Wallet, CreditCard, Smartphone, X } from 'lucide-react'
-import { Button } from './Button'
+import { Plus, X } from 'lucide-react'
 import { Card, CardContent } from './Card'
 
 type FABAction = {

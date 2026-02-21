@@ -13,7 +13,7 @@ import type { ChamaMembership } from '../store/authStore'
 
 export function SelectChama() {
   const navigate = useNavigate()
-  const { user, memberships, logout, refreshMemberships } = useAuthStore()
+  const { user, logout, refreshMemberships } = useAuthStore()
   const [refreshing, setRefreshing] = useState(false)
   const { setActiveChama, clearActiveChama } = useChamaStore()
   const [loading, setLoading] = useState(true)

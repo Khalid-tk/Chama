@@ -104,10 +104,10 @@ export function SuperUsers() {
                     <span>Joined {formatDateShort(user.createdAt)}</span>
                   </div>
                   <div className="flex items-center justify-between pt-2">
-                    <Badge variant={user.globalRole === 'SUPER_ADMIN' ? 'success' : 'info'}>
+                    <Badge variant={user.globalRole === 'SUPER_ADMIN' ? 'success' : 'neutral'}>
                       {user.globalRole}
                     </Badge>
-                    <Badge variant="outline">{user.authProvider}</Badge>
+                    <Badge variant="neutral">{user.authProvider}</Badge>
                   </div>
                   <Button
                     size="sm"

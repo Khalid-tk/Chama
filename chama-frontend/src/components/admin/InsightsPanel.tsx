@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, AlertCircle, Info } from 'lucide-react'
+import { TrendingUp, TrendingDown, Info } from 'lucide-react'
 import { Card, CardHeader, CardContent } from '../ui/Card'
 import type { Insight } from '../../utils/adminInsights'
 

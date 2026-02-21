@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, CheckCircle, XCircle, RefreshCw, Banknote, Sparkles, Smartphone } from 'lucide-react'
+import { CheckCircle, XCircle, RefreshCw, Banknote, Sparkles, Smartphone } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent } from '../components/ui/Card'

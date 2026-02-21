@@ -25,7 +25,6 @@ export function AcceptInvite() {
 
   const isAuthed = useAuthStore((s) => s.isAuthed)
   const user = useAuthStore((s) => s.user)
-  const login = useAuthStore((s) => s.login)
   const refreshMemberships = useAuthStore((s) => s.refreshMemberships)
   const setActiveChama = useChamaStore((s) => s.setActiveChama)
 
@@ -65,16 +64,22 @@ export function AcceptInvite() {
 
     try {
       const res = await api.post('/invites/accept', { token })
-      const { chamaId, chamaName, role } = res.data.data
+      const { chamaId, role } = res.data.data
 
       // Refresh memberships
       await refreshMemberships()
 
-      // Set active chama
+      // Set active chama (map ChamaMembership to ChamaContext)
       const memberships = useAuthStore.getState().memberships
       const membership = memberships.find((m) => m.chamaId === chamaId)
       if (membership) {
-        setActiveChama(membership)
+        setActiveChama({
+          chamaId: membership.chamaId,
+          chamaName: membership.chama?.name ?? '',
+          chamaCode: membership.chama?.chamaCode ?? '',
+          role: membership.role,
+          joinMode: membership.chama?.joinMode,
+        })
       }
 
       setSuccess(true)
@@ -214,7 +219,7 @@ export function AcceptInvite() {
                     as <strong>{user?.email}</strong>.
                   </p>
                 </div>
-                <Button onClick={() => navigate('/login')} variant="outline" className="w-full">
+                <Button onClick={() => navigate('/login')} variant="secondary" className="w-full">
                   Switch Account
                 </Button>
               </div>

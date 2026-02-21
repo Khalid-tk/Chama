@@ -86,7 +86,7 @@ export function SuperChamas() {
                     <Badge variant={chama.joinMode === 'OPEN' ? 'success' : 'warning'}>
                       {chama.joinMode}
                     </Badge>
-                    {chama.isPublic && <Badge variant="info">Public</Badge>}
+                    {chama.isPublic && <Badge variant="neutral">Public</Badge>}
                   </div>
                 </div>
               </CardContent>

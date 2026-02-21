@@ -11,7 +11,6 @@ import {
   PieChart,
   Menu,
   PanelLeftClose,
-  PanelLeft,
   Building2,
   ChevronDown,
   CheckCircle,
@@ -42,15 +41,6 @@ const getAdminNavItems = (chamaId: string) => [
   { to: `/admin/${chamaId}/analytics`, icon: PieChart, label: 'Analytics' },
   { to: `/admin/${chamaId}/audit-log`, icon: ScrollText, label: 'Audit Log' },
 ]
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-}
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)

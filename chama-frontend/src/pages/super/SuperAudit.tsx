@@ -75,7 +75,7 @@ export function SuperAudit() {
                       <div className="mb-2 flex items-center gap-2">
                         <FileText className="h-4 w-4 text-slate-500" />
                         <span className="font-semibold text-slate-800">{log.action}</span>
-                        <Badge variant="outline">{log.entity}</Badge>
+                        <Badge variant="neutral">{log.entity}</Badge>
                       </div>
                       <div className="ml-6 space-y-1 text-sm text-slate-600">
                         {log.actor && (

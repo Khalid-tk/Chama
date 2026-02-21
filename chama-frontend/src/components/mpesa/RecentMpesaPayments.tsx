@@ -1,4 +1,3 @@
-import { Card, CardHeader, CardContent } from '../ui/Card'
 import { Badge } from '../ui/Badge'
 import {
   TableShell,
@@ -9,7 +8,7 @@ import {
   TableCell,
   TableEmpty,
 } from '../ui/TableShell'
-import { formatKES, formatDateShort, statusChipColor } from '../../lib/format'
+import { formatKES, formatDateShort } from '../../lib/format'
 
 type Payment = {
   id: string

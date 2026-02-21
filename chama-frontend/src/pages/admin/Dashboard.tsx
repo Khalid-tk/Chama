@@ -35,10 +35,10 @@ import api, { chamaRoute } from '../../lib/api'
 import { exportToCSV } from '../../utils/csvExport'
 
 const RANGE_MAP: Record<DateRange, string> = {
-  last_1_month: '1m',
+  this_month: '1m',
   last_3_months: '3m',
   last_6_months: '6m',
-  last_12_months: '12m',
+  custom: '12m',
 }
 
 export function AdminDashboard() {

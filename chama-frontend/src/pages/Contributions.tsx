@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent } from '../components/ui/Card'
@@ -14,7 +14,7 @@ import {
   TableCell,
   TableEmpty,
 } from '../components/ui/TableShell'
-import { formatKES, formatDateShort, statusChipColor } from '../lib/format'
+import { formatKES, formatDateShort } from '../lib/format'
 import { useChamaId } from '../hooks/useChamaId'
 import { useToast } from '../hooks/useToast'
 import api, { chamaRoute } from '../lib/api'
@@ -122,7 +122,7 @@ export function Contributions() {
           <p className="text-sm text-slate-500">Track and manage member contributions</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setLoading(true) || loadContributions()} disabled={loading}>
+          <Button variant="secondary" size="sm" onClick={() => { setLoading(true); loadContributions(); }} disabled={loading}>
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
             Refresh
           </Button>

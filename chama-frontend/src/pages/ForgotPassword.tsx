@@ -63,7 +63,7 @@ export function ForgotPassword() {
             <Input
               label="Email"
               type="email"
-              icon={Mail}
+              icon={<Mail className="h-4 w-4" />}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

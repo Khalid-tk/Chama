@@ -178,7 +178,7 @@ export function JoinChama() {
                   className="pl-10"
                 />
               </div>
-              <Button onClick={runSearch} loading={searchLoading}>
+              <Button onClick={() => runSearch()} loading={searchLoading}>
                 Search
               </Button>
             </div>

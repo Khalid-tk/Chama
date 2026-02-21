@@ -81,8 +81,6 @@ export function JoinRequests() {
     }
   }
 
-  const pendingRequests = requests.filter((r) => r.status === 'PENDING')
-
   return (
     <div className="space-y-6">
       <ToastContainer />
@@ -123,7 +121,7 @@ export function JoinRequests() {
           {loading ? (
             <div className="p-8 text-center text-slate-500">Loading...</div>
           ) : requests.length === 0 ? (
-            <TableEmpty colSpan={5}>No {statusFilter.toLowerCase()} requests</TableEmpty>
+            <TableEmpty colSpan={5} message={`No ${statusFilter.toLowerCase()} requests`} />
           ) : (
             <div className="overflow-x-auto">
               <TableShell>

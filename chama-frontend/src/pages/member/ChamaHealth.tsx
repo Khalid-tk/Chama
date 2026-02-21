@@ -25,11 +25,10 @@ export function ChamaHealth() {
       setLoading(true)
       // Members can only see their own data, so use member endpoints
       // For chama health, we'll use member's own contributions/loans and context endpoint
-      const [contributionsRes, loansRes, contextRes] = await Promise.all([
+      const [contributionsRes, loansRes] = await Promise.all([
         api.get(chamaRoute(chamaId, '/my/contributions')).catch(() => ({ data: { data: { data: [] } } })),
         api.get(chamaRoute(chamaId, '/my/loans')).catch(() => ({ data: { data: { data: [] } } })),
-        api.get(chamaRoute(chamaId, '/context')).catch(() => ({ data: { data: {} } })),
-      ])
+        ])
       setContributions(contributionsRes.data.data.data || [])
       setLoans(loansRes.data.data.data || [])
       // For members, we can't get full membership list, so use empty array

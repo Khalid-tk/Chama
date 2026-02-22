@@ -8,7 +8,7 @@ Use these after running the backend seed: `cd chama-backend && npx prisma db see
 
 | Field    | Value            |
 |---------|------------------|
-| **Email**   | `member1@chama.com` |
+| **Email**   | `ka6587711+seed3@gmail.com` (Member 1) |
 | **Password**| `Member123!`       |
 | **Chama**   | Kisumu United Sacco (KRU001) |
 | **Role**    | Member |
@@ -19,10 +19,10 @@ This user is also a member of **Nairobi Boda Sacco (NBO002)**. After login, choo
 
 ## Other demo logins (from seed)
 
-- **Super Admin** (platform admin): `admin@chama.com` / `Admin123!`
-- **Admin / Treasurer**: `treasurer@chama.com` / `Treasurer123!` (KRU001, NBO002)
-- **Second member**: `member2@chama.com` / `Member123!` (KRU001, NBO002)
-- **Seeded members** (90 users): pattern `firstname.lastnameNN@chama.co.ke` — password **`Member123!`** (exact emails are printed when you run `npx prisma db seed`).
+- **Super Admin** (platform admin): `ka6587711+seed1@gmail.com` / `Admin123!`
+- **Admin / Treasurer**: `ka6587711+seed2@gmail.com` / `Treasurer123!` (KRU001, NBO002)
+- **Second member**: `ka6587711+seed4@gmail.com` / `Member123!` (KRU001, NBO002)
+- **Seeded members** (220 users): pattern `ka6587711+seedN@gmail.com` (N = 1–220) — password **`Member123!`** for members; exact logins printed when you run `npx prisma db seed`.
 
 ---
 

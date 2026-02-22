@@ -42,6 +42,11 @@ function getTransporter() {
  * Send email (or log in dev mode)
  */
 export async function sendEmail({ to, subject, html, text }) {
+  if (process.env.EMAIL_ENABLED === 'false') {
+    console.log('📧 Email skipped (DEMO MODE)', { to, subject })
+    return { skipped: true }
+  }
+
   const smtpConfig = config.email
 
   // If SMTP not configured, log to console

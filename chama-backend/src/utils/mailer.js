@@ -50,9 +50,14 @@ export async function verifyMailer() {
 /**
  * Send an email. Uses SMTP when configured; otherwise logs to console (no throw).
  * @param {{ to: string, subject: string, text?: string, html?: string }} options
- * @returns {{ sent: boolean, messageId?: string, error?: string }}
+ * @returns {{ sent: boolean, messageId?: string, error?: string, skipped?: boolean }}
  */
 export async function sendMail({ to, subject, text, html }) {
+  if (process.env.EMAIL_ENABLED === 'false') {
+    console.log('📧 Email skipped (DEMO MODE)', { to, subject })
+    return { skipped: true }
+  }
+
   const transport = getTransport()
   const fromAddress = from || user || 'noreply@localhost'
 

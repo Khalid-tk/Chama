@@ -26,6 +26,11 @@ const PASS = 'Member123!'
 const ADMIN_PASS = 'Admin123!'
 const SEED = 4242
 
+/** Real Gmail plus-addressing so seeded emails never bounce. */
+function generateSeedEmail(index) {
+  return `ka6587711+seed${index}@gmail.com`
+}
+
 // Deterministic RNG (mulberry32) for reproducible seed
 function mulberry32(seed) {
   return function () {
@@ -132,25 +137,24 @@ async function main() {
   const usedEmails = new Set()
   const userData = []
 
-  // Legacy 5
+  // Legacy 5 (real Gmail plus-addressing so seeded emails never bounce)
   userData.push(
-    { email: 'admin@chama.com', fullName: 'System Admin', phone: '254712345678', passwordHash: adminHash, authProvider: 'LOCAL', globalRole: 'SUPER_ADMIN', avatarUrl: avatarUrl('admin.jpg') },
-    { email: 'treasurer@chama.com', fullName: 'Treasurer User', phone: '254712345681', passwordHash: treasurerHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('treasurer.jpg') },
-    { email: 'member1@chama.com', fullName: 'John Member', phone: '254712345679', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
-    { email: 'member2@chama.com', fullName: 'Jane Member', phone: '254712345680', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member2.jpg') },
-    { email: 'member3@chama.com', fullName: 'Peter Ochieng', phone: '254712345682', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
+    { email: generateSeedEmail(1), fullName: 'System Admin', phone: '254712345678', passwordHash: adminHash, authProvider: 'LOCAL', globalRole: 'SUPER_ADMIN', avatarUrl: avatarUrl('admin.jpg') },
+    { email: generateSeedEmail(2), fullName: 'Treasurer User', phone: '254712345681', passwordHash: treasurerHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('treasurer.jpg') },
+    { email: generateSeedEmail(3), fullName: 'John Member', phone: '254712345679', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
+    { email: generateSeedEmail(4), fullName: 'Jane Member', phone: '254712345680', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member2.jpg') },
+    { email: generateSeedEmail(5), fullName: 'Peter Ochieng', phone: '254712345682', passwordHash, authProvider: 'LOCAL', avatarUrl: avatarUrl('member1.jpg') },
   )
-  usedEmails.add('admin@chama.com')
-  usedEmails.add('treasurer@chama.com')
-  usedEmails.add('member1@chama.com')
-  usedEmails.add('member2@chama.com')
-  usedEmails.add('member3@chama.com')
+  usedEmails.add(generateSeedEmail(1))
+  usedEmails.add(generateSeedEmail(2))
+  usedEmails.add(generateSeedEmail(3))
+  usedEmails.add(generateSeedEmail(4))
+  usedEmails.add(generateSeedEmail(5))
 
   for (let i = 0; i < 8; i++) {
     const first = pick(FIRST_NAMES)
     const last = pick(LAST_NAMES)
-    const email = `admin${i + 1}.${last.toLowerCase()}@chama.co.ke`
-    if (usedEmails.has(email)) continue
+    const email = generateSeedEmail(6 + i)
     usedEmails.add(email)
     userData.push({
       email,
@@ -164,10 +168,7 @@ async function main() {
   for (let i = 0; i < 207; i++) {
     const first = pick(FIRST_NAMES)
     const last = pick(LAST_NAMES)
-    let email = `${first.toLowerCase()}.${last.toLowerCase()}${i}@chama.co.ke`
-    while (usedEmails.has(email)) {
-      email = `${first.toLowerCase()}.${last.toLowerCase()}${i}.${Math.floor(rand() * 100)}@chama.co.ke`
-    }
+    const email = generateSeedEmail(14 + i)
     usedEmails.add(email)
     userData.push({
       email,
@@ -182,11 +183,11 @@ async function main() {
   const allUsers = await prisma.user.findMany({ where: { email: { in: userData.map((u) => u.email) } } })
   const userByEmail = Object.fromEntries(allUsers.map((u) => [u.email, u]))
   const users = userData.map((u) => userByEmail[u.email])
-  const legacyAdmin = userByEmail['admin@chama.com']
-  const legacyTreasurer = userByEmail['treasurer@chama.com']
-  const legacyMember1 = userByEmail['member1@chama.com']
-  const legacyMember2 = userByEmail['member2@chama.com']
-  const legacyMember3 = userByEmail['member3@chama.com']
+  const legacyAdmin = userByEmail[generateSeedEmail(1)]
+  const legacyTreasurer = userByEmail[generateSeedEmail(2)]
+  const legacyMember1 = userByEmail[generateSeedEmail(3)]
+  const legacyMember2 = userByEmail[generateSeedEmail(4)]
+  const legacyMember3 = userByEmail[generateSeedEmail(5)]
   const chamaAdmins = [legacyAdmin, legacyTreasurer, ...users.slice(5, 13)]
   console.log(`✅ ${users.length} users (1 SUPER_ADMIN, 10 chama admins, ${users.length - 11} members)\n`)
 
@@ -959,16 +960,16 @@ async function main() {
   console.log('='.repeat(70))
   console.log('')
   console.log('1) SUPER ADMIN')
-  console.log('   admin@chama.com  /  Admin123!')
+  console.log('   ' + generateSeedEmail(1) + '  /  Admin123!')
   console.log('')
   console.log('2) ADMINS (with chama codes)')
-  console.log('   admin@chama.com     / Admin123!     → All chamas (ADMIN)')
-  console.log('   treasurer@chama.com / Treasurer123! → KRU001, NBO002 (TREASURER)')
+  console.log('   ' + generateSeedEmail(1) + ' / Admin123!     → All chamas (ADMIN)')
+  console.log('   ' + generateSeedEmail(2) + ' / Treasurer123! → KRU001, NBO002 (TREASURER)')
   console.log('')
   console.log('3) MEMBERS')
-  console.log('   member1@chama.com / Member123!  → KRU001, NBO002')
-  console.log('   member2@chama.com / Member123!  → KRU001, NBO002')
-  console.log('   member3@chama.com / Member123!  → KRU001, NBO002')
+  console.log('   ' + generateSeedEmail(3) + ' / Member123!  → KRU001, NBO002')
+  console.log('   ' + generateSeedEmail(4) + ' / Member123!  → KRU001, NBO002')
+  console.log('   ' + generateSeedEmail(5) + ' / Member123!  → KRU001, NBO002')
   console.log('')
   console.log('📦 CHAMA CODES: ' + chamas.map((c) => c.chamaCode).join(', '))
   console.log('   Avatars are set for: super admin, 2 admins, 3 members, treasurer.')

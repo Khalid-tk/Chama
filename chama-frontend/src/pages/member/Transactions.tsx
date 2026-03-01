@@ -52,7 +52,7 @@ export function MemberTransactions() {
     }
   }
 
-  // Build transaction list from contributions and loans
+  // Build transaction list from contributions, loans, and loan repayments
   const allTransactions = useMemo(() => {
     const txns: any[] = []
     
@@ -67,14 +67,26 @@ export function MemberTransactions() {
       })
     })
 
-    // Add loans as debit transactions
+    // Add loan disbursements as debit transactions
     loans.forEach((l: any) => {
       txns.push({
         id: `loan-${l.id}`,
         type: 'debit',
-        amount: l.totalDue,
+        amount: l.totalDue ?? l.principal,
         desc: `Loan - ${l.status}`,
-        date: l.requestedAt,
+        date: l.approvedAt || l.requestedAt,
+      })
+      // Add loan repayments as debit transactions (money out)
+      const repayments = l.repayments ?? []
+      repayments.forEach((r: any) => {
+        txns.push({
+          id: `repay-${r.id}`,
+          type: 'repayment',
+          amount: r.amount,
+          desc: 'Loan Repayment',
+          date: r.paidAt || r.createdAt,
+          loanId: l.id,
+        })
       })
     })
 
@@ -84,7 +96,10 @@ export function MemberTransactions() {
   const filtered = useMemo(() => {
     return allTransactions.filter((t) => {
       const matchesSearch = t.desc.toLowerCase().includes(search.toLowerCase())
-      const matchesType = typeFilter === 'all' || t.type === typeFilter
+      const matchesType =
+        typeFilter === 'all' ||
+        t.type === typeFilter ||
+        (typeFilter === 'debit' && t.type === 'repayment') // repayments show with debits
       return matchesSearch && matchesType
     })
   }, [allTransactions, search, typeFilter])
@@ -99,10 +114,11 @@ export function MemberTransactions() {
   const stats = useMemo(() => {
     const credits = allTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0)
     const debits = allTransactions.filter(t => t.type === 'debit').reduce((sum, t) => sum + t.amount, 0)
+    const repayments = allTransactions.filter(t => t.type === 'repayment').reduce((sum, t) => sum + t.amount, 0)
     return {
       totalCredits: credits,
-      totalDebits: debits,
-      netBalance: credits - debits,
+      totalDebits: debits + repayments,
+      netBalance: credits - debits - repayments,
       transactionCount: allTransactions.length,
     }
   }, [allTransactions])
@@ -120,14 +136,14 @@ export function MemberTransactions() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Transactions</h1>
+    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Transactions</h1>
         <p className="text-sm text-slate-500">View your transaction history</p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats Cards - full row each on mobile like admin dashboard */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 [&>*]:min-w-0">
         <StatCard
           icon={TrendingUp}
           label="Total Credits"
@@ -160,8 +176,8 @@ export function MemberTransactions() {
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex-1 max-w-xs">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center min-w-0">
+            <div className="flex-1 min-w-0 max-w-full sm:max-w-xs">
               <Input
                 placeholder="Search transactions..."
                 icon={<Search size={18} />}
@@ -184,7 +200,7 @@ export function MemberTransactions() {
               >
                 <option value="all">All Types</option>
                 <option value="credit">Credits</option>
-                <option value="debit">Debits</option>
+                <option value="debit">Debits & Repayments</option>
               </select>
             </div>
           </div>
@@ -199,7 +215,7 @@ export function MemberTransactions() {
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {/* Mobile: card list */}
-          <div className="space-y-3 p-4 lg:hidden">
+          <div className="space-y-3 p-4 lg:hidden min-w-0">
             {paginated.length === 0 ? (
               <p className="py-8 text-center text-sm text-slate-500">No transactions found.</p>
             ) : (
@@ -209,7 +225,7 @@ export function MemberTransactions() {
                     <p className="font-medium text-slate-800 text-sm line-clamp-2">{t.desc}</p>
                     <span
                       className={`text-right font-semibold shrink-0 amount-cell ${
-                        t.type === 'credit' ? 'text-emerald-600' : 'text-slate-800'
+                        t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-slate-800'
                       }`}
                     >
                       {t.type === 'credit' ? '+' : '-'}
@@ -218,7 +234,9 @@ export function MemberTransactions() {
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className="text-xs text-slate-500">{formatDateShort(t.date)}</span>
-                    <Badge variant={t.type === 'credit' ? 'success' : 'neutral'}>{t.type}</Badge>
+                    <Badge variant={t.type === 'credit' ? 'success' : t.type === 'repayment' ? 'warning' : 'neutral'}>
+                      {t.type === 'repayment' ? 'Repayment' : t.type}
+                    </Badge>
                   </div>
                 </div>
               ))
@@ -245,15 +263,15 @@ export function MemberTransactions() {
                       <TableCell className="font-medium">{t.desc}</TableCell>
                       <TableCell
                         className={`text-right font-semibold amount-cell ${
-                          t.type === 'credit' ? 'text-emerald-600' : 'text-slate-800'
+                          t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-slate-800'
                         }`}
                       >
                         {t.type === 'credit' ? '+' : '-'}
                         {formatKES(t.amount)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={t.type === 'credit' ? 'success' : 'neutral'}>
-                          {t.type}
+                        <Badge variant={t.type === 'credit' ? 'success' : t.type === 'repayment' ? 'warning' : 'neutral'}>
+                          {t.type === 'repayment' ? 'Repayment' : t.type}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -263,12 +281,12 @@ export function MemberTransactions() {
             </TableShell>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 px-4 sm:px-6 py-4">
               <div className="text-sm text-slate-600">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} transactions
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}

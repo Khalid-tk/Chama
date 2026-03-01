@@ -28,6 +28,7 @@ export function MemberMpesa() {
   const [loadingPayments, setLoadingPayments] = useState(true)
   type RepayableLoan = { id: string; principal: number; totalDue: number; dueDate: string | null; outstandingBalance: number; fullName?: string }
   const [repayableLoans, setRepayableLoans] = useState<RepayableLoan[]>([])
+  const [loadingLoans, setLoadingLoans] = useState(false)
 
   useEffect(() => {
     loadPayments()
@@ -35,21 +36,23 @@ export function MemberMpesa() {
 
   useEffect(() => {
     if (chamaId && purpose === 'REPAYMENT') {
+      setLoadingLoans(true)
       api
         .get(chamaRoute(chamaId, '/my/loans'), { params: { limit: 100 } })
         .then((res) => {
-          const raw = res.data?.data
-          const list = Array.isArray(raw) ? raw : raw?.data ?? []
+          const payload = res.data?.data
+          const list = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : []
           const repayable: RepayableLoan[] = []
           for (const l of list) {
             if (l.status !== 'ACTIVE' && l.status !== 'LATE') continue
-            const totalPaid = (l.repayments || []).reduce((s: number, r: { amount: number }) => s + (r.amount || 0), 0)
-            const outstandingBalance = Math.max(0, (l.totalDue || 0) - totalPaid)
+            const totalPaid = (l.repayments || []).reduce((s: number, r: { amount?: number }) => s + Number(r?.amount || 0), 0)
+            const totalDue = Number(l.totalDue ?? l.principal ?? 0)
+            const outstandingBalance = Math.max(0, totalDue - totalPaid)
             if (outstandingBalance <= 0) continue
             repayable.push({
               id: l.id,
-              principal: l.principal,
-              totalDue: l.totalDue,
+              principal: Number(l.principal ?? 0),
+              totalDue,
               dueDate: l.dueDate ?? null,
               outstandingBalance,
               fullName: l.user?.fullName,
@@ -58,8 +61,10 @@ export function MemberMpesa() {
           setRepayableLoans(repayable)
         })
         .catch(() => setRepayableLoans([]))
+        .finally(() => setLoadingLoans(false))
     } else {
       setRepayableLoans([])
+      setLoadingLoans(false)
     }
   }, [chamaId, purpose])
 
@@ -272,28 +277,38 @@ export function MemberMpesa() {
                   </select>
                 </div>
                 {purpose === 'REPAYMENT' && (
-                  <div>
+                  <div className="min-w-0 overflow-visible">
                     <label className="mb-1 block text-sm font-medium text-slate-700">Select loan to repay</label>
-                    <select
-                      value={loanId}
-                      onChange={(e) => setLoanId(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 min-h-[44px]"
-                    >
-                      <option value="">Select loan</option>
-                      {repayableLoans.map((loan) => (
-                        <option key={loan.id} value={loan.id}>
-                          KES {loan.outstandingBalance.toLocaleString()} outstanding (due: {loan.dueDate ? new Date(loan.dueDate).toLocaleDateString() : '—'})
-                        </option>
-                      ))}
-                    </select>
-                    {repayableLoans.length === 0 && (
-                      <p className="mt-1 text-xs text-slate-500">No active loans to repay. Request a loan and have it disbursed first.</p>
-                    )}
-                    {loanId && repayableLoans.find((l) => l.id === loanId) && (
-                      <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700">
-                        <p><strong>Outstanding:</strong> KES {repayableLoans.find((l) => l.id === loanId)!.outstandingBalance.toLocaleString()}</p>
-                        <p><strong>Due:</strong> {repayableLoans.find((l) => l.id === loanId)!.dueDate ? new Date(repayableLoans.find((l) => l.id === loanId)!.dueDate!).toLocaleDateString() : '—'}</p>
+                    {loadingLoans ? (
+                      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">
+                        <Loader2 size={18} className="animate-spin shrink-0" />
+                        Loading active loans…
                       </div>
+                    ) : (
+                      <>
+                        <select
+                          value={loanId}
+                          onChange={(e) => setLoanId(e.target.value)}
+                          className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 min-h-[44px]"
+                          aria-label="Select loan to repay"
+                        >
+                          <option value="">Select loan</option>
+                          {repayableLoans.map((loan) => (
+                            <option key={loan.id} value={loan.id}>
+                              KES {loan.outstandingBalance.toLocaleString()} outstanding (due: {loan.dueDate ? new Date(loan.dueDate).toLocaleDateString() : '—'})
+                            </option>
+                          ))}
+                        </select>
+                        {repayableLoans.length === 0 && !loadingLoans && (
+                          <p className="mt-2 text-sm text-slate-500">No active loans to repay. Request a loan and have it disbursed first.</p>
+                        )}
+                        {loanId && repayableLoans.find((l) => l.id === loanId) && (
+                          <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700 min-w-0">
+                            <p><strong>Outstanding:</strong> KES {repayableLoans.find((l) => l.id === loanId)!.outstandingBalance.toLocaleString()}</p>
+                            <p><strong>Due:</strong> {repayableLoans.find((l) => l.id === loanId)!.dueDate ? new Date(repayableLoans.find((l) => l.id === loanId)!.dueDate!).toLocaleDateString() : '—'}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

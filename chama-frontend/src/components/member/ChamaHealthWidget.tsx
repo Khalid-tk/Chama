@@ -47,12 +47,12 @@ export function ChamaHealthWidget({ showFullChart = false }: ChamaHealthWidgetPr
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-semibold text-slate-800">Chama Health</h2>
-            <p className="text-sm text-slate-500">Membership growth and health indicators</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div className="min-w-0">
+            <h2 className="font-semibold text-slate-800 truncate">Chama Health</h2>
+            <p className="text-sm text-slate-500 truncate">Membership growth and health indicators</p>
           </div>
-          <Badge className={growthColor}>{growthLabel}</Badge>
+          <Badge className={`${growthColor} shrink-0`}>{growthLabel}</Badge>
         </div>
       </CardHeader>
       <CardContent>

@@ -57,7 +57,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
               className={`flex items-start gap-3 rounded-lg border p-3 ${getBgColor(insight.type)}`}
             >
               <div className="mt-0.5">{getIcon(insight.type)}</div>
-              <p className="flex-1 text-sm text-slate-800">{insight.message}</p>
+              <p className="flex-1 min-w-0 text-sm text-slate-800 break-words">{insight.message}</p>
             </div>
           ))}
         </div>

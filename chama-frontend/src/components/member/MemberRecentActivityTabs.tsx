@@ -57,12 +57,12 @@ export function MemberRecentActivityTabs({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-semibold text-slate-800">Recent Activity</h2>
-            <p className="text-sm text-slate-500">Your latest activity across all categories</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div className="min-w-0">
+            <h2 className="font-semibold text-slate-800 truncate">Recent Activity</h2>
+            <p className="text-sm text-slate-500 truncate">Your latest activity across all categories</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 shrink-0">
             {(['transactions', 'contributions', 'mpesa'] as const).map((tab) => (
               <button
                 key={tab}

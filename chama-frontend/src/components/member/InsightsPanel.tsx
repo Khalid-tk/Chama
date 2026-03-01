@@ -41,7 +41,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
                 {insight.type === 'neutral' && <Info className="h-4 w-4 text-blue-600" />}
               </div>
               <p
-                className={`text-sm ${
+                className={`text-sm min-w-0 break-words ${
                   insight.type === 'positive'
                     ? 'text-emerald-700'
                     : insight.type === 'negative'

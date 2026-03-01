@@ -267,13 +267,13 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Admin Dashboard</h1>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Admin Dashboard</h1>
           <p className="text-sm text-slate-500">Chama overview and key performance indicators</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:flex-shrink-0">
           <div className="relative" ref={plusMenuRef}>
             <Button
               onClick={() => setPlusMenuOpen((o) => !o)}
@@ -284,7 +284,7 @@ export function AdminDashboard() {
               <ChevronDown size={16} className={plusMenuOpen ? 'rotate-180' : ''} />
             </Button>
             {plusMenuOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 min-w-[200px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+              <div className="absolute right-0 top-full z-20 mt-1 min-w-[200px] max-w-[min(200px,100vw-2rem)] rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
                 <button
                   type="button"
                   onClick={() => {
@@ -354,7 +354,7 @@ export function AdminDashboard() {
 
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 min-w-0">
             <DateRangeFilter value={dateRange} onChange={setDateRange} />
           </div>
         </CardContent>
@@ -387,7 +387,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Chart Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <ChartCard title="Contributions Trend" description="Contribution trends from analytics">
           <ContributionsTrendChart data={contributionsTrend} />
         </ChartCard>
@@ -408,11 +408,11 @@ export function AdminDashboard() {
         </ChartCard>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+      <div className="grid gap-6 lg:grid-cols-3 [&>*]:min-w-0">
+        <div className="lg:col-span-1 min-w-0">
           <InsightsPanel insights={insights} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 min-w-0">
           <RecentActivityTabs
             transactions={allTransactions}
             loans={loansForTabs}

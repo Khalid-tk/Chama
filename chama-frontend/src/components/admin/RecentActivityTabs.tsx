@@ -43,7 +43,7 @@ export function RecentActivityTabs({ transactions, loans, mpesaPayments, onRefre
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
@@ -60,7 +60,7 @@ export function RecentActivityTabs({ transactions, loans, mpesaPayments, onRefre
               <p className="text-sm text-slate-500">Latest transactions, loans, and payments</p>
             </div>
           </button>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 flex-wrap items-center gap-1">
             {onRefresh && (
               <button
                 type="button"

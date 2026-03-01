@@ -20,7 +20,7 @@ export function DateRangeFilter({
   onCustomEndChange,
 }: DateRangeFilterProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 min-w-0 w-full sm:w-auto">
       <Calendar size={18} className="text-slate-500" />
       <select
         value={value}

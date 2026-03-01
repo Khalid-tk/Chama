@@ -238,7 +238,7 @@ export async function getMyRepayments(req, res, next) {
 
     res.json({
       success: true,
-      data: paginateResponse(repayments, page, limit, total),
+      data: paginateResponse(repayments, total, page, limit),
     })
   } catch (error) {
     next(error)
@@ -291,7 +291,7 @@ export async function getRepayments(req, res, next) {
 
     res.json({
       success: true,
-      data: paginateResponse(repayments, page, limit, total),
+      data: paginateResponse(repayments, total, page, limit),
     })
   } catch (error) {
     next(error)

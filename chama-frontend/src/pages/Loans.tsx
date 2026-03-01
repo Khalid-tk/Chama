@@ -66,7 +66,7 @@ export function Loans() {
   const loadLoans = async () => {
     if (!chamaId) return
     try {
-      const statusParam = tab === 'pending' ? 'PENDING' : tab === 'active' ? 'ACTIVE' : undefined
+      const statusParam = tab === 'pending' ? 'PENDING' : tab === 'active' ? 'ACTIVE,LATE' : undefined
       const params = new URLSearchParams()
       if (statusParam) params.set('status', statusParam)
       if (userIdFromUrl) params.set('userId', userIdFromUrl)
@@ -112,24 +112,27 @@ export function Loans() {
     if (tab === 'pending') loadContributions()
   }
 
-  const handleApprove = async (loanId: string) => {
+  const handleApprove = async (loanId: string, activateImmediately = false) => {
     if (!chamaId) return
     const assessment = aiAssessmentByLoanId[loanId]
-    if (assessment?.riskLevel === 'HIGH') {
+    if (assessment?.riskLevel === 'HIGH' && !activateImmediately) {
       const loan = loans.find((l) => l.id === loanId)
       if (loan) setHighRiskApproveModal({ loanId, loan })
       return
     }
-    await doApprove(loanId)
+    await doApprove(loanId, activateImmediately)
   }
 
-  const doApprove = async (loanId: string) => {
+  const doApprove = async (loanId: string, activateImmediately = false) => {
     if (!chamaId) return
     setHighRiskApproveModal(null)
     setActioningId(loanId)
     try {
-      await api.patch(chamaRoute(chamaId, `/loans/${loanId}/approve`), {})
-      showToast('Loan approved', 'success')
+      await api.patch(chamaRoute(chamaId, `/loans/${loanId}/approve`), {
+        activateImmediately: activateImmediately || undefined,
+        method: activateImmediately ? 'CASH' : undefined,
+      })
+      showToast(activateImmediately ? 'Loan approved and activated' : 'Loan approved', 'success')
       loadLoans()
     } catch (err: any) {
       showToast(err.response?.data?.message || 'Failed to approve loan', 'error')
@@ -222,9 +225,10 @@ export function Loans() {
   }
 
   const filtered = useMemo(() => {
-    const statusFilter =
-      tab === 'pending' ? 'PENDING' : tab === 'active' ? 'ACTIVE' : undefined
-    let list = statusFilter ? loans.filter((l) => l.status === statusFilter) : loans.filter((l) => ['PAID', 'REJECTED'].includes(l.status))
+    const statusFilter = tab === 'pending' ? 'PENDING' : tab === 'active' ? ['ACTIVE', 'LATE'] : undefined
+    let list = statusFilter
+      ? loans.filter((l) => Array.isArray(statusFilter) ? statusFilter.includes(l.status) : l.status === statusFilter)
+      : loans.filter((l) => ['PAID', 'REJECTED'].includes(l.status))
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter(
@@ -372,6 +376,17 @@ export function Loans() {
                                   >
                                     <Sparkles size={14} />
                                     AI Assessment
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    disabled={actioningId !== null}
+                                    loading={actioningId === l.id}
+                                    onClick={() => handleApprove(l.id, true)}
+                                    title="Approve and activate (cash disbursed to member)"
+                                    className="gap-1"
+                                  >
+                                    <Banknote size={14} />
+                                    Approve & Activate
                                   </Button>
                                   <Button
                                     size="sm"

@@ -24,7 +24,9 @@ const requestLoanSchema = z.object({
 
 const approveLoanSchema = z.object({
   body: z.object({
-    dueDate: z.string().datetime().optional(),
+    dueDate: z.string().optional(),
+    activateImmediately: z.boolean().optional(),
+    method: z.enum(['MPESA', 'CASH', 'BANK', 'OTHER']).optional(),
   }),
 })
 

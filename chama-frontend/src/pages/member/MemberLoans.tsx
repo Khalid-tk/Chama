@@ -47,11 +47,13 @@ export function MemberLoans() {
   const loadLoans = async () => {
     try {
       setLoading(true)
-      const response = await api.get(chamaRoute(chamaId, '/my/loans'))
-      const raw = response.data.data
-      setLoans(raw?.data ?? raw ?? [])
+      const response = await api.get(chamaRoute(chamaId, '/my/loans'), { params: { limit: 100 } })
+      const payload = response.data?.data
+      const list = Array.isArray(payload) ? payload : payload?.data ?? []
+      setLoans(list)
     } catch (error) {
       console.error('Failed to load loans:', error)
+      setLoans([])
     } finally {
       setLoading(false)
     }
@@ -61,23 +63,35 @@ export function MemberLoans() {
   const memberLoans = useMemo(() => {
     return loans.map((l: any) => ({
       id: l.id,
-      amount: l.totalDue,
-      date: l.createdAt,
-      status: l.status === 'ACTIVE' ? 'Active' : l.status === 'PAID' ? 'Paid' : l.status === 'PENDING' ? 'Pending' : l.status === 'APPROVED' ? 'Approved' : l.status,
+      amount: l.totalDue ?? l.principal,
+      date: l.createdAt ?? l.requestedAt,
+      status: l.status === 'ACTIVE' ? 'Active' : l.status === 'LATE' ? 'Late' : l.status === 'PAID' ? 'Paid' : l.status === 'PENDING' ? 'Pending' : l.status === 'APPROVED' ? 'Approved' : l.status,
       principal: l.principal,
       interest: l.interest,
       dueDate: l.dueDate,
     }))
   }, [loans])
 
+  // Active loan: ACTIVE or LATE status (repayable)
   const activeLoan = useMemo(() => {
-    const active = memberLoans.find((l) => l.status === 'Active')
-    if (active) {
-      const raw = loans.find((l: any) => l.id === active.id)
-      return { ...active, repayments: raw?.repayments ?? [] }
+    const raw = loans.find((l: any) => l.status === 'ACTIVE' || l.status === 'LATE')
+    if (!raw) return null
+    const repayments = raw.repayments ?? []
+    const totalPaid = repayments.reduce((s: number, r: any) => s + Number(r?.amount || 0), 0)
+    const totalDue = Number(raw.totalDue ?? raw.principal ?? 0)
+    const outstandingBalance = Math.max(0, totalDue - totalPaid)
+    return {
+      id: raw.id,
+      amount: totalDue,
+      outstandingBalance,
+      date: raw.createdAt ?? raw.requestedAt,
+      status: raw.status === 'ACTIVE' ? 'Active' : 'Late',
+      principal: raw.principal,
+      interest: raw.interest,
+      dueDate: raw.dueDate,
+      repayments,
     }
-    return null
-  }, [memberLoans, loans])
+  }, [loans])
 
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE
@@ -86,8 +100,26 @@ export function MemberLoans() {
 
   const totalPages = Math.ceil(memberLoans.length / ITEMS_PER_PAGE)
   const totalLoanAmount = activeLoan ? activeLoan.amount : 0
-  const paidAmount = activeLoan?.repayments?.reduce((s: number, r: any) => s + (r.amount || 0), 0) ?? 0
-  const nextDueDate = activeLoan?.dueDate ?? null
+  const paidAmount = activeLoan?.repayments?.reduce((s: number, r: any) => s + Number(r?.amount || 0), 0) ?? 0
+  const outstandingBalance = activeLoan?.outstandingBalance ?? 0
+  // Next due: use loan dueDate, or compute from last repayment + 1 month
+  const nextDueDate = useMemo(() => {
+    if (!activeLoan) return null
+    if (activeLoan.dueDate) return activeLoan.dueDate
+    const reps = activeLoan.repayments ?? []
+    if (reps.length > 0) {
+      const last = reps.reduce((latest: string, r: any) => {
+        const d = r.paidAt || r.createdAt
+        return !latest || (d && d > latest) ? d : latest
+      }, '')
+      if (last) {
+        const d = new Date(last)
+        d.setMonth(d.getMonth() + 1)
+        return d.toISOString().split('T')[0]
+      }
+    }
+    return null
+  }, [activeLoan])
 
   const handleRecordRepayment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -160,7 +192,10 @@ export function MemberLoans() {
         <Card>
           <CardContent className="p-4 sm:p-6">
             <div className="text-sm text-slate-500">Active Loan Balance</div>
-            <div className="text-2xl font-bold text-slate-800">{formatKES(totalLoanAmount)}</div>
+            <div className="text-2xl font-bold text-slate-800">{formatKES(outstandingBalance)}</div>
+            {activeLoan && totalLoanAmount > 0 && (
+              <div className="text-xs text-slate-500 mt-1">of {formatKES(totalLoanAmount)} total</div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -170,7 +205,7 @@ export function MemberLoans() {
               Next Payment Due
             </div>
             <div className="text-2xl font-bold text-slate-800">
-              {nextDueDate ? formatDateShort(nextDueDate) : 'N/A'}
+              {nextDueDate ? formatDateShort(nextDueDate) : activeLoan ? 'Not set' : 'N/A'}
             </div>
           </CardContent>
         </Card>
@@ -178,7 +213,7 @@ export function MemberLoans() {
           <CardContent className="p-6">
             <div className="text-sm text-slate-500">Repayment Progress</div>
             <div className="text-2xl font-bold text-slate-800">
-              {activeLoan ? `${Math.round((paidAmount / totalLoanAmount) * 100)}%` : 'N/A'}
+              {activeLoan && totalLoanAmount > 0 ? `${Math.round((paidAmount / totalLoanAmount) * 100)}%` : 'N/A'}
             </div>
           </CardContent>
         </Card>
@@ -322,7 +357,7 @@ export function MemberLoans() {
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
               <h2 className="mb-4 text-lg font-semibold text-slate-800">Record repayment</h2>
-              <p className="text-sm text-slate-500 mb-4">Outstanding: {formatKES(totalLoanAmount - paidAmount)}</p>
+              <p className="text-sm text-slate-500 mb-4">Outstanding: {formatKES(outstandingBalance)}</p>
               <form onSubmit={handleRecordRepayment} className="space-y-4">
                 <Input
                   label="Amount (KES)"

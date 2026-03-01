@@ -138,12 +138,13 @@ export async function getLoans(req, res, next) {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 20
     const skip = (page - 1) * limit
-    const status = req.query.status
+    const statusParam = req.query.status
     const userId = req.query.userId
-
+    const statusList = typeof statusParam === 'string' ? statusParam.split(',').map((s) => s.trim()).filter(Boolean) : []
     const where = {
       chamaId,
-      ...(status && { status }),
+      ...(statusList.length === 1 && { status: statusList[0] }),
+      ...(statusList.length > 1 && { status: { in: statusList } }),
       ...(userId && { userId }),
     }
 
@@ -186,10 +187,11 @@ export async function getLoans(req, res, next) {
 export async function approveLoan(req, res, next) {
   try {
     const { chamaId, loanId } = req.params
-    const { dueDate } = req.body
+    const { dueDate, activateImmediately, method: bodyMethod } = req.body || {}
 
     const loan = await prisma.loan.findUnique({
       where: { id: loanId },
+      include: { user: { select: { id: true, fullName: true, phone: true } } },
     })
 
     if (!loan || loan.chamaId !== chamaId) {
@@ -199,27 +201,62 @@ export async function approveLoan(req, res, next) {
       })
     }
 
+    const chama = await prisma.chama.findUnique({
+      where: { id: chamaId },
+      select: { cycleDay: true },
+    })
+
+    // Auto due date: 12 months from approval, cycleDay of month if set
+    const approvedAt = new Date()
+    let resolvedDueDate = dueDate ? new Date(dueDate) : loan.dueDate
+    if (!resolvedDueDate) {
+      const d = new Date(approvedAt)
+      d.setMonth(d.getMonth() + 12)
+      const day = (chama?.cycleDay && chama.cycleDay >= 1 && chama.cycleDay <= 31)
+        ? Math.min(chama.cycleDay, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())
+        : d.getDate()
+      d.setDate(day)
+      resolvedDueDate = d
+    }
+
     const result = await prisma.$transaction(async (tx) => {
-      // Update loan status only (disbursement is a separate step)
+      const disburseMethod = (bodyMethod || (activateImmediately ? 'CASH' : null))?.toUpperCase() || 'CASH'
+      const shouldActivate = activateImmediately && ['CASH', 'BANK', 'OTHER', 'MPESA'].includes(disburseMethod)
+
       const updatedLoan = await tx.loan.update({
         where: { id: loanId },
         data: {
-          status: 'APPROVED',
-          approvedAt: new Date(),
-          dueDate: dueDate ? new Date(dueDate) : loan.dueDate,
+          status: shouldActivate ? 'ACTIVE' : 'APPROVED',
+          approvedAt,
+          dueDate: resolvedDueDate,
         },
       })
 
-      // Create audit log
       await tx.auditLog.create({
         data: {
           chamaId,
           actorId: req.user.id,
-          action: 'APPROVE',
+          action: shouldActivate ? 'APPROVE_AND_ACTIVATE' : 'APPROVE',
           entity: 'LOAN',
           entityId: loanId,
+          meta: shouldActivate ? { method: disburseMethod } : undefined,
         },
       })
+
+      if (shouldActivate) {
+        const receiptNo = `DISB-${loanId}-${Date.now()}`
+        await tx.transaction.create({
+          data: {
+            chamaId,
+            userId: loan.userId,
+            type: 'LOAN_DISBURSE',
+            direction: 'OUT',
+            amount: loan.principal,
+            description: `Loan disbursement (${disburseMethod}) - ${loan.user?.fullName || 'Member'}`,
+            ref: receiptNo,
+          },
+        })
+      }
 
       return updatedLoan
     })

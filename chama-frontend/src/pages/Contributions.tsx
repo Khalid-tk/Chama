@@ -43,6 +43,18 @@ export function Contributions() {
   const [recordAmount, setRecordAmount] = useState('')
   const [recordMethod, setRecordMethod] = useState('MANUAL')
   const [recordLoading, setRecordLoading] = useState(false)
+  const [fixedContributionAmount, setFixedContributionAmount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!chamaId) return
+    api.get(chamaRoute(chamaId, '/context'))
+      .then((res) => {
+        const chama = res.data?.data
+        const amt = chama?.contributionAmount ?? chama?.summary?.contributionAmount
+        setFixedContributionAmount(amt != null ? Number(amt) : null)
+      })
+      .catch(() => setFixedContributionAmount(null))
+  }, [chamaId])
 
   const loadContributions = async () => {
     if (!chamaId) return
@@ -126,7 +138,10 @@ export function Contributions() {
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
             Refresh
           </Button>
-          <Button onClick={() => setShowRecordModal(true)}>
+          <Button onClick={() => {
+            setShowRecordModal(true)
+            if (fixedContributionAmount != null) setRecordAmount(String(fixedContributionAmount))
+          }}>
             <Plus size={18} />
             Record Contribution
           </Button>
@@ -227,7 +242,11 @@ export function Contributions() {
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
               <h2 className="mb-4 text-xl font-semibold text-slate-800">Record Contribution</h2>
-              <p className="mb-4 text-sm text-slate-500">Record your own contribution (manual entry).</p>
+              <p className="mb-4 text-sm text-slate-500">
+                {fixedContributionAmount != null
+                  ? `Fixed contribution for this chama: ${formatKES(fixedContributionAmount)}`
+                  : 'Record your own contribution (manual entry).'}
+              </p>
               <form onSubmit={handleRecordContribution} className="space-y-4">
                 <Input
                   label="Amount (KES)"

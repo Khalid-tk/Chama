@@ -29,10 +29,28 @@ export function MemberMpesa() {
   type RepayableLoan = { id: string; principal: number; totalDue: number; dueDate: string | null; outstandingBalance: number; fullName?: string }
   const [repayableLoans, setRepayableLoans] = useState<RepayableLoan[]>([])
   const [loadingLoans, setLoadingLoans] = useState(false)
+  const [fixedContributionAmount, setFixedContributionAmount] = useState<number | null>(null)
 
   useEffect(() => {
     loadPayments()
   }, [chamaId])
+
+  useEffect(() => {
+    if (!chamaId) return
+    api.get(chamaRoute(chamaId, '/context'))
+      .then((res) => {
+        const chama = res.data?.data
+        const amt = chama?.contributionAmount ?? chama?.summary?.contributionAmount
+        setFixedContributionAmount(amt != null ? Number(amt) : null)
+      })
+      .catch(() => setFixedContributionAmount(null))
+  }, [chamaId])
+
+  useEffect(() => {
+    if (purpose === 'CONTRIBUTION' && fixedContributionAmount != null) {
+      setAmount(String(fixedContributionAmount))
+    }
+  }, [purpose, fixedContributionAmount])
 
   useEffect(() => {
     if (chamaId && purpose === 'REPAYMENT') {
@@ -257,9 +275,9 @@ export function MemberMpesa() {
                   icon={<Smartphone size={18} />}
                 />
                 <Input
-                  label="Amount (KES)"
+                  label={purpose === 'CONTRIBUTION' && fixedContributionAmount != null ? `Amount (KES) — fixed: ${formatKES(fixedContributionAmount)}` : 'Amount (KES)'}
                   type="number"
-                  placeholder="0"
+                  placeholder={purpose === 'CONTRIBUTION' && fixedContributionAmount != null ? String(fixedContributionAmount) : '0'}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />

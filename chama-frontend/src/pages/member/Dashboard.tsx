@@ -273,29 +273,21 @@ export function MemberDashboard() {
 
   return (
     <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Dashboard</h1>
           <p className="text-sm text-slate-500">Your Chama overview and insights</p>
         </div>
-        <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:flex-shrink-0">
-          <Button onClick={() => navigate(`/member/${chamaId}/mpesa`)} className="flex-1 sm:flex-none min-w-0">
-            <Plus size={18} className="shrink-0" />
-            <span className="truncate">Pay Contribution</span>
-          </Button>
-          <Button variant="secondary" onClick={() => navigate(`/member/${chamaId}/loans`)} className="flex-1 sm:flex-none min-w-0">
-            <CreditCard size={18} className="shrink-0" />
-            <span className="truncate">Request Loan</span>
-          </Button>
-          <Button variant="secondary" onClick={() => navigate(`/member/${chamaId}/analytics`)} className="flex-1 sm:flex-none min-w-0">
-            <FileText size={18} className="shrink-0" />
-            <span className="truncate">Statement</span>
+        <div className="shrink-0">
+          <Button onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
+            <Plus size={18} />
+            Pay Contribution
           </Button>
         </div>
       </div>
 
-      {/* KPI Row 1 - Balance, This Month, Active Loan */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 [&>*]:min-w-0">
+      {/* KPI Row 1 - Balance, This Month, Active Loan (full row each on mobile, like admin) */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
         <StatCard
           icon={Wallet}
           label="Current Balance"
@@ -327,8 +319,8 @@ export function MemberDashboard() {
         />
       </div>
 
-      {/* KPI Row 2 - Repayment, Mpesa, Consistency */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 [&>*]:min-w-0">
+      {/* KPI Row 2 - Repayment, Mpesa, Consistency (full row each on mobile) */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
         <StatCard
           icon={Calendar}
           label="Repayment Progress"
@@ -365,6 +357,18 @@ export function MemberDashboard() {
             </div>
           }
         />
+      </div>
+
+      {/* Secondary actions - moved below KPIs to reduce top overcrowding */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" size="sm" onClick={() => navigate(`/member/${chamaId}/loans`)}>
+          <CreditCard size={18} />
+          Request Loan
+        </Button>
+        <Button variant="secondary" size="sm" onClick={() => navigate(`/member/${chamaId}/analytics`)}>
+          <FileText size={18} />
+          View Statement
+        </Button>
       </div>
 
       {/* Chart Grid - 5+ Charts (single column on small, 2 on lg+) */}

@@ -249,10 +249,12 @@ export function AdminLayout() {
                   variant="secondary"
                   size="sm"
                   onClick={() => navigate('/super')}
-                  className="gap-2 shrink-0"
+                  className="shrink-0 h-9 w-9 p-0 sm:h-auto sm:w-auto sm:px-3 sm:py-2 sm:gap-2"
+                  title="Platform Admin"
+                  aria-label="Platform Admin"
                 >
                   <Shield size={18} />
-                  <span className="hidden sm:inline">Platform Admin</span>
+                  <span className="hidden md:inline">Platform Admin</span>
                 </Button>
               )}
               <NotificationBell />

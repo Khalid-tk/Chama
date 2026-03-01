@@ -268,19 +268,19 @@ export function Loans() {
   return (
     <div className="space-y-6">
       <ToastContainer />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Loans</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Loans</h1>
           <p className="text-sm text-slate-500">Manage loan requests and disbursements</p>
         </div>
-        <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading}>
+        <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading} className="shrink-0 w-full sm:w-auto justify-center">
           <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           Refresh
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex flex-wrap gap-2">
           {(['pending', 'active', 'history'] as const).map((t) => (
             <button
               key={t}
@@ -288,7 +288,7 @@ export function Loans() {
                 setTab(t)
                 setCurrentPage(1)
               }}
-              className={`rounded-lg px-4 py-2 text-sm font-medium capitalize transition-all ${
+              className={`rounded-lg px-3 py-2 sm:px-4 text-sm font-medium capitalize transition-all shrink-0 ${
                 tab === t
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -298,7 +298,7 @@ export function Loans() {
             </button>
           ))}
         </div>
-        <div className="flex-1 max-w-xs">
+        <div className="w-full sm:flex-1 sm:max-w-xs min-w-0">
           <Input
             placeholder="Search loans..."
             value={search}
@@ -316,7 +316,131 @@ export function Loans() {
             <div className="p-8 text-center text-slate-500">Loading...</div>
           ) : (
             <>
-              <div className="max-h-[600px] overflow-auto">
+              {/* Mobile: card layout */}
+              <div className="space-y-3 p-4 lg:hidden max-h-[600px] overflow-auto">
+                {paginated.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-slate-500">No {tab} loans.</p>
+                ) : (
+                  paginated.map((l) => {
+                    const risk = getRisk(l)
+                    const statusLabel = l.status === 'PENDING' ? 'Pending' : l.status === 'APPROVED' ? 'Approved' : l.status === 'ACTIVE' ? 'Active' : l.status === 'PAID' ? 'Paid' : l.status === 'REJECTED' ? 'Rejected' : l.status
+                    return (
+                      <div key={l.id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                        <div className="flex flex-wrap justify-between items-start gap-2">
+                          <div className="min-w-0">
+                            <p className="text-xs text-slate-500">Member</p>
+                            <p className="font-semibold text-slate-800 truncate">{l.user?.fullName ?? '—'}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-xs text-slate-500">Amount</p>
+                            <p className="font-semibold text-slate-800">{formatKES(l.principal)}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 items-center text-sm">
+                          <Badge variant={statusChipColor(statusLabel)}>{statusLabel}</Badge>
+                          {risk && (
+                            <Badge variant={risk.level === 'Low' ? 'success' : risk.level === 'Medium' ? 'warning' : 'danger'}>
+                              {risk.level} Risk
+                            </Badge>
+                          )}
+                          <span className="text-slate-500">{formatDateShort(l.createdAt)}</span>
+                          <span className="text-slate-400 text-xs truncate">ID: {l.id.slice(0, 8)}</span>
+                        </div>
+                        <div className="flex flex-col gap-2 pt-2 border-t border-slate-200">
+                          {l.status === 'PENDING' && (
+                            <>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => setExpandedLoanId((id) => (id === l.id ? null : l.id))}
+                                  className="flex-1 min-w-[120px] gap-1 justify-center"
+                                >
+                                  <Sparkles size={14} />
+                                  AI Assessment
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={actioningId !== null}
+                                  loading={actioningId === l.id}
+                                  onClick={() => handleApprove(l.id, true)}
+                                  title="Approve and activate"
+                                  className="flex-1 min-w-[120px] gap-1 justify-center"
+                                >
+                                  <Banknote size={14} />
+                                  Approve & Activate
+                                </Button>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  size="sm"
+                                  disabled={actioningId !== null}
+                                  loading={actioningId === l.id}
+                                  onClick={() => handleApprove(l.id)}
+                                  className="flex-1 min-w-[100px] gap-1 justify-center bg-emerald-600 hover:bg-emerald-700"
+                                >
+                                  <CheckCircle size={14} />
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={actioningId !== null}
+                                  onClick={() => handleReject(l.id)}
+                                  className="flex-1 min-w-[100px] gap-1 justify-center"
+                                >
+                                  <XCircle size={14} />
+                                  Reject
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                          {l.status === 'APPROVED' && (
+                            <Button
+                              size="sm"
+                              disabled={actioningId !== null}
+                              loading={actioningId === l.id}
+                              onClick={() => openDisburseModal(l)}
+                              className="w-full gap-1 justify-center"
+                            >
+                              <Banknote size={14} />
+                              Disburse
+                            </Button>
+                          )}
+                          {l.status === 'ACTIVE' && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                setRecordRepayModal({ loanId: l.id, loan: l })
+                                setRecordRepayAmount('')
+                                setRecordRepayRef('')
+                              }}
+                              className="w-full justify-center"
+                            >
+                              Record repayment
+                            </Button>
+                          )}
+                        </div>
+                        {expandedLoanId === l.id && (
+                          <div className="pt-3 border-t border-slate-200">
+                            <AILoanAssessment
+                              chamaId={chamaId!}
+                              loanId={l.id}
+                              onEvaluationLoaded={(ev) =>
+                                setAIAssessmentByLoanId((prev) => ({ ...prev, [l.id]: ev }))
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+              {/* Desktop: table */}
+              <div className="max-h-[600px] overflow-auto hidden lg:block">
                 <TableShell>
                   <TableHeader>
                     <TableRow>
@@ -367,7 +491,7 @@ export function Loans() {
                             </TableCell>
                             <TableCell className="text-right">
                               {l.status === 'PENDING' && (
-                                <div className="flex flex-wrap justify-end gap-2">
+                                <div className="flex flex-wrap justify-end gap-2 gap-y-1">
                                   <Button
                                     size="sm"
                                     variant="secondary"
@@ -458,12 +582,12 @@ export function Loans() {
                 </TableShell>
               </div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                  <div className="text-sm text-slate-600">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 px-4 sm:px-6 py-4">
+                  <div className="text-sm text-slate-600 order-2 sm:order-1">
                     Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                     {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} loans
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 order-1 sm:order-2">
                     <Button
                       variant="secondary"
                       size="sm"

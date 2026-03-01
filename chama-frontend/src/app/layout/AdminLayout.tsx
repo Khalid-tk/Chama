@@ -183,26 +183,26 @@ export function AdminLayout() {
       <div className="flex flex-1 flex-col min-w-0">
         {/* Header - sticky */}
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white shrink-0">
-          <div className="flex h-14 sm:h-16 items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+          <div className="flex h-14 sm:h-16 items-center justify-between gap-1 sm:gap-2 px-3 sm:px-4 lg:px-6">
+            <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2 overflow-hidden">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={openNav}
-                className="shrink-0 h-10 w-10 p-0 md:h-9 md:w-9"
+                className="shrink-0 h-9 w-9 sm:h-10 sm:w-10 p-0 md:h-9 md:w-9 touch-manipulation"
                 aria-label="Open menu"
               >
-                <Menu size={22} className="md:w-5 md:h-5" />
+                <Menu size={20} className="sm:w-[22px] sm:h-[22px] md:w-5 md:h-5" />
               </Button>
               {activeChama && (
-                <div className="relative min-w-0">
+                <div className="relative min-w-0 flex-1 overflow-hidden">
                   <button
                     onClick={() => setShowChamaSwitcher(!showChamaSwitcher)}
-                    className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-2 sm:px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                    className="flex min-w-0 w-full items-center gap-1.5 sm:gap-2 rounded-lg px-2 py-2 sm:px-3 text-sm font-medium text-slate-700 hover:bg-slate-100 touch-manipulation"
                   >
-                    <Building2 size={18} className="shrink-0" />
-                    <span className="truncate max-w-[140px] sm:max-w-[200px]">{activeChama.chamaName}</span>
-                    <ChevronDown size={16} className="shrink-0" />
+                    <Building2 size={18} className="shrink-0 text-slate-600" />
+                    <span className="truncate max-w-[100px] sm:max-w-[160px] md:max-w-[200px]">{activeChama.chamaName}</span>
+                    <ChevronDown size={16} className="shrink-0 text-slate-500" />
                   </button>
                   {showChamaSwitcher && (
                     <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg border border-slate-200 bg-white shadow-lg">
@@ -243,7 +243,7 @@ export function AdminLayout() {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-4">
               {user?.globalRole === 'SUPER_ADMIN' && (
                 <Button
                   variant="secondary"

@@ -243,7 +243,7 @@ export function AdminLayout() {
                 </div>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-4">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-4 min-w-0 overflow-hidden">
               {user?.globalRole === 'SUPER_ADMIN' && (
                 <Button
                   variant="secondary"
@@ -254,7 +254,7 @@ export function AdminLayout() {
                   aria-label="Platform Admin"
                 >
                   <Shield size={18} />
-                  <span className="hidden md:inline">Platform Admin</span>
+                  <span className="hidden lg:inline">Platform Admin</span>
                 </Button>
               )}
               <NotificationBell />

@@ -115,15 +115,15 @@ export function SuperAdminLayout() {
       </Drawer>
 
       <div className={`flex flex-1 flex-col min-w-0 transition-all duration-200 ${sidebarOpen ? 'md:pl-56' : 'md:pl-20'}`}>
-        <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center justify-between border-b border-slate-200 bg-white px-3 shadow-sm sm:px-6">
+        <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 shadow-sm sm:px-6 min-w-0 overflow-hidden">
           <Button variant="ghost" size="sm" onClick={openNav} className="md:hidden shrink-0 h-10 w-10 p-0" aria-label="Open menu">
             <Menu size={22} />
           </Button>
-          <span className="text-sm font-medium text-slate-600 hidden md:block">Super Admin</span>
-          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-            <Button variant="secondary" size="sm" onClick={() => navigate('/select-chama')} className="gap-2 shrink-0">
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Chama dashboard</span>
+          <div className="hidden md:block md:min-w-0 md:flex-1" aria-hidden />
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0 overflow-hidden">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/select-chama')} className="gap-2 shrink-0 max-w-[180px] sm:max-w-none">
+              <Home className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline truncate">Chama dashboard</span>
             </Button>
             <AvatarDropdown onLogout={() => navigate('/login')} />
           </div>

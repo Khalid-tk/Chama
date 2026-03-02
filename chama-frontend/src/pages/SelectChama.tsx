@@ -88,24 +88,23 @@ export function SelectChama() {
       {/* Header */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <BrandLogo size="md" showWordmark variant="dark" />
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between gap-4 min-w-0 overflow-hidden">
+            <BrandLogo size="md" showWordmark variant="dark" className="shrink-0" />
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 shrink-0">
               {user?.globalRole === 'SUPER_ADMIN' && (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() => navigate('/super')}
-                  className="gap-2"
+                  className="gap-2 shrink-0"
                 >
                   <Shield size={18} />
-                  Platform Admin
+                  <span className="hidden sm:inline">Platform Admin</span>
                 </Button>
               )}
-              <span className="text-sm text-slate-600">{user?.fullName}</span>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="shrink-0 gap-1.5">
                 <LogOut size={18} />
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </Button>
             </div>
           </div>

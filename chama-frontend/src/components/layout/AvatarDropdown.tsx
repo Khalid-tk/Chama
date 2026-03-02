@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { User, Settings, Bell, LogOut, HelpCircle } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
@@ -33,18 +34,44 @@ export function AvatarDropdown({
   const { user, logout } = useAuthStore()
   const { clearActiveChama } = useChamaStore()
   const ref = useRef<HTMLDivElement>(null)
+  const [dropdownStyle, setDropdownStyle] = useState<{ top: number; right: number } | null>(null)
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const target = e.target as Node
+      if (ref.current?.contains(target)) return
+      if ((target as Element).closest?.('[data-avatar-dropdown]')) return
+      setOpen(false)
     }
     if (open) {
       document.addEventListener('click', handleClickOutside)
-      document.body.style.overflow = 'hidden'
+      if (!window.matchMedia('(min-width: 768px)').matches) {
+        document.body.style.overflow = 'hidden'
+      }
     }
     return () => {
       document.removeEventListener('click', handleClickOutside)
       document.body.style.overflow = ''
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (open && ref.current && typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches) {
+      const updatePosition = () => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect()
+          setDropdownStyle({ top: rect.bottom + 8, right: window.innerWidth - rect.right })
+        }
+      }
+      updatePosition()
+      window.addEventListener('scroll', updatePosition, true)
+      window.addEventListener('resize', updatePosition)
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true)
+        window.removeEventListener('resize', updatePosition)
+      }
+    } else {
+      setDropdownStyle(null)
     }
   }, [open])
 
@@ -124,15 +151,20 @@ export function AvatarDropdown({
         )}
       </button>
 
-      {/* Desktop: dropdown */}
-      {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-slate-200 bg-white py-2 shadow-lg hidden md:block">
+      {/* Desktop: dropdown (portal to avoid overflow clipping) */}
+      {open && dropdownStyle && typeof document !== 'undefined' && createPortal(
+        <div
+          data-avatar-dropdown
+          className="fixed z-[9999] w-56 rounded-xl border border-slate-200 bg-white py-2 shadow-lg"
+          style={{ top: dropdownStyle.top, right: dropdownStyle.right, left: 'auto' }}
+        >
           <div className="border-b border-slate-100 px-4 py-2">
             <p className="text-sm font-medium text-slate-800 truncate">{user?.fullName}</p>
             <p className="text-xs text-slate-500 truncate">{user?.email}</p>
           </div>
           {content}
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Mobile: bottom sheet */}

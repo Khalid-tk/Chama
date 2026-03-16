@@ -271,17 +271,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* ─── KPI strip — 3 primary + 3 secondary ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
-        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    className="col-span-2 lg:col-span-2" />
-        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" className="col-span-2 lg:col-span-2" trend={cycleChange} trendLabel="vs last month" />
-        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   className="col-span-2 lg:col-span-2" />
-        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     className="col-span-1 lg:col-span-2" />
-        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    className="col-span-1 lg:col-span-2" />
-        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    className="col-span-2 lg:col-span-2" />
-      </div>
-
-      {/* ─── Primary charts — 2/3 + 1/3 ─── */}
+      {/* ─── Primary charts — dominant hero area ─── */}
       <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <div className="lg:col-span-2">
           <ChartCard title="Contribution Trends" description="Monthly total collected over selected period" height="lg">
@@ -304,6 +294,16 @@ export function AdminDashboard() {
         <ChartCard title="M-Pesa Outcomes" description="Success / failure / pending">
           <MpesaTrendsChart data={mpesaTrends} />
         </ChartCard>
+      </div>
+
+      {/* ─── KPI strip ─── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
+        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    className="col-span-2 lg:col-span-2" />
+        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" className="col-span-2 lg:col-span-2" trend={cycleChange} trendLabel="vs last month" />
+        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   className="col-span-2 lg:col-span-2" />
+        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     className="col-span-1 lg:col-span-2" />
+        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    className="col-span-1 lg:col-span-2" />
+        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    className="col-span-2 lg:col-span-2" />
       </div>
 
       {/* ─── Defaults + Insights + Activity ─── */}

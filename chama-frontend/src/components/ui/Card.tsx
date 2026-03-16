@@ -25,5 +25,5 @@ export function CardHeader({ className = '', ...props }: HTMLAttributes<HTMLDivE
 }
 
 export function CardContent({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`px-5 py-5 ${className}`} {...props} />
+  return <div className={`px-4 py-4 ${className}`} {...props} />
 }

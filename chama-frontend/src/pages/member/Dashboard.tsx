@@ -5,7 +5,6 @@ import {
   Plus,
 } from 'lucide-react'
 import { formatKES, formatDateShort } from '../../lib/format'
-import { useAuthStore } from '../../store/authStore'
 import { useChamaId } from '../../hooks/useChamaId'
 import { chamaRoute } from '../../lib/api'
 import api from '../../lib/api'
@@ -23,7 +22,6 @@ import { ChamaHealthWidget } from '../../components/member/ChamaHealthWidget'
 import { generateMemberInsights } from '../../utils/memberInsights'
 
 export function MemberDashboard() {
-  useAuthStore()
   const chamaId = useChamaId()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -270,113 +268,84 @@ export function MemberDashboard() {
   }
 
   return (
-    <div className="space-y-8 min-w-0 w-full max-w-full overflow-x-hidden page-enter">
-      {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden page-enter">
+
+      {/* ─── Page header ─── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="font-display text-xl font-bold tracking-tight text-ink-900 sm:text-2xl lg:text-3xl truncate">Dashboard</h1>
-          <p className="mt-1 text-sm text-ink-500">Your Chama overview and insights</p>
+          <h1 className="text-xl font-semibold text-ink-900 truncate">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-ink-500">Your Chama overview and insights</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
-            <Plus size={18} />
+          <Button size="sm" onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
+            <Plus size={15} />
             Pay Contribution
           </Button>
-          <Button variant="secondary" onClick={() => navigate(`/member/${chamaId}/loans`)}>
-            <CreditCard size={18} />
+          <Button size="sm" variant="secondary" onClick={() => navigate(`/member/${chamaId}/loans`)}>
+            <CreditCard size={15} />
             Request Loan
           </Button>
         </div>
       </div>
 
-      {/* Hero KPI section */}
-      <div className="rounded-2xl border border-ink-300/80 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 text-white shadow-lg">
-        <div className="flex flex-col gap-4">
-          <p className="text-xs font-medium uppercase tracking-wider text-ink-400">Your Balance</p>
-          <p className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{formatKES(kpis.totalBalance)}</p>
-          <p className="text-sm text-ink-400">Personal savings in this Chama</p>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
-          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
-            <p className="text-xs font-medium text-ink-400">This Month</p>
-            <p className="font-display mt-1 text-lg font-bold">{formatKES(kpis.thisMonthContributions)}</p>
-            <p className="text-xs text-ink-400">{kpis.thisMonthCount} contribution{kpis.thisMonthCount !== 1 ? 's' : ''}</p>
-          </div>
-          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
-            <p className="text-xs font-medium text-ink-400">Active Loan</p>
-            <p className="font-display mt-1 text-lg font-bold">{activeLoan ? formatKES(kpis.loanBalance) : 'None'}</p>
-            {activeLoan && <p className="text-xs text-ink-400">Due {formatDateShort(kpis.nextDue)}</p>}
-          </div>
-          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
-            <p className="text-xs font-medium text-ink-400">Repayment</p>
-            <p className="font-display mt-1 text-lg font-bold">{activeLoan ? `${kpis.loanProgress}%` : 'N/A'}</p>
-            <p className="text-xs text-ink-400">{activeLoan ? 'Complete' : '—'}</p>
-          </div>
-          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
-            <p className="text-xs font-medium text-ink-400">Mpesa</p>
-            <p className="font-display mt-1 text-lg font-bold">{formatKES(kpis.thisMonthMpesaTotal)}</p>
-            <p className="text-xs text-ink-400">{kpis.mpesaSuccessRate.toFixed(0)}% success</p>
-          </div>
-          <div className="col-span-2 sm:col-span-1 rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
-            <p className="text-xs font-medium text-ink-400">Consistency</p>
-            <p className="font-display mt-1 text-lg font-bold">{kpis.consistencyScore}/100</p>
-            <p className="text-xs text-ink-400">
-              {kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs Improvement'}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Chart Grid - featured first, then rest */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-        <ChartCard title="Contributions Trend" description="Your contributions over the last 6 months">
+      {/* ─── Primary charts — dominant, data-first ─── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+        <ChartCard title="Contributions Trend" description="Your contributions over the last 6 months" height="lg">
           <ContributionsTrendChart data={contributionsTrend} />
         </ChartCard>
-
-        <ChartCard title="Contribution Consistency" description="Monthly contributions (red = missed)">
+        <ChartCard title="Contribution Consistency" description="Monthly record — red bars indicate missed months" height="lg">
           <ContributionConsistencyChart data={contributionConsistency} />
         </ChartCard>
+      </div>
 
-        <ChartCard title="Transaction Distribution" description="Your spending breakdown by category">
+      {/* ─── Secondary charts ─── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+        <ChartCard title="Transaction Distribution" description="Breakdown by category">
           <TransactionDistributionChart transactions={memberTransactions} />
         </ChartCard>
-
         {activeLoan ? (
           <ChartCard title="Loan Repayment Progress" description="Your active loan repayment status">
             <LoanRepaymentChart paid={totalPaid} total={totalOwed} />
           </ChartCard>
         ) : (
-          <ChartCard title="Savings Progress" description="Your savings growth">
+          <ChartCard title="Savings Progress" description="Your cumulative savings growth">
             <SavingsProgressChart totalContributions={kpis.totalBalance} />
           </ChartCard>
         )}
-
         {mpesaTrends.length > 0 && (
-          <ChartCard title="Mpesa Payments Trend" description="Success/failed/pending over time">
+          <ChartCard title="M-Pesa Payments Trend" description="Success / failed / pending over time">
             <MemberMpesaTrendChart data={mpesaTrends} />
           </ChartCard>
         )}
-
-        <ChartCard title="Savings Overview" description="Your total savings progress">
-          <SavingsProgressChart totalContributions={kpis.totalBalance} />
-        </ChartCard>
       </div>
 
-      {/* Chama Health Widget + Insights + Recent Activity (stack on small screens) */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 [&>*]:min-w-0">
-        <div>
-          <ChamaHealthWidget />
-        </div>
-        <div>
-          <InsightsPanel insights={insights} />
-        </div>
-        <div>
-          <MemberRecentActivityTabs
-            transactions={memberTransactions}
-            contributions={memberContributions}
-            mpesaPayments={memberPayments}
-          />
-        </div>
+      {/* ─── KPI summary strip ─── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
+        {[
+          { label: 'Balance',      value: formatKES(kpis.totalBalance),           sub: 'Personal savings' },
+          { label: 'This Month',   value: formatKES(kpis.thisMonthContributions),  sub: `${kpis.thisMonthCount} contribution${kpis.thisMonthCount !== 1 ? 's' : ''}` },
+          { label: 'Active Loan',  value: activeLoan ? formatKES(kpis.loanBalance) : 'None', sub: activeLoan ? `Due ${formatDateShort(kpis.nextDue)}` : '—' },
+          { label: 'Repayment',    value: activeLoan ? `${kpis.loanProgress}%` : 'N/A',       sub: activeLoan ? 'Complete' : '—' },
+          { label: 'M-Pesa',       value: formatKES(kpis.thisMonthMpesaTotal),    sub: `${kpis.mpesaSuccessRate.toFixed(0)}% success` },
+          { label: 'Consistency',  value: `${kpis.consistencyScore}/100`,          sub: kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs improvement' },
+        ].map(k => (
+          <div key={k.label} className="rounded-lg border border-ink-300 bg-warm-card px-4 py-4 min-w-0" style={{ boxShadow: 'var(--shadow-xs)' }}>
+            <p className="truncate text-ink-400" style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{k.label}</p>
+            <p className="mt-1 text-xl font-bold text-ink-900 truncate" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
+            <p className="mt-0.5 text-xs text-ink-400 truncate">{k.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── Chama Health + Insights + Recent Activity ─── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+        <ChamaHealthWidget />
+        <InsightsPanel insights={insights} />
+        <MemberRecentActivityTabs
+          transactions={memberTransactions}
+          contributions={memberContributions}
+          mpesaPayments={memberPayments}
+        />
       </div>
     </div>
   )

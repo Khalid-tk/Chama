@@ -30,40 +30,40 @@ export function StatCard({ icon: Icon, label, value, trend, trendLabel, accent =
 
   return (
     <div
-      className={`rounded-lg border border-ink-300 bg-warm-card px-5 py-5 border-t-2 ${topBorder} ${className}`}
+      className={`rounded-lg border border-ink-300 bg-warm-card px-4 py-4 border-t-2 ${topBorder} min-w-0 ${className}`}
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
       {/* Icon + trend */}
-      <div className="flex items-start justify-between mb-4">
-        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${bgCls}`}>
-          <Icon size={16} className={iconCls} strokeWidth={2} />
+      <div className="flex items-start justify-between mb-3">
+        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${bgCls}`}>
+          <Icon size={14} className={iconCls} strokeWidth={2} />
         </div>
         {hasTrend && (
-          <span className={`inline-flex items-center gap-1 text-xs font-medium ${isPositive ? 'text-forest' : 'text-red-700'}`}>
-            {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+          <span className={`inline-flex items-center gap-0.5 text-xs font-medium shrink-0 ${isPositive ? 'text-forest' : 'text-red-700'}`}>
+            {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
             {isPositive ? '+' : ''}{(trend as number).toFixed(1)}%
           </span>
         )}
       </div>
 
-      {/* Label — editorial small-caps style */}
+      {/* Label */}
       <p
-        className="mb-1.5 truncate text-ink-400"
+        className="mb-1 truncate text-ink-400"
         style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
       >
         {label}
       </p>
 
-      {/* Metric value — large, bold, sans-serif for maximum clarity */}
+      {/* Metric value */}
       <div
-        className="text-3xl font-bold text-ink-900 leading-none truncate"
+        className="text-2xl font-bold text-ink-900 leading-none truncate"
         style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' }}
       >
         {value}
       </div>
 
       {hasTrend && trendLabel && (
-        <p className="mt-2 text-xs text-ink-400 truncate">{trendLabel}</p>
+        <p className="mt-1.5 text-xs text-ink-400 truncate">{trendLabel}</p>
       )}
     </div>
   )

@@ -370,49 +370,45 @@ export function Loans() {
                         <div className="flex flex-col gap-2 pt-2 border-t border-ink-300">
                           {l.status === 'PENDING' && (
                             <>
-                              <div className="flex flex-wrap gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => setExpandedLoanId((id) => (id === l.id ? null : l.id))}
-                                  className="flex-1 min-w-[120px] gap-1 justify-center"
-                                >
-                                  <Sparkles size={14} />
-                                  AI Assessment
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  disabled={actioningId !== null}
-                                  loading={actioningId === l.id}
-                                  onClick={() => handleApprove(l.id, true)}
-                                  title="Approve and activate"
-                                  className="flex-1 min-w-[120px] gap-1 justify-center"
-                                >
-                                  <Banknote size={14} />
-                                  Approve & Activate
-                                </Button>
-                              </div>
-                              <div className="flex flex-wrap gap-2">
+                              {/* Primary row: Approve + Reject */}
+                              <div className="flex gap-2">
                                 <Button
                                   size="sm"
                                   disabled={actioningId !== null}
                                   loading={actioningId === l.id}
                                   onClick={() => handleApprove(l.id)}
-                                  className="flex-1 min-w-[100px] gap-1 justify-center bg-emerald-600 hover:bg-emerald-700"
+                                  className="flex-1 gap-1 justify-center bg-forest text-warm-card hover:bg-forest/90"
                                 >
-                                  <CheckCircle size={14} />
-                                  Approve
+                                  <CheckCircle size={13} /> Approve
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="secondary"
                                   disabled={actioningId !== null}
                                   onClick={() => handleReject(l.id)}
-                                  className="flex-1 min-w-[100px] gap-1 justify-center"
+                                  className="flex-1 gap-1 justify-center text-red-700 border-red-200 hover:bg-red-50"
                                 >
-                                  <XCircle size={14} />
-                                  Reject
+                                  <XCircle size={13} /> Reject
+                                </Button>
+                              </div>
+                              {/* Secondary row: smaller secondary actions */}
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedLoanId((id) => (id === l.id ? null : l.id))}
+                                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-ink-300 bg-warm-card px-2.5 py-1.5 text-xs font-medium text-gold hover:bg-warm-bg transition-colors"
+                                >
+                                  <Sparkles size={12} /> AI Assessment
+                                </button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={actioningId !== null}
+                                  loading={actioningId === l.id}
+                                  onClick={() => handleApprove(l.id, true)}
+                                  className="flex-1 gap-1 justify-center"
+                                >
+                                  <Banknote size={12} /> Activate
                                 </Button>
                               </div>
                             </>
@@ -512,45 +508,51 @@ export function Loans() {
                             </TableCell>
                             <TableCell className="text-right">
                               {l.status === 'PENDING' && (
-                                <div className="flex flex-wrap justify-end gap-2 gap-y-1">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {/* AI — icon-only with tooltip */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedLoanId((id) => (id === l.id ? null : l.id))}
+                                    title="AI Risk Assessment"
+                                    className="inline-flex items-center justify-center h-7 w-7 rounded-md border border-ink-300 bg-warm-card text-gold hover:bg-warm-bg transition-colors"
+                                  >
+                                    <Sparkles size={13} />
+                                  </button>
+                                  {/* Activate (approve + disburse immediately) */}
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    onClick={() => setExpandedLoanId((id) => (id === l.id ? null : l.id))}
-                                    className="gap-1"
-                                  >
-                                    <Sparkles size={14} />
-                                    AI Assessment
-                                  </Button>
-                                  <Button
-                                    size="sm"
                                     disabled={actioningId !== null}
                                     loading={actioningId === l.id}
                                     onClick={() => handleApprove(l.id, true)}
-                                    title="Approve and activate (cash disbursed to member)"
-                                    className="gap-1"
+                                    title="Approve and activate immediately"
+                                    className="gap-1 px-2.5"
                                   >
-                                    <Banknote size={14} />
-                                    Approve & Activate
+                                    <Banknote size={13} />
+                                    <span className="hidden xl:inline">Activate</span>
                                   </Button>
+                                  {/* Approve */}
                                   <Button
                                     size="sm"
                                     disabled={actioningId !== null}
                                     loading={actioningId === l.id}
                                     onClick={() => handleApprove(l.id)}
-                                    className="bg-emerald-600 hover:bg-emerald-700"
+                                    className="gap-1 px-2.5 bg-forest text-warm-card hover:bg-forest/90"
                                   >
-                                    <CheckCircle size={14} />
-                                    Approve
+                                    <CheckCircle size={13} />
+                                    <span>Approve</span>
                                   </Button>
+                                  {/* Reject */}
                                   <Button
                                     size="sm"
                                     variant="secondary"
                                     disabled={actioningId !== null}
                                     onClick={() => handleReject(l.id)}
+                                    title="Reject loan"
+                                    className="gap-1 px-2.5 text-red-700 border-red-200 hover:bg-red-50"
                                   >
-                                    <XCircle size={14} />
-                                    Reject
+                                    <XCircle size={13} />
+                                    <span className="hidden xl:inline">Reject</span>
                                   </Button>
                                 </div>
                               )}
@@ -560,8 +562,9 @@ export function Loans() {
                                   disabled={actioningId !== null}
                                   loading={actioningId === l.id}
                                   onClick={() => openDisburseModal(l)}
+                                  className="gap-1"
                                 >
-                                  <Banknote size={14} />
+                                  <Banknote size={13} />
                                   Disburse
                                 </Button>
                               )}
@@ -574,6 +577,7 @@ export function Loans() {
                                     setRecordRepayAmount('')
                                     setRecordRepayRef('')
                                   }}
+                                  className="gap-1"
                                 >
                                   Record repayment
                                 </Button>

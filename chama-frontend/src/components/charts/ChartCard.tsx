@@ -19,6 +19,18 @@ type ChartCardProps = {
  * The header uses a slightly deeper parchment (`warm-deep`) to frame the
  * chart as a ledger section, separated by a warm border rule.
  */
+const HEIGHT_MAP: Record<string, number> = {
+  sm:  180,
+  md:  220,
+  lg:  280,
+  xl:  340,
+}
+
+function resolveHeight(h: number | string): number {
+  if (typeof h === 'number') return h
+  return HEIGHT_MAP[h] ?? 220
+}
+
 export function ChartCard({
   title,
   subtitle,
@@ -32,14 +44,15 @@ export function ChartCard({
   className = '',
 }: ChartCardProps) {
   const sub = subtitle ?? description
+  const resolvedHeight = resolveHeight(height)
 
   return (
     <div
-      className={`rounded-lg border border-ink-300 bg-warm-card overflow-hidden ${className}`}
+      className={`rounded-lg border border-ink-300 bg-warm-card overflow-hidden min-w-0 ${className}`}
       style={{ boxShadow: 'var(--shadow-sm)' }}
     >
-      {/* Framed header — deeper parchment tone */}
-      <div className="border-b border-ink-300 bg-warm-deep px-5 py-4">
+      {/* Framed header */}
+      <div className="border-b border-ink-300 bg-warm-deep px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3
@@ -59,7 +72,7 @@ export function ChartCard({
       </div>
 
       {/* Chart body */}
-      <div className="relative px-4 py-4" style={{ height }}>
+      <div className="relative px-3 py-3" style={{ height: resolvedHeight }}>
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-warm-card/70 z-10">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-ink-300 border-t-brown" />

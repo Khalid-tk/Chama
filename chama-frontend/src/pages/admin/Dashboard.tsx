@@ -297,13 +297,13 @@ export function AdminDashboard() {
       </div>
 
       {/* ─── KPI strip ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
-        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    className="col-span-2 lg:col-span-2" />
-        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" className="col-span-2 lg:col-span-2" trend={cycleChange} trendLabel="vs last month" />
-        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   className="col-span-2 lg:col-span-2" />
-        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     className="col-span-1 lg:col-span-2" />
-        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    className="col-span-1 lg:col-span-2" />
-        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    className="col-span-2 lg:col-span-2" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
+        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    />
+        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" trend={cycleChange} trendLabel="vs last month" />
+        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   />
+        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     />
+        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    />
+        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    />
       </div>
 
       {/* ─── Defaults + Insights + Activity ─── */}

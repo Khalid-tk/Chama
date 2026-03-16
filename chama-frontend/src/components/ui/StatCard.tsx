@@ -56,8 +56,8 @@ export function StatCard({ icon: Icon, label, value, trend, trendLabel, accent =
 
       {/* Metric value */}
       <div
-        className="text-2xl font-bold text-ink-900 leading-none truncate"
-        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' }}
+        className="text-2xl font-bold text-ink-900 break-words"
+        style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}
       >
         {value}
       </div>

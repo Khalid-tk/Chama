@@ -320,7 +320,7 @@ export function MemberDashboard() {
       </div>
 
       {/* ─── KPI summary strip ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
         {[
           { label: 'Balance',      value: formatKES(kpis.totalBalance),           sub: 'Personal savings' },
           { label: 'This Month',   value: formatKES(kpis.thisMonthContributions),  sub: `${kpis.thisMonthCount} contribution${kpis.thisMonthCount !== 1 ? 's' : ''}` },
@@ -329,10 +329,10 @@ export function MemberDashboard() {
           { label: 'M-Pesa',       value: formatKES(kpis.thisMonthMpesaTotal),    sub: `${kpis.mpesaSuccessRate.toFixed(0)}% success` },
           { label: 'Consistency',  value: `${kpis.consistencyScore}/100`,          sub: kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs improvement' },
         ].map(k => (
-          <div key={k.label} className="rounded-lg border border-ink-300 bg-warm-card px-4 py-4 min-w-0" style={{ boxShadow: 'var(--shadow-xs)' }}>
-            <p className="truncate text-ink-400" style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{k.label}</p>
-            <p className="mt-1 text-xl font-bold text-ink-900 truncate" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
-            <p className="mt-0.5 text-xs text-ink-400 truncate">{k.sub}</p>
+          <div key={k.label} className="rounded-lg border border-ink-300 bg-warm-card px-5 py-5 min-w-0" style={{ boxShadow: 'var(--shadow-xs)' }}>
+            <p className="text-ink-400 mb-1" style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{k.label}</p>
+            <p className="text-2xl font-bold text-ink-900 break-words" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{k.value}</p>
+            <p className="mt-1 text-xs text-ink-500">{k.sub}</p>
           </div>
         ))}
       </div>

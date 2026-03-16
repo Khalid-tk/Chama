@@ -37,7 +37,7 @@ export function Register() {
     setLoading(true)
     try {
       const { data } = await api.post('/auth/register', { fullName: form.fullName, email: form.email, phone: form.phone || undefined, password: form.password })
-      storeLogin(data.user, data.token, data.memberships ?? [])
+      storeLogin(data.token, data.user, data.memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {
@@ -49,7 +49,7 @@ export function Register() {
     setError(''); setLoading(true)
     try {
       const { data } = await api.post('/auth/google', { token: credentialResponse.credential })
-      storeLogin(data.user, data.token, data.memberships ?? [])
+      storeLogin(data.token, data.user, data.memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {

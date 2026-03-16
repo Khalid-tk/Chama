@@ -31,7 +31,7 @@ export function Login() {
     setError(''); setLoading(true)
     try {
       const { data } = await api.post('/auth/login', { email: e, password: p })
-      storeLogin(data.user, data.token, data.memberships ?? [])
+      storeLogin(data.token, data.user, data.memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {
@@ -45,7 +45,7 @@ export function Login() {
     setError(''); setLoading(true)
     try {
       const { data } = await api.post('/auth/google', { token: credentialResponse.credential })
-      storeLogin(data.user, data.token, data.memberships ?? [])
+      storeLogin(data.token, data.user, data.memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {

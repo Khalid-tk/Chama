@@ -30,8 +30,9 @@ export function Login() {
   const doLogin = async (e: string, p: string) => {
     setError(''); setLoading(true)
     try {
-      const { data } = await api.post('/auth/login', { email: e, password: p })
-      storeLogin(data.token, data.user, data.memberships ?? [])
+      const res = await api.post('/auth/login', { email: e, password: p })
+      const { token, user, memberships } = res.data.data
+      storeLogin(token, user, memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {
@@ -44,8 +45,9 @@ export function Login() {
   const handleGoogle = async (credentialResponse: any) => {
     setError(''); setLoading(true)
     try {
-      const { data } = await api.post('/auth/google', { token: credentialResponse.credential })
-      storeLogin(data.token, data.user, data.memberships ?? [])
+      const res = await api.post('/auth/google', { idToken: credentialResponse.credential })
+      const { token, user, memberships } = res.data.data
+      storeLogin(token, user, memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {

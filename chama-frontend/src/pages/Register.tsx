@@ -36,8 +36,9 @@ export function Register() {
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return }
     setLoading(true)
     try {
-      const { data } = await api.post('/auth/register', { fullName: form.fullName, email: form.email, phone: form.phone || undefined, password: form.password })
-      storeLogin(data.token, data.user, data.memberships ?? [])
+      const res = await api.post('/auth/register', { fullName: form.fullName, email: form.email, phone: form.phone || undefined, password: form.password })
+      const { token, user, memberships } = res.data.data
+      storeLogin(token, user, memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {
@@ -48,8 +49,9 @@ export function Register() {
   const handleGoogle = async (credentialResponse: any) => {
     setError(''); setLoading(true)
     try {
-      const { data } = await api.post('/auth/google', { token: credentialResponse.credential })
-      storeLogin(data.token, data.user, data.memberships ?? [])
+      const res = await api.post('/auth/google', { idToken: credentialResponse.credential })
+      const { token, user, memberships } = res.data.data
+      storeLogin(token, user, memberships ?? [])
       clearActiveChama()
       navigate('/select-chama')
     } catch (err: any) {

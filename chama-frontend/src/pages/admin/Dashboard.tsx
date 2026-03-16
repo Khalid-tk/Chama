@@ -24,7 +24,6 @@ import { ContributionsTrendChart } from '../../components/charts/ContributionsTr
 import { ContributionsByMemberChart } from '../../components/charts/ContributionsByMemberChart'
 import { LoanPortfolioStackedChart } from '../../components/charts/LoanPortfolioStackedChart'
 import { CashflowAreaChart } from '../../components/charts/CashflowAreaChart'
-import { DefaultsTrendChart } from '../../components/charts/DefaultsTrendChart'
 import { MpesaTrendsChart } from '../../components/charts/MpesaTrendsChart'
 import { InsightsPanel } from '../../components/admin/InsightsPanel'
 import { RecentActivityTabs } from '../../components/admin/RecentActivityTabs'
@@ -154,11 +153,6 @@ export function AdminDashboard() {
     const s = analytics?.series?.cashflowMonthly ?? []
     return s.map((m) => ({ month: m.month, in: Number(m.inflow) || 0, out: Number(m.outflow) || 0 }))
   }, [analytics?.series?.cashflowMonthly])
-
-  const defaultsTrend = useMemo(() => {
-    const late = analytics?.kpis?.lateLoansCount ?? 0
-    return [{ month: 'Current', lateCount: Number(late), overdueCount: 0 }]
-  }, [analytics?.kpis?.lateLoansCount])
 
   const mpesaTrends = useMemo(() => {
     const s = analytics?.series?.mpesaOutcomesMonthly ?? []
@@ -306,11 +300,8 @@ export function AdminDashboard() {
         <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    />
       </div>
 
-      {/* ─── Defaults + Insights + Activity ─── */}
-      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
-        <ChartCard title="Defaults Trend" description="Late repayment count">
-          <DefaultsTrendChart data={defaultsTrend} />
-        </ChartCard>
+      {/* ─── Insights + Activity ─── */}
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <InsightsPanel insights={insights} />
         <RecentActivityTabs transactions={allTransactions} loans={loansForTabs} mpesaPayments={mpesaForTabs} onRefresh={loadData} />
       </div>

@@ -151,9 +151,25 @@
     flex-shrink: 0;
   }
 
-  /* Legacy alias */
+  /* Legacy alias — mirrors .section-label without @apply */
   .section-title {
-    @apply section-label;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #B08A57;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 1.25rem;
+    height: 1px;
+    background: #B08A57;
+    flex-shrink: 0;
   }
 
   /* Gold accent rule — use as a bottom-border on page headers */

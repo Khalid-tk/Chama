@@ -84,7 +84,7 @@ export function Notifications() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+    <div className="min-h-screen bg-warm-bg p-4 md:p-6">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -92,8 +92,8 @@ export function Notifications() {
               <ArrowLeft size={18} />
             </Button>
             <div className="flex items-center gap-2">
-              <Bell className="text-blue-600" size={24} />
-              <h1 className="text-xl font-semibold text-slate-800">Notifications</h1>
+              <Bell className="text-brown" size={24} />
+              <h1 className="text-xl font-semibold text-ink-900">Notifications</h1>
               {unreadCount > 0 && (
                 <Badge variant="danger">{unreadCount > 99 ? '99+' : unreadCount}</Badge>
               )}
@@ -126,17 +126,17 @@ export function Notifications() {
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-slate-500">Loading...</p>
+                <p className="text-ink-500">Loading...</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Bell className="text-slate-300 mb-2" size={48} />
-                <p className="text-slate-500">
+                <Bell className="text-ink-300 mb-2" size={48} />
+                <p className="text-ink-500">
                   {filter === 'unread' ? 'No unread notifications' : 'No notifications'}
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-ink-200">
                 {notifications.map((n) => (
                   <div
                     key={n.id}
@@ -144,13 +144,13 @@ export function Notifications() {
                     tabIndex={0}
                     onClick={() => handleClick(n)}
                     onKeyDown={(e) => e.key === 'Enter' && handleClick(n)}
-                    className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer ${
-                      !n.isRead ? 'bg-blue-50/50' : ''
+                    className={`p-4 hover:bg-warm-bg transition-colors cursor-pointer ${
+                      !n.isRead ? 'bg-brown-light/50' : ''
                     }`}
                   >
-                    <p className="font-medium text-slate-800">{n.title}</p>
-                    <p className="text-sm text-slate-600 mt-1">{n.message}</p>
-                    <p className="text-xs text-slate-400 mt-1">{formatTimeAgo(n.createdAt)}</p>
+                    <p className="font-medium text-ink-900">{n.title}</p>
+                    <p className="text-sm text-ink-700 mt-1">{n.message}</p>
+                    <p className="text-xs text-ink-400 mt-1">{formatTimeAgo(n.createdAt)}</p>
                   </div>
                 ))}
               </div>

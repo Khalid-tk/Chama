@@ -11,42 +11,23 @@ type DateRangeFilterProps = {
   onCustomEndChange?: (date: string) => void
 }
 
-export function DateRangeFilter({
-  value,
-  onChange,
-  customStart,
-  customEnd,
-  onCustomStartChange,
-  onCustomEndChange,
-}: DateRangeFilterProps) {
+const selectCls = 'rounded-md border border-ink-300 bg-warm-card px-3 py-1.5 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-1 focus:ring-brown/20 transition-colors h-9'
+
+export function DateRangeFilter({ value, onChange, customStart, customEnd, onCustomStartChange, onCustomEndChange }: DateRangeFilterProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 min-w-0 w-full sm:w-auto">
-      <Calendar size={18} className="text-slate-500" />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as DateRange)}
-        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-      >
-        <option value="this_month">This Month</option>
-        <option value="last_3_months">Last 3 Months</option>
-        <option value="last_6_months">Last 6 Months</option>
-        <option value="custom">Custom Range</option>
+    <div className="flex flex-wrap items-center gap-2">
+      <Calendar size={14} className="text-ink-400 shrink-0" />
+      <select value={value} onChange={e => onChange(e.target.value as DateRange)} className={`${selectCls} cursor-pointer`}>
+        <option value="this_month">This month</option>
+        <option value="last_3_months">Last 3 months</option>
+        <option value="last_6_months">Last 6 months</option>
+        <option value="custom">Custom range</option>
       </select>
       {value === 'custom' && (
         <>
-          <input
-            type="date"
-            value={customStart || ''}
-            onChange={(e) => onCustomStartChange?.(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
-          <span className="text-slate-500">to</span>
-          <input
-            type="date"
-            value={customEnd || ''}
-            onChange={(e) => onCustomEndChange?.(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
+          <input type="date" value={customStart ?? ''} onChange={e => onCustomStartChange?.(e.target.value)} className={selectCls} />
+          <span className="text-xs text-ink-400">–</span>
+          <input type="date" value={customEnd ?? ''} onChange={e => onCustomEndChange?.(e.target.value)} className={selectCls} />
         </>
       )}
     </div>

@@ -122,10 +122,10 @@ export function ChamaHealth() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Chama Health</h1>
-          <p className="text-sm text-slate-500">Monitor chama growth and membership trends</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Chama Health</h1>
+          <p className="text-sm text-ink-500">Monitor chama growth and membership trends</p>
         </div>
-        <div className="text-center py-12 text-slate-500">Loading chama health data...</div>
+        <div className="text-center py-12 text-ink-500">Loading chama health data...</div>
       </div>
     )
   }
@@ -133,19 +133,19 @@ export function ChamaHealth() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Chama Health</h1>
-        <p className="text-sm text-slate-500">Monitor chama growth and membership trends</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Chama Health</h1>
+        <p className="text-sm text-ink-500">Monitor chama growth and membership trends</p>
       </div>
 
       {/* Health Score Card */}
-      <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+      <Card className="border-2 border-ink-300 bg-gradient-to-br from-blue-50 to-white">
         <CardContent className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="text-sm font-medium text-slate-600 mb-1">Chama Health Score</div>
+              <div className="text-sm font-medium text-ink-700 mb-1">Chama Health Score</div>
               <div className="flex items-baseline gap-2 mb-2">
-                <div className="text-4xl font-bold text-slate-800">{healthScore.score}</div>
-                <div className="text-lg text-slate-500">/ 100</div>
+                <div className="text-4xl font-bold text-ink-900">{healthScore.score}</div>
+                <div className="text-lg text-ink-500">/ 100</div>
               </div>
               <Badge
                 variant={healthScore.label === 'Healthy' ? 'success' : healthScore.label === 'Risk' ? 'danger' : 'warning'}
@@ -154,11 +154,11 @@ export function ChamaHealth() {
                 {healthScore.label}
               </Badge>
               <div className="mt-4 space-y-1">
-                <div className="text-xs font-medium text-slate-700">Why this score?</div>
-                <ul className="text-xs text-slate-600 space-y-1">
+                <div className="text-xs font-medium text-ink-700">Why this score?</div>
+                <ul className="text-xs text-ink-700 space-y-1">
                   {healthScore.contributors.slice(0, 3).map((contributor, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-blue-600 mt-0.5">•</span>
+                      <span className="text-brown mt-0.5">•</span>
                       <span>{contributor}</span>
                     </li>
                   ))}
@@ -183,10 +183,10 @@ export function ChamaHealth() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-slate-500">Total Members</div>
-                <div className="text-2xl font-bold text-slate-800">{mockMembers.length}</div>
+                <div className="text-sm text-ink-500">Total Members</div>
+                <div className="text-2xl font-bold text-ink-900">{mockMembers.length}</div>
               </div>
-              <Users className="text-blue-600" size={32} />
+              <Users className="text-brown" size={32} />
             </div>
           </CardContent>
         </Card>
@@ -194,8 +194,8 @@ export function ChamaHealth() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-slate-500">Growth Status</div>
-                <div className="text-xl font-bold text-slate-800">{growthLabel}</div>
+                <div className="text-sm text-ink-500">Growth Status</div>
+                <div className="text-xl font-bold text-ink-900">{growthLabel}</div>
               </div>
               <StatusIcon className={`text-${healthStatus.color === 'success' ? 'emerald' : healthStatus.color === 'danger' ? 'red' : 'slate'}-600`} size={32} />
             </div>
@@ -208,8 +208,8 @@ export function ChamaHealth() {
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-500">New Members This Month</div>
-            <div className="text-2xl font-bold text-slate-800">
+            <div className="text-sm text-ink-500">New Members This Month</div>
+            <div className="text-2xl font-bold text-ink-900">
               {membershipTrend[membershipTrend.length - 1]?.newMembers || 0}
             </div>
           </CardContent>
@@ -251,18 +251,18 @@ export function ChamaHealth() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Membership Overview</h2>
-          <p className="text-sm text-slate-500">Monthly membership statistics</p>
+          <h2 className="font-semibold text-ink-900">Membership Overview</h2>
+          <p className="text-sm text-ink-500">Monthly membership statistics</p>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {membershipTrend.map((data, index) => (
-              <div key={index} className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div key={index} className="flex items-center justify-between border-b border-ink-200 pb-3">
                 <div>
-                  <div className="font-medium text-slate-800">{data.month}</div>
-                  <div className="text-sm text-slate-500">{data.newMembers} new member{data.newMembers !== 1 ? 's' : ''}</div>
+                  <div className="font-medium text-ink-900">{data.month}</div>
+                  <div className="text-sm text-ink-500">{data.newMembers} new member{data.newMembers !== 1 ? 's' : ''}</div>
                 </div>
-                <div className="text-lg font-semibold text-blue-600">{data.totalMembers} total</div>
+                <div className="text-lg font-semibold text-brown">{data.totalMembers} total</div>
               </div>
             ))}
           </div>

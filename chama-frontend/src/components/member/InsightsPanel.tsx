@@ -11,11 +11,11 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
     return (
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Insights</h2>
-          <p className="text-sm text-slate-500">Personalized insights for you</p>
+          <h2 className="font-semibold text-ink-900">Insights</h2>
+          <p className="text-sm text-ink-500">Personalized insights for you</p>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-500">No insights available yet.</p>
+          <p className="text-sm text-ink-500">No insights available yet.</p>
         </CardContent>
       </Card>
     )
@@ -24,8 +24,8 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="font-semibold text-slate-800">Insights</h2>
-        <p className="text-sm text-slate-500">Personalized insights for you</p>
+        <h2 className="font-semibold text-ink-900">Insights</h2>
+        <p className="text-sm text-ink-500">Personalized insights for you</p>
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
@@ -38,7 +38,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
                 {insight.type === 'negative' && (
                   <TrendingDown className="h-4 w-4 text-red-600" />
                 )}
-                {insight.type === 'neutral' && <Info className="h-4 w-4 text-blue-600" />}
+                {insight.type === 'neutral' && <Info className="h-4 w-4 text-brown" />}
               </div>
               <p
                 className={`text-sm min-w-0 break-words ${
@@ -46,7 +46,7 @@ export function InsightsPanel({ insights }: InsightsPanelProps) {
                     ? 'text-emerald-700'
                     : insight.type === 'negative'
                     ? 'text-red-700'
-                    : 'text-slate-700'
+                    : 'text-ink-700'
                 }`}
               >
                 {insight.message}

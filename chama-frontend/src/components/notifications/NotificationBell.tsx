@@ -73,7 +73,7 @@ export function NotificationBell() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100"
+        className="relative rounded-lg p-2 text-ink-500 hover:bg-warm-deep hover:text-ink-700 transition-colors"
         aria-label="Notifications"
       >
         <Bell size={20} strokeWidth={2} />

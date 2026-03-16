@@ -110,8 +110,8 @@ export function AdminTransactions() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
-          <p className="text-slate-600">Loading transactions...</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
+          <p className="text-ink-700">Loading transactions...</p>
         </div>
       </div>
     )
@@ -120,8 +120,8 @@ export function AdminTransactions() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Transactions</h1>
-        <p className="text-sm text-slate-500">View all chama transactions</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Transactions</h1>
+        <p className="text-sm text-ink-500">View all chama transactions</p>
       </div>
 
       {/* Stats Cards */}
@@ -164,14 +164,14 @@ export function AdminTransactions() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter size={18} className="text-slate-500" />
+              <Filter size={18} className="text-ink-500" />
               <select
                 value={typeFilter}
                 onChange={(e) => {
                   setTypeFilter(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
               >
                 <option value="all">All Types</option>
                 <option value="credit">Credits</option>
@@ -183,7 +183,7 @@ export function AdminTransactions() {
                   setMemberFilter(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
               >
                 <option value="all">All Members</option>
                 {uniqueMembers.map(m => (
@@ -198,8 +198,8 @@ export function AdminTransactions() {
       {/* Transactions Table */}
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">All Transactions</h2>
-          <p className="text-sm text-slate-500">Complete transaction history</p>
+          <h2 className="font-semibold text-ink-900">All Transactions</h2>
+          <p className="text-sm text-ink-500">Complete transaction history</p>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           <div className="max-h-[600px] overflow-auto">
@@ -224,7 +224,7 @@ export function AdminTransactions() {
                       <TableCell className="font-medium">{t.desc}</TableCell>
                       <TableCell
                         className={`text-right font-semibold ${
-                          t.type === 'credit' ? 'text-emerald-600' : 'text-slate-800'
+                          t.type === 'credit' ? 'text-emerald-600' : 'text-ink-900'
                         }`}
                       >
                         {t.type === 'credit' ? '+' : '-'}
@@ -242,8 +242,8 @@ export function AdminTransactions() {
             </TableShell>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-              <div className="text-sm text-slate-600">
+            <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+              <div className="text-sm text-ink-700">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} transactions
               </div>
@@ -251,14 +251,14 @@ export function AdminTransactions() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

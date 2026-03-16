@@ -1,51 +1,182 @@
 @import 'tailwindcss';
 
-@layer base {
-  html {
-    overflow-x: hidden;
-  }
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    @apply antialiased text-slate-800 bg-[#F6F7FB];
-    overflow-x: hidden;
-    max-width: 100vw;
-  }
-  h1 {
-    @apply text-xl font-semibold sm:text-2xl;
-  }
-  h2 {
-    @apply text-lg font-semibold sm:text-xl;
-  }
-  h3 {
-    @apply text-base font-semibold sm:text-lg;
-  }
-  .amount-cell {
-    @apply min-w-0 break-words;
-  }
+/*
+ * CHAMA — Coffee-Wash Editorial Design System  v2
+ * ================================================
+ * Warm archival palette. Playfair Display headings. Framed panels.
+ * Restrained gold accents. Reads like a well-made document.
+ */
+
+/* ─── Custom palette + font tokens (Tailwind v4 @theme) ──────────── */
+@theme {
+  /* Surfaces */
+  --color-warm-bg:      #F5EBDD;
+  --color-warm-card:    #F8F1E4;
+  --color-warm-deep:    #EADCC6;
+  --color-warm-sidebar: #2F241D;
+
+  /* Ink text scale */
+  --color-ink-900: #2F241D;
+  --color-ink-700: #5C4636;
+  --color-ink-500: #7A6252;
+  --color-ink-400: #8A7260;
+  --color-ink-300: #C9B79C;
+  --color-ink-200: #DDD0BB;
+  --color-ink-100: #EDE3D4;
+
+  /* Accent — brown / coffee */
+  --color-brown:       #8A5A3B;
+  --color-brown-dark:  #5B3A29;
+  --color-brown-light: #F0E4D3;
+
+  /* Secondary accents */
+  --color-gold:   #B08A57;
+  --color-forest: #5D6B4D;
+
+  /* Font stacks */
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* ─── CSS variables (for inline style usage) ────────────────────── */
+:root {
+  --c-base:        #F5EBDD;
+  --c-surface:     #F8F1E4;
+  --c-surface-deep: #EADCC6;
+  --c-sidebar:     #2F241D;
+
+  --c-border:      #C9B79C;
+  --c-border-hi:   #B08A57;
+
+  --c-text-1:      #2F241D;
+  --c-text-2:      #5C4636;
+  --c-text-3:      #8A7260;
+
+  --c-primary:     #8A5A3B;
+  --c-primary-hi:  #5B3A29;
+  --c-primary-bg:  #F0E4D3;
+
+  --c-accent:      #B08A57;
+  --c-accent-bg:   #F5E9D7;
+
+  /* Chart palette */
+  --chart-1: #8A5A3B;
+  --chart-2: #B08A57;
+  --chart-3: #5D6B4D;
+  --chart-4: #C9955A;
+  --chart-5: #8B3A29;
+
+  /* Status */
+  --c-success:  #059669;
+  --c-warning:  #D97706;
+  --c-danger:   #DC2626;
+
+  /* Shadows — warm-tinted, more layered */
+  --shadow-xs: 0 1px 2px 0 rgba(47,36,29,.06);
+  --shadow-sm: 0 2px 4px 0 rgba(47,36,29,.08), 0 1px 2px -1px rgba(47,36,29,.05);
+  --shadow-md: 0 6px 12px -2px rgba(47,36,29,.10), 0 3px 6px -3px rgba(47,36,29,.06);
+
+  /* Editorial accent rule thickness */
+  --rule-accent: 2px;
+}
+
+/* ─── Base ──────────────────────────────────────────────────────── */
+@layer base {
+  html { overflow-x: hidden; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #F5EBDD;
+    color: #2F241D;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Serif hierarchy — editorial authority */
+  h1 {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    color: #2F241D;
+    line-height: 1.2;
+  }
+  h2 {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    color: #2F241D;
+    line-height: 1.25;
+  }
+  h3, h4 {
+    font-weight: 600;
+    color: #2F241D;
+  }
+
+  /* Warm ink scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C9B79C; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #B08A57; }
+}
+
+/* ─── Layout utilities ──────────────────────────────────────────── */
 @layer utilities {
-  .page-enter {
-    animation: pageEnter 0.2s ease-out;
-  }
   .page-container {
-    @apply w-full max-w-full overflow-x-hidden px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-6;
+    @apply w-full max-w-full overflow-x-hidden px-5 py-6 lg:px-8 lg:py-8;
   }
-  .page-container > * {
-    max-width: 100%;
+
+  .page-header {
+    @apply mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between;
   }
-  .responsive-grid {
-    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+
+  /*
+   * Editorial section label — small-caps style with gold dash.
+   * Usage: <p className="section-label">Members</p>
+   */
+  .section-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #B08A57;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 1.25rem;
+    height: 1px;
+    background: #B08A57;
+    flex-shrink: 0;
+  }
+
+  /* Legacy alias */
+  .section-title {
+    @apply section-label;
+  }
+
+  /* Gold accent rule — use as a bottom-border on page headers */
+  .rule-gold {
+    border-bottom: var(--rule-accent) solid #B08A57;
+  }
+
+  /* Framed panel — adds a warm top-accent border to any card */
+  .panel-framed {
+    border-top: 2px solid #C9B79C;
+  }
+
+  /* Emphasis panel — stronger top accent for primary panels */
+  .panel-accent {
+    border-top: 2px solid #B08A57;
+  }
+
+  .sidebar-transition { transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  .page-enter { animation: pageEnter 0.2s ease-out; }
 }
 
 @keyframes pageEnter {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

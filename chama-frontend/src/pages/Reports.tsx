@@ -119,8 +119,8 @@ export function Reports() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
-          <p className="text-slate-600">Loading reports...</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
+          <p className="text-ink-700">Loading reports...</p>
         </div>
       </div>
     )
@@ -130,8 +130,8 @@ export function Reports() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Reports</h1>
-          <p className="text-sm text-slate-500">Generate and view Chama reports</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Reports</h1>
+          <p className="text-sm text-ink-500">Generate and view Chama reports</p>
         </div>
         <Button onClick={() => exportToCSV(filtered)}>
           <FileDown size={18} />
@@ -160,9 +160,9 @@ export function Reports() {
 
       {/* Reports table */}
       <Card>
-        <div className="border-b border-slate-100 px-6 py-4">
-          <h2 className="font-semibold text-slate-800">Generated Reports</h2>
-          <p className="text-sm text-slate-500">Previously generated report list</p>
+        <div className="border-b border-ink-200 px-6 py-4">
+          <h2 className="font-semibold text-ink-900">Generated Reports</h2>
+          <p className="text-sm text-ink-500">Previously generated report list</p>
         </div>
         <CardContent className="p-4">
           <div className="mb-4 max-w-xs">

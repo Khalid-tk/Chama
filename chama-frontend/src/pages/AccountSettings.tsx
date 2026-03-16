@@ -70,8 +70,8 @@ export function AccountSettings() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Settings</h1>
-          <p className="text-sm text-slate-500">Account settings and preferences</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Settings</h1>
+          <p className="text-sm text-ink-500">Account settings and preferences</p>
         </div>
         <Button variant="secondary" size="sm" onClick={goToDashboard} className="gap-2">
           <ArrowLeft size={18} />
@@ -93,10 +93,10 @@ export function AccountSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Change password</h2>
+            <Lock className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Change password</h2>
           </div>
-          <p className="text-sm text-slate-500">Update your password.</p>
+          <p className="text-sm text-ink-500">Update your password.</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Input label="Current password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="••••••••" />
@@ -112,30 +112,30 @@ export function AccountSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bell className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Notifications</h2>
+            <Bell className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Notifications</h2>
           </div>
-          <p className="text-sm text-slate-500">Notification preferences</p>
+          <p className="text-sm text-ink-500">Notification preferences</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-medium text-slate-800">Due date reminders</p>
-              <p className="text-sm text-slate-500">Notify before contribution due dates</p>
+              <p className="font-medium text-ink-900">Due date reminders</p>
+              <p className="text-sm text-ink-500">Notify before contribution due dates</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">
               <input type="checkbox" checked={dueReminders} onChange={(e) => handleToggleNotification('dueReminders', e.target.checked)} className="sr-only peer" />
-              <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
+              <div className="w-11 h-6 bg-warm-deep rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-card after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brown" />
             </label>
           </div>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-medium text-slate-800">M-Pesa payment updates</p>
-              <p className="text-sm text-slate-500">Payment status notifications</p>
+              <p className="font-medium text-ink-900">M-Pesa payment updates</p>
+              <p className="text-sm text-ink-500">Payment status notifications</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer shrink-0">
               <input type="checkbox" checked={mpesaUpdates} onChange={(e) => handleToggleNotification('mpesaUpdates', e.target.checked)} className="sr-only peer" />
-              <div className="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
+              <div className="w-11 h-6 bg-warm-deep rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-card after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brown" />
             </label>
           </div>
         </CardContent>

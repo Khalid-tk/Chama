@@ -1,56 +1,38 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 type MpesaTrendsChartProps = {
   data: Array<{ date: string; success: number; failed: number; pending: number }>
 }
 
+const TOOLTIP_STYLE = {
+  backgroundColor: '#FFFFFF',
+  border: '1px solid rgba(79,70,229,0.2)',
+  borderRadius: '12px',
+  boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+  color: '#111827',
+  fontSize: 12,
+}
+
 export function MpesaTrendsChart({ data }: MpesaTrendsChartProps) {
-  const chartData = data.map((item) => ({
-    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    success: item.success,
-    failed: item.failed,
-    pending: item.pending,
+  const chartData = data.map((d) => ({
+    month: new Date(d.date).toLocaleDateString('en-US', { month: 'short' }),
+    success: d.success,
+    failed: d.failed,
+    pending: d.pending,
   }))
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-        <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
-        <YAxis stroke="#64748b" fontSize={12} />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: 'white',
-            border: '1px solid #c7d2fe',
-            borderRadius: '8px',
-          }}
-        />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="success"
-          stroke="#10b981"
-          strokeWidth={2}
-          name="Success"
-          dot={{ fill: '#10b981', r: 4 }}
-        />
-        <Line
-          type="monotone"
-          dataKey="failed"
-          stroke="#ef4444"
-          strokeWidth={2}
-          name="Failed"
-          dot={{ fill: '#ef4444', r: 4 }}
-        />
-        <Line
-          type="monotone"
-          dataKey="pending"
-          stroke="#f59e0b"
-          strokeWidth={2}
-          name="Pending"
-          dot={{ fill: '#f59e0b', r: 4 }}
-        />
-      </LineChart>
+      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+        <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(79,70,229,0.05)' }} />
+        <Legend wrapperStyle={{ fontSize: 11, color: '#9CA3AF' }} />
+        <Bar dataKey="success" name="Success" fill="#10B981" fillOpacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={32} />
+        <Bar dataKey="failed"  name="Failed"  fill="#F43F5E" fillOpacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={32} />
+        <Bar dataKey="pending" name="Pending" fill="#F59E0B" fillOpacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={32} />
+      </BarChart>
     </ResponsiveContainer>
   )
 }

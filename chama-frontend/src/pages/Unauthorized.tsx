@@ -30,8 +30,8 @@ export function Unauthorized() {
               <AlertCircle className="text-red-600" size={32} />
             </div>
           </div>
-          <h1 className="mb-2 text-2xl font-semibold text-slate-800">Unauthorized Access</h1>
-          <p className="mb-6 text-slate-500">
+          <h1 className="mb-2 text-2xl font-semibold text-ink-900">Unauthorized Access</h1>
+          <p className="mb-6 text-ink-500">
             You don't have permission to access this page. Please contact your administrator if you believe this is an error.
           </p>
           <div className="flex gap-2 justify-center">

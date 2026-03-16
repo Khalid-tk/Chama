@@ -59,8 +59,8 @@ export function MemberRecentActivityTabs({
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
           <div className="min-w-0">
-            <h2 className="font-semibold text-slate-800 truncate">Recent Activity</h2>
-            <p className="text-sm text-slate-500 truncate">Your latest activity across all categories</p>
+            <h2 className="font-semibold text-ink-900 truncate">Recent Activity</h2>
+            <p className="text-sm text-ink-500 truncate">Your latest activity across all categories</p>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
             {(['transactions', 'contributions', 'mpesa'] as const).map((tab) => (
@@ -69,8 +69,8 @@ export function MemberRecentActivityTabs({
                 onClick={() => setActiveTab(tab)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-all ${
                   activeTab === tab
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-brown text-white shadow-md'
+                    : 'bg-warm-card border border-ink-300 text-ink-700 hover:bg-warm-bg'
                 }`}
               >
                 {tab}
@@ -101,7 +101,7 @@ export function MemberRecentActivityTabs({
                       <TableCell className="text-sm">{t.desc}</TableCell>
                       <TableCell
                         className={`text-right text-sm font-medium ${
-                          t.type === 'credit' ? 'text-emerald-600' : 'text-slate-800'
+                          t.type === 'credit' ? 'text-emerald-600' : 'text-ink-900'
                         }`}
                       >
                         {t.type === 'credit' ? '+' : '-'}

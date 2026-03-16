@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, LogOut, Building2, Users, Lock, Unlock, Shield, RefreshCw } from 'lucide-react'
+import { Plus, Search, LogOut, Building2, Lock, Unlock, Shield, RefreshCw, ChevronRight } from 'lucide-react'
 import { BrandLogo } from '../components/BrandLogo'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
-import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { Modal, ModalBody, ModalFooter } from '../components/ui/Modal'
 import { useAuthStore } from '../store/authStore'
 import { useChamaStore } from '../store/chamaStore'
 import api from '../lib/api'
 import type { ChamaMembership } from '../store/authStore'
+
+type BadgeVariant = 'blue' | 'success' | 'purple' | 'neutral'
+
+function roleBadge(role: string): BadgeVariant {
+  if (role === 'ADMIN' || role === 'CHAIR') return 'blue'
+  if (role === 'TREASURER') return 'success'
+  if (role === 'AUDITOR') return 'purple'
+  return 'neutral'
+}
 
 export function SelectChama() {
   const navigate = useNavigate()
@@ -19,479 +28,289 @@ export function SelectChama() {
   const [loading, setLoading] = useState(true)
   const [myChamas, setMyChamas] = useState<ChamaMembership[]>([])
   const [showCreate, setShowCreate] = useState(false)
-  const [showJoin, setShowJoin] = useState(false)
+  const [showJoin, setShowJoin]     = useState(false)
 
-  useEffect(() => {
-    loadMyChamas()
-  }, [])
+  useEffect(() => { loadMyChamas() }, [])
 
   const loadMyChamas = async () => {
     try {
-      const response = await api.get('/chamas/my')
-      setMyChamas(response.data.data)
-    } catch (error) {
-      console.error('Failed to load chamas:', error)
-    } finally {
-      setLoading(false)
-    }
+      const res = await api.get('/chamas/my')
+      setMyChamas(res.data.data)
+    } catch { /* silent */ } finally { setLoading(false) }
   }
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    try {
-      await refreshMemberships()
-      await loadMyChamas()
-    } finally {
-      setRefreshing(false)
-    }
+    try { await refreshMemberships(); await loadMyChamas() } finally { setRefreshing(false) }
   }
 
-  const handleEnterChama = (membership: ChamaMembership) => {
-    setActiveChama({
-      chamaId: membership.chamaId,
-      chamaName: membership.chama.name,
-      chamaCode: membership.chama.chamaCode,
-      role: membership.role,
-      joinMode: membership.chama.joinMode,
-    })
-
-    // Navigate based on role
-    if (['ADMIN', 'TREASURER', 'CHAIR', 'AUDITOR'].includes(membership.role)) {
-      navigate(`/admin/${membership.chamaId}/dashboard`)
-    } else {
-      navigate(`/member/${membership.chamaId}/dashboard`)
-    }
+  const handleEnterChama = (m: ChamaMembership) => {
+    setActiveChama({ chamaId: m.chamaId, chamaName: m.chama.name, chamaCode: m.chama.chamaCode, role: m.role, joinMode: m.chama.joinMode })
+    navigate(['ADMIN','TREASURER','CHAIR','AUDITOR'].includes(m.role)
+      ? `/admin/${m.chamaId}/dashboard`
+      : `/member/${m.chamaId}/dashboard`)
   }
 
-  const handleLogout = () => {
-    logout()
-    clearActiveChama()
-    navigate('/login')
-  }
-
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case 'ADMIN':
-      case 'CHAIR':
-        return 'bg-blue-100 text-blue-700'
-      case 'TREASURER':
-        return 'bg-emerald-100 text-emerald-700'
-      case 'AUDITOR':
-        return 'bg-purple-100 text-purple-700'
-      default:
-        return 'bg-slate-100 text-slate-700'
-    }
-  }
+  const handleLogout = () => { logout(); clearActiveChama(); navigate('/login') }
 
   return (
-    <div className="min-h-screen bg-[#F6F7FB]">
-      {/* Header */}
-      <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4 min-w-0 overflow-hidden">
-            <BrandLogo size="md" showWordmark variant="dark" className="shrink-0" />
-            <div className="flex items-center gap-2 sm:gap-4 min-w-0 shrink-0">
-              {user?.globalRole === 'SUPER_ADMIN' && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => navigate('/super')}
-                  className="gap-2 shrink-0"
-                >
-                  <Shield size={18} />
-                  <span className="hidden sm:inline">Platform Admin</span>
-                </Button>
-              )}
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="shrink-0 gap-1.5">
-                <LogOut size={18} />
-                <span className="hidden sm:inline">Logout</span>
+    <div className="min-h-screen bg-warm-bg">
+
+      {/* ── Top bar ── */}
+      <header className="sticky top-0 z-20 border-b border-ink-300 bg-warm-card">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-5 sm:px-8">
+          <BrandLogo size="sm" showWordmark />
+          <div className="flex items-center gap-2">
+            {user?.globalRole === 'SUPER_ADMIN' && (
+              <Button variant="secondary" size="sm" onClick={() => navigate('/super')}>
+                <Shield size={14} />
+                <span className="hidden sm:inline">Platform</span>
               </Button>
-            </div>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* ── Content ── */}
+      <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
+
+        {/* Page heading */}
         <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-slate-800">Select Chama</h1>
-          <p className="mt-2 text-slate-600">
-            Choose a chama to access or create/join a new one
+          <h1 className="text-xl font-semibold text-ink-900">
+            {user?.fullName ? `Welcome back, ${user.fullName.split(' ')[0]}` : 'Select a chama'}
+          </h1>
+          <p className="mt-1 text-sm text-ink-500">
+            Choose a chama to open, or create a new one.
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="mb-6 flex flex-wrap gap-4">
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus size={18} />
-            Create Chama
+        {/* Primary actions */}
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Plus size={14} /> Create chama
           </Button>
-          <Button variant="secondary" onClick={() => setShowJoin(true)}>
-            <Search size={18} />
-            Join with code
+          <Button variant="secondary" size="sm" onClick={() => setShowJoin(true)}>
+            <Search size={14} /> Join with code
           </Button>
-          <Button variant="secondary" onClick={() => navigate('/join-chama')}>
-            <Building2 size={18} />
-            Explore chamas
+          <Button variant="secondary" size="sm" onClick={() => navigate('/join-chama')}>
+            <Building2 size={14} /> Explore chamas
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleRefresh} loading={refreshing} className="gap-2">
-            <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+          <button type="button" onClick={handleRefresh} disabled={refreshing}
+            className="ml-auto flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-ink-500 hover:bg-warm-deep disabled:opacity-50 transition-colors">
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             Refresh
-          </Button>
+          </button>
         </div>
 
-        {/* My Chamas List */}
+        {/* Chama list */}
         {loading ? (
-          <div className="text-center py-12 text-slate-500">Loading...</div>
+          <div className="flex justify-center py-16">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
+          </div>
         ) : myChamas.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Building2 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
-              <h3 className="mb-2 text-lg font-semibold text-slate-800">
-                No chamas yet
-              </h3>
-              <p className="mb-4 text-slate-600">
-                Create your first chama, explore and request to join one, or join with a code
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="secondary" onClick={() => navigate('/join-chama')} className="gap-2">
-                  <Search size={18} />
-                  Explore and request to join a chama
-                </Button>
-                <Button onClick={() => setShowCreate(true)} className="gap-2">
-                  <Plus size={18} />
-                  Create a chama
-                </Button>
-                <Button variant="ghost" onClick={() => setShowJoin(true)} className="gap-2">
-                  <Search size={18} />
-                  Join with code
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-dashed border-ink-300 bg-warm-card px-6 py-14 text-center">
+            <Building2 className="mx-auto mb-3 h-10 w-10 text-ink-300" />
+            <h3 className="mb-1 text-sm font-semibold text-ink-700">No chamas yet</h3>
+            <p className="mb-5 text-sm text-ink-500 max-w-xs mx-auto">
+              Create your first group, search for an existing one, or join with a code.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button size="sm" onClick={() => setShowCreate(true)}><Plus size={14} /> Create</Button>
+              <Button variant="secondary" size="sm" onClick={() => navigate('/join-chama')}><Search size={14} /> Explore</Button>
+              <Button variant="secondary" size="sm" onClick={() => setShowJoin(true)}>Join with code</Button>
+            </div>
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {myChamas.map((membership) => (
-              <Card key={membership.chamaId} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-800">
-                        {membership.chama.name}
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        Code: {membership.chama.chamaCode}
-                      </p>
-                    </div>
-                    <Badge className={getRoleBadgeColor(membership.role)}>
-                      {membership.role}
-                    </Badge>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {myChamas.map((m) => (
+              <button key={m.chamaId} type="button" onClick={() => handleEnterChama(m)}
+                className="group flex flex-col rounded-lg border border-ink-300 bg-warm-card px-5 py-4 text-left transition-colors hover:border-ink-300 hover:bg-warm-bg"
+                style={{ boxShadow: 'var(--shadow-xs)' }}>
+                {/* Name + role */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-ink-900 truncate">{m.chama.name}</p>
+                    <p className="mt-0.5 text-xs text-ink-400 font-mono">{m.chama.chamaCode}</p>
                   </div>
-                  <div className="flex items-center gap-4 mb-4 text-sm text-slate-600">
-                    <div className="flex items-center gap-1">
-                      {membership.chama.joinMode === 'OPEN' ? (
-                        <Unlock size={14} />
-                      ) : (
-                        <Lock size={14} />
-                      )}
-                      {membership.chama.joinMode === 'OPEN' ? 'Open' : 'Approval'}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users size={14} />
-                      Member
-                    </div>
-                  </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => handleEnterChama(membership)}
-                  >
-                    Enter Chama
-                  </Button>
-                </CardContent>
-              </Card>
+                  <Badge variant={roleBadge(m.role)} className="shrink-0">{m.role}</Badge>
+                </div>
+
+                {/* Meta row */}
+                <div className="flex items-center gap-3 text-xs text-ink-500">
+                  {m.chama.joinMode === 'OPEN' ? <Unlock size={12} /> : <Lock size={12} />}
+                  <span>{m.chama.joinMode === 'OPEN' ? 'Open' : 'Approval required'}</span>
+                  <span className="ml-auto flex items-center gap-1 text-brown opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                    Open <ChevronRight size={12} />
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Create Chama Modal */}
+      {/* Create chama modal */}
       {showCreate && (
-        <CreateChamaModal
-          onClose={() => {
-            setShowCreate(false)
-            loadMyChamas()
-          }}
-        />
+        <CreateChamaModal onClose={() => { setShowCreate(false); loadMyChamas() }} />
       )}
 
-      {/* Join Chama Modal */}
+      {/* Join chama modal */}
       {showJoin && (
-        <JoinChamaModal
-          onClose={() => {
-            setShowJoin(false)
-            loadMyChamas()
-          }}
-        />
+        <JoinChamaModal onClose={() => { setShowJoin(false); loadMyChamas() }} />
       )}
     </div>
   )
 }
 
+/* ── Create Chama Modal ─────────────────────────────────────── */
 function CreateChamaModal({ onClose }: { onClose: () => void }) {
-  const [name, setName] = useState('')
+  const [name, setName]           = useState('')
   const [description, setDescription] = useState('')
-  const [joinMode, setJoinMode] = useState<'OPEN' | 'APPROVAL'>('OPEN')
-  const [isPublic, setIsPublic] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [createdChama, setCreatedChama] = useState<any>(null)
+  const [joinMode, setJoinMode]   = useState<'OPEN' | 'APPROVAL'>('OPEN')
+  const [isPublic, setIsPublic]   = useState(false)
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState('')
+  const [created, setCreated]     = useState<{ chamaCode: string; joinCode?: string } | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
-
+    setError(''); setLoading(true)
     try {
-      const response = await api.post('/chamas', {
-        name,
-        description,
-        joinMode,
-        isPublic,
-      })
-      setCreatedChama(response.data.data)
+      const res = await api.post('/chamas', { name, description, joinMode, isPublic })
+      setCreated(res.data.data)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create chama')
-    } finally {
-      setLoading(false)
-    }
+      setError(err.response?.data?.message ?? 'Failed to create chama')
+    } finally { setLoading(false) }
   }
 
-  if (createdChama) {
+  if (created) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6">
-            <h2 className="mb-4 text-xl font-semibold text-slate-800">
-              Chama Created Successfully!
-            </h2>
-            <div className="mb-4 space-y-2">
-              <div>
-                <span className="text-sm font-medium text-slate-600">Chama Code:</span>
-                <div className="mt-1 rounded-lg bg-slate-100 p-2 font-mono text-lg font-bold text-slate-800">
-                  {createdChama.chamaCode}
-                </div>
+      <Modal open title="Chama created" onClose={onClose}>
+        <ModalBody className="space-y-4">
+          <p className="text-sm text-ink-700">Your chama is ready. Share the codes below with your members.</p>
+          <div className="space-y-3">
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-ink-500">Chama code</p>
+              <div className="rounded-md border border-ink-300 bg-warm-bg px-3 py-2.5 font-mono text-base font-bold text-ink-900 select-all">
+                {created.chamaCode}
               </div>
-              {createdChama.joinCode && (
-                <div>
-                  <span className="text-sm font-medium text-slate-600">Join Code:</span>
-                  <div className="mt-1 rounded-lg bg-blue-50 p-2 font-mono text-lg font-bold text-blue-700">
-                    {createdChama.joinCode}
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Share this code with members to join
-                  </p>
-                </div>
-              )}
             </div>
-            <Button className="w-full" onClick={onClose}>
-              Continue
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+            {created.joinCode && (
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-ink-500">Join code</p>
+                <div className="rounded-md border border-blue-100 bg-brown-light px-3 py-2.5 font-mono text-base font-bold text-brown-dark select-all">
+                  {created.joinCode}
+                </div>
+                <p className="mt-1 text-xs text-ink-400">Share this code with invited members.</p>
+              </div>
+            )}
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button size="sm" onClick={onClose}>Continue</Button>
+        </ModalFooter>
+      </Modal>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-6">
-          <h2 className="mb-4 text-xl font-semibold text-slate-800">Create Chama</h2>
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Chama Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              disabled={loading}
-            />
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Description
-              </label>
-              <textarea
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                disabled={loading}
-              />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Join Mode
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="OPEN"
-                    checked={joinMode === 'OPEN'}
-                    onChange={(e) => setJoinMode(e.target.value as 'OPEN')}
-                    disabled={loading}
-                  />
-                  <span className="text-sm">Open (with code)</span>
+    <Modal open title="Create chama" description="Set up your savings group." onClose={onClose}>
+      <form onSubmit={handleSubmit}>
+        <ModalBody className="space-y-4">
+          {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">{error}</div>}
+          <Input label="Name" value={name} onChange={e => setName(e.target.value)} required disabled={loading} placeholder="e.g. Nairobi 40s Club" />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-ink-700">Description <span className="text-ink-400 font-normal">(optional)</span></label>
+            <textarea className="w-full rounded-md border border-ink-300 bg-warm-card px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brown focus:outline-none focus:ring-1 focus:ring-brown/20 transition-colors resize-none"
+              value={description} onChange={e => setDescription(e.target.value)} rows={3} disabled={loading} />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium text-ink-700">Membership</p>
+            <div className="flex gap-4">
+              {(['OPEN','APPROVAL'] as const).map(mode => (
+                <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" value={mode} checked={joinMode === mode} onChange={() => setJoinMode(mode)} disabled={loading} className="text-brown" />
+                  <span className="text-sm text-ink-700">{mode === 'OPEN' ? 'Open (with code)' : 'Approval required'}</span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    value="APPROVAL"
-                    checked={joinMode === 'APPROVAL'}
-                    onChange={(e) => setJoinMode(e.target.value as 'APPROVAL')}
-                    disabled={loading}
-                  />
-                  <span className="text-sm">Approval Required</span>
-                </label>
-              </div>
+              ))}
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                disabled={loading}
-              />
-              <span className="text-sm text-slate-700">Make chama public (searchable)</span>
-            </label>
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1" loading={loading}>
-                Create
-              </Button>
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} disabled={loading} className="text-brown rounded" />
+            <span className="text-sm text-ink-700">Make publicly searchable</span>
+          </label>
+        </ModalBody>
+        <ModalFooter>
+          <Button type="button" variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
+          <Button type="submit" size="sm" loading={loading}>Create chama</Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }
 
+/* ── Join Chama Modal ───────────────────────────────────────── */
 function JoinChamaModal({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate()
   const { refreshMemberships } = useAuthStore()
   const { setActiveChama } = useChamaStore()
   const [chamaCode, setChamaCode] = useState('')
-  const [joinCode, setJoinCode] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [joinCode, setJoinCode]   = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState('')
+  const [success, setSuccess]     = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setLoading(true)
-
+    setError(''); setLoading(true)
     try {
-      const response = await api.post('/chamas/join', {
-        chamaCode: chamaCode.toUpperCase(),
-        joinCode: joinCode || undefined,
-      })
-
-      if (response.data.data.joinRequest) {
-        // Join request submitted (APPROVAL mode)
+      const res = await api.post('/chamas/join', { chamaCode: chamaCode.toUpperCase(), joinCode: joinCode || undefined })
+      if (res.data.data.joinRequest) {
         setSuccess(true)
-        setTimeout(() => {
-          onClose()
-        }, 2000)
+        setTimeout(onClose, 2500)
       } else {
-        // Joined successfully (OPEN mode)
-        const { membership, chama } = response.data.data
-        
-        // Refresh memberships to get updated list
+        const { membership, chama } = res.data.data
         await refreshMemberships()
-        
-        // Set active chama and navigate to dashboard
-        setActiveChama({
-          chamaId: membership.chamaId,
-          chamaName: chama.name,
-          chamaCode: chama.chamaCode,
-          role: membership.role,
-        })
-        
-        // Navigate to appropriate dashboard
-        if (['ADMIN', 'TREASURER', 'CHAIR', 'AUDITOR'].includes(membership.role)) {
-          navigate(`/admin/${membership.chamaId}/dashboard`)
-        } else {
-          navigate(`/member/${membership.chamaId}/dashboard`)
-        }
+        setActiveChama({ chamaId: membership.chamaId, chamaName: chama.name, chamaCode: chama.chamaCode, role: membership.role })
+        navigate(['ADMIN','TREASURER','CHAIR','AUDITOR'].includes(membership.role)
+          ? `/admin/${membership.chamaId}/dashboard`
+          : `/member/${membership.chamaId}/dashboard`)
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to join chama')
-    } finally {
-      setLoading(false)
-    }
+      setError(err.response?.data?.message ?? 'Failed to join chama')
+    } finally { setLoading(false) }
   }
 
   if (success) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <h2 className="mb-2 text-xl font-semibold text-slate-800">
-              Request Submitted
-            </h2>
-            <p className="text-slate-600">
-              Your join request has been submitted. Waiting for approval.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <Modal open title="Request submitted" onClose={onClose}>
+        <ModalBody>
+          <p className="text-sm text-ink-700">Your join request has been submitted and is pending admin approval.</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button size="sm" onClick={onClose}>Done</Button>
+        </ModalFooter>
+      </Modal>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="p-6">
-          <h2 className="mb-4 text-xl font-semibold text-slate-800">Join Chama</h2>
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Chama Code"
-              placeholder="Enter chama code"
-              value={chamaCode}
-              onChange={(e) => setChamaCode(e.target.value.toUpperCase())}
-              required
-              disabled={loading}
-            />
-            <Input
-              label="Join Code (if required)"
-              placeholder="Enter join code"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              disabled={loading}
-            />
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1" loading={loading}>
-                Join
-              </Button>
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <Modal open title="Join chama" description="Enter the codes shared by the chama admin." onClose={onClose}>
+      <form onSubmit={handleSubmit}>
+        <ModalBody className="space-y-4">
+          {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">{error}</div>}
+          <Input label="Chama code" placeholder="e.g. CH-XXXX" value={chamaCode} onChange={e => setChamaCode(e.target.value.toUpperCase())} required disabled={loading} />
+          <Input label="Join code" placeholder="Required if the chama is not open" hint="Leave blank for open chamas." value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} disabled={loading} />
+        </ModalBody>
+        <ModalFooter>
+          <Button type="button" variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
+          <Button type="submit" size="sm" loading={loading}>Join</Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }

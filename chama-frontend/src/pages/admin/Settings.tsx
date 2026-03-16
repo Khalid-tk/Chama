@@ -108,8 +108,8 @@ export function AdminSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Settings</h1>
-        <p className="text-sm text-slate-500">Manage chama settings and configurations</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Settings</h1>
+        <p className="text-sm text-ink-500">Manage chama settings and configurations</p>
       </div>
 
       {message && (
@@ -129,10 +129,10 @@ export function AdminSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <SettingsIcon className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Chama Settings</h2>
+            <SettingsIcon className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Chama Settings</h2>
           </div>
-          <p className="text-sm text-slate-500">Configure contribution and loan rules</p>
+          <p className="text-sm text-ink-500">Configure contribution and loan rules</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -169,7 +169,7 @@ export function AdminSettings() {
               icon={<Percent size={18} />}
             />
           </div>
-          <div className="rounded-lg bg-blue-50 p-4">
+          <div className="rounded-lg bg-brown-light p-4">
             <p className="text-sm font-medium text-blue-900 mb-2">Preview:</p>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Monthly contribution: {formatKES(parseInt(contributionAmount) || 0)}</li>
@@ -189,22 +189,22 @@ export function AdminSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Users className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Roles & Permissions</h2>
+            <Users className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Roles & Permissions</h2>
           </div>
-          <p className="text-sm text-slate-500">View role permissions matrix</p>
+          <p className="text-sm text-ink-500">View role permissions matrix</p>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-3 px-4 font-semibold text-slate-800">Permission</th>
-                  <th className="text-center py-3 px-4 font-semibold text-slate-800">Member</th>
-                  <th className="text-center py-3 px-4 font-semibold text-slate-800">Admin</th>
+                <tr className="border-b border-ink-300">
+                  <th className="text-left py-3 px-4 font-semibold text-ink-900">Permission</th>
+                  <th className="text-center py-3 px-4 font-semibold text-ink-900">Member</th>
+                  <th className="text-center py-3 px-4 font-semibold text-ink-900">Admin</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-ink-200">
                 {[
                   { permission: 'View Dashboard', member: true, admin: true },
                   { permission: 'Make Contributions', member: true, admin: true },
@@ -215,7 +215,7 @@ export function AdminSettings() {
                   { permission: 'Manage Settings', member: false, admin: true },
                 ].map((row, idx) => (
                   <tr key={idx}>
-                    <td className="py-3 px-4 text-slate-700">{row.permission}</td>
+                    <td className="py-3 px-4 text-ink-700">{row.permission}</td>
                     <td className="py-3 px-4 text-center">
                       {row.member ? (
                         <Badge variant="success">Yes</Badge>
@@ -235,7 +235,7 @@ export function AdminSettings() {
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="mt-4 text-xs text-ink-500">
             Note: Role management endpoint not yet implemented. This is a UI preview.
           </p>
         </CardContent>
@@ -245,10 +245,10 @@ export function AdminSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Security</h2>
+            <Lock className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Security</h2>
           </div>
-          <p className="text-sm text-slate-500">Change your account password</p>
+          <p className="text-sm text-ink-500">Change your account password</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {passwordMessage && (

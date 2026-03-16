@@ -49,8 +49,8 @@ export function SuperDashboard() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-slate-600">Loading platform stats...</p>
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-brown border-t-transparent"></div>
+          <p className="text-ink-700">Loading platform stats...</p>
         </div>
       </div>
     )
@@ -59,8 +59,8 @@ export function SuperDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Platform Dashboard</h1>
-        <p className="text-sm text-slate-500">Overview of all chamas and users</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Platform Dashboard</h1>
+        <p className="text-sm text-ink-500">Overview of all chamas and users</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -88,10 +88,10 @@ export function SuperDashboard() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Platform Overview</h2>
+          <h2 className="font-semibold text-ink-900">Platform Overview</h2>
         </CardHeader>
         <CardContent>
-          <p className="text-slate-600">
+          <p className="text-ink-700">
             Use the navigation menu to manage chamas, users, and view platform audit logs.
           </p>
         </CardContent>

@@ -112,25 +112,25 @@ export function AuditLog() {
   const getIcon = (type: LogType) => {
     switch (type) {
       case 'loan':
-        return <CreditCard className="text-blue-600" size={16} />
+        return <CreditCard className="text-brown" size={16} />
       case 'contribution':
         return <DollarSign className="text-emerald-600" size={16} />
       case 'member':
         return <Users className="text-purple-600" size={16} />
       case 'payment':
-        return <DollarSign className="text-indigo-600" size={16} />
+        return <DollarSign className="text-brown" size={16} />
       case 'settings':
         return <Settings className="text-amber-600" size={16} />
       default:
-        return <FileText className="text-slate-600" size={16} />
+        return <FileText className="text-ink-700" size={16} />
     }
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Audit Log</h1>
-        <p className="text-sm text-slate-500">Track all system activities and changes</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Audit Log</h1>
+        <p className="text-sm text-ink-500">Track all system activities and changes</p>
       </div>
 
       <Card>
@@ -148,14 +148,14 @@ export function AuditLog() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter size={18} className="text-slate-500" />
+              <Filter size={18} className="text-ink-500" />
               <select
                 value={typeFilter}
                 onChange={(e) => {
                   setTypeFilter(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
               >
                 <option value="all">All Types</option>
                 <option value="loan">Loans</option>
@@ -171,7 +171,7 @@ export function AuditLog() {
                   setUserFilter(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
               >
                 <option value="all">All Users</option>
                 {uniqueUsers.map((u) => (
@@ -187,13 +187,13 @@ export function AuditLog() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Activity Timeline</h2>
-          <p className="text-sm text-slate-500">Chronological log of chama activities</p>
+          <h2 className="font-semibold text-ink-900">Activity Timeline</h2>
+          <p className="text-sm text-ink-500">Chronological log of chama activities</p>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+              <div className="h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
             </div>
           ) : (
             <>
@@ -217,10 +217,10 @@ export function AuditLog() {
                         return (
                           <TableRow key={entry.id}>
                             <TableCell>
-                              <div className="text-sm font-medium text-slate-800">
+                              <div className="text-sm font-medium text-ink-900">
                                 {formatDateShort(entry.createdAt)}
                               </div>
-                              <div className="text-xs text-slate-500">
+                              <div className="text-xs text-ink-500">
                                 {new Date(entry.createdAt).toLocaleTimeString('en-US', {
                                   hour: '2-digit',
                                   minute: '2-digit',
@@ -229,7 +229,7 @@ export function AuditLog() {
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                <User className="text-slate-400" size={14} />
+                                <User className="text-ink-400" size={14} />
                                 <span className="font-medium">
                                   {entry.actor?.fullName ?? entry.actor?.email ?? 'System'}
                                 </span>
@@ -246,7 +246,7 @@ export function AuditLog() {
                                 </Badge>
                               </div>
                             </TableCell>
-                            <TableCell className="max-w-xs truncate text-sm text-slate-600">
+                            <TableCell className="max-w-xs truncate text-sm text-ink-700">
                               {formatDetails(entry)}
                             </TableCell>
                           </TableRow>
@@ -257,22 +257,22 @@ export function AuditLog() {
                 </TableShell>
               </div>
               {pagination.pages > 1 && (
-                <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                  <div className="text-sm text-slate-600">
+                <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+                  <div className="text-sm text-ink-700">
                     Page {pagination.page} of {pagination.pages} ({pagination.total} entries)
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
-                      className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage((p) => Math.min(pagination.pages, p + 1))}
                       disabled={currentPage === pagination.pages}
-                      className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Next
                     </button>

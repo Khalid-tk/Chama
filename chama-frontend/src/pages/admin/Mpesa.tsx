@@ -74,8 +74,8 @@ export function AdminMpesa() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Mpesa Payments</h1>
-          <p className="text-sm text-slate-500">Monitor all Mpesa payments for this chama</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Mpesa Payments</h1>
+          <p className="text-sm text-ink-500">Monitor all Mpesa payments for this chama</p>
         </div>
         <Button variant="secondary" size="sm" onClick={() => loadPayments()} disabled={loading}>
           <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -87,32 +87,32 @@ export function AdminMpesa() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-slate-500">Total Payments</div>
-            <div className="text-2xl font-semibold text-slate-800">{stats.total}</div>
+            <div className="text-sm text-ink-500">Total Payments</div>
+            <div className="text-2xl font-semibold text-ink-900">{stats.total}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-slate-500">Successful</div>
+            <div className="text-sm text-ink-500">Successful</div>
             <div className="text-2xl font-semibold text-emerald-600">{stats.success}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-slate-500">Failed</div>
+            <div className="text-sm text-ink-500">Failed</div>
             <div className="text-2xl font-semibold text-red-600">{stats.failed}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-slate-500">Pending</div>
+            <div className="text-sm text-ink-500">Pending</div>
             <div className="text-2xl font-semibold text-amber-600">{stats.pending}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-sm text-slate-500">Total Amount</div>
-            <div className="text-2xl font-semibold text-blue-600">{formatKES(Number(stats.totalAmount) || 0)}</div>
+            <div className="text-sm text-ink-500">Total Amount</div>
+            <div className="text-2xl font-semibold text-brown">{formatKES(Number(stats.totalAmount) || 0)}</div>
           </CardContent>
         </Card>
       </div>
@@ -130,7 +130,7 @@ export function AdminMpesa() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
         >
           <option value="all">All Status</option>
           <option value="SUCCESS">Success</option>
@@ -143,7 +143,7 @@ export function AdminMpesa() {
       {/* Payments Table */}
       {loading ? (
         <Card>
-          <CardContent className="p-8 text-center text-slate-500">Loading...</CardContent>
+          <CardContent className="p-8 text-center text-ink-500">Loading...</CardContent>
         </Card>
       ) : (
         <RecentMpesaPayments payments={filteredPayments} isAdmin={true} />

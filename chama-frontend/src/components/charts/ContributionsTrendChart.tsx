@@ -1,38 +1,51 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 type ContributionsTrendChartProps = {
   data: Array<{ date: string; amount: number }>
 }
 
+const TOOLTIP_STYLE = {
+  backgroundColor: '#FFFFFF',
+  border: '1px solid #E5E7EB',
+  borderRadius: '12px',
+  boxShadow: '0 1px 8px rgba(0,0,0,0.06)',
+  color: '#111827',
+  fontSize: 13,
+}
+
 export function ContributionsTrendChart({ data }: ContributionsTrendChartProps) {
   const chartData = data.map((item) => ({
-    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(item.date).toLocaleDateString('en-US', { month: 'short' }),
     amount: item.amount,
   }))
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-        <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
-        <YAxis stroke="#64748b" fontSize={12} />
+      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <defs>
+          <linearGradient id="contribGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%"  stopColor="#4F46E5" stopOpacity={0.5} />
+            <stop offset="95%" stopColor="#4F46E5" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+        <XAxis dataKey="date" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} />
         <Tooltip
-          contentStyle={{
-            backgroundColor: 'white',
-            border: '1px solid #c7d2fe',
-            borderRadius: '8px',
-          }}
-          formatter={(value: number | undefined) => value !== undefined ? [`KES ${value.toLocaleString()}`, 'Amount'] : ['', '']}
+          contentStyle={TOOLTIP_STYLE}
+          formatter={(value: number | undefined) => value !== undefined ? [`KES ${value.toLocaleString()}`, 'Contributions'] : ['', 'Contributions']}
+          cursor={{ stroke: 'rgba(79,70,229,0.2)', strokeWidth: 1 }}
         />
-        <Line
+        <Area
           type="monotone"
           dataKey="amount"
-          stroke="#2563eb"
-          strokeWidth={2}
-          dot={{ fill: '#2563eb', r: 4 }}
-          activeDot={{ r: 6 }}
+          stroke="#4F46E5"
+          strokeWidth={2.5}
+          fill="url(#contribGrad)"
+          dot={false}
+          activeDot={{ r: 5, fill: '#4F46E5', stroke: '#FFFFFF', strokeWidth: 2 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   )
 }

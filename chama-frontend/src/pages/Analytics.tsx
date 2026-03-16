@@ -101,11 +101,11 @@ export function Analytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics</h1>
-          <p className="text-sm text-slate-500">Comprehensive chama analytics</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics</h1>
+          <p className="text-sm text-ink-500">Comprehensive chama analytics</p>
         </div>
         <div className="flex justify-center py-12">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
         </div>
       </div>
     )
@@ -115,13 +115,13 @@ export function Analytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics</h1>
-          <p className="text-sm text-slate-500">Comprehensive chama analytics</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics</h1>
+          <p className="text-sm text-ink-500">Comprehensive chama analytics</p>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="font-medium text-slate-700">Could not load analytics</p>
-            <p className="text-sm text-slate-500 mt-1">{loadError}</p>
+            <p className="font-medium text-ink-700">Could not load analytics</p>
+            <p className="text-sm text-ink-500 mt-1">{loadError}</p>
             <Button className="mt-4" onClick={() => loadData()}>Try again</Button>
           </CardContent>
         </Card>
@@ -186,15 +186,15 @@ export function Analytics() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics Deep Dive</h1>
-          <p className="text-sm text-slate-500">Comprehensive analytics from backend</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics Deep Dive</h1>
+          <p className="text-sm text-ink-500">Comprehensive analytics from backend</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-600">Range:</span>
+          <span className="text-sm text-ink-700">Range:</span>
           <select
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm"
           >
             {RANGE_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -207,49 +207,49 @@ export function Analytics() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Total Balance</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(Number(kpis.totalBalance) || 0)}</p>
+            <p className="text-xs font-medium text-ink-500">Total Balance</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(Number(kpis.totalBalance) || 0)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Contributions (this month)</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(Number(kpis.contributionsThisMonth) || 0)}</p>
+            <p className="text-xs font-medium text-ink-500">Contributions (this month)</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(Number(kpis.contributionsThisMonth) || 0)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Outstanding loans</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(Number(kpis.outstandingLoans) || 0)}</p>
+            <p className="text-xs font-medium text-ink-500">Outstanding loans</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(Number(kpis.outstandingLoans) || 0)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Late loans</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.lateLoansCount}</p>
+            <p className="text-xs font-medium text-ink-500">Late loans</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.lateLoansCount}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">M-Pesa success (30d)</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.mpesaSuccessRate30d}%</p>
+            <p className="text-xs font-medium text-ink-500">M-Pesa success (30d)</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.mpesaSuccessRate30d}%</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Active members</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.activeMembers}</p>
+            <p className="text-xs font-medium text-ink-500">Active members</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.activeMembers}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Money loaned (period)</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(Number(kpis.totalLoanedInPeriod) || 0)}</p>
+            <p className="text-xs font-medium text-ink-500">Money loaned (period)</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(Number(kpis.totalLoanedInPeriod) || 0)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Repaid loans (period)</p>
+            <p className="text-xs font-medium text-ink-500">Repaid loans (period)</p>
             <p className="text-xl font-semibold text-emerald-600">{formatKES(Number(kpis.totalRepaidInPeriod) || 0)}</p>
           </CardContent>
         </Card>
@@ -260,8 +260,8 @@ export function Analytics() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-slate-800">Contributions Deep Dive</h2>
-              <p className="text-sm text-slate-500">Monthly trend and top members</p>
+              <h2 className="text-xl font-semibold text-ink-900">Contributions Deep Dive</h2>
+              <p className="text-sm text-ink-500">Monthly trend and top members</p>
             </div>
             <Button variant="secondary" size="sm" onClick={handleExportTopContributors}>
               <FileDown size={18} />
@@ -299,7 +299,7 @@ export function Analytics() {
             />
           </ChartCard>
           <div>
-            <h3 className="text-lg font-semibold text-slate-700 mb-2">Top contributors (table)</h3>
+            <h3 className="text-lg font-semibold text-ink-700 mb-2">Top contributors (table)</h3>
             <TableShell>
               <TableHeader>
                 <TableRow>
@@ -325,8 +325,8 @@ export function Analytics() {
       {/* 2) Loans Deep Dive */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-slate-800">Loans Deep Dive</h2>
-          <p className="text-sm text-slate-500">Status distribution, disbursements vs repayments</p>
+          <h2 className="text-xl font-semibold text-ink-900">Loans Deep Dive</h2>
+          <p className="text-sm text-ink-500">Status distribution, disbursements vs repayments</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-2">
@@ -407,8 +407,8 @@ export function Analytics() {
       {/* 3) Mpesa Deep Dive */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-slate-800">M-Pesa Deep Dive</h2>
-          <p className="text-sm text-slate-500">Outcomes and success rate</p>
+          <h2 className="text-xl font-semibold text-ink-900">M-Pesa Deep Dive</h2>
+          <p className="text-sm text-ink-500">Outcomes and success rate</p>
         </CardHeader>
         <CardContent className="space-y-6">
           <ChartCard
@@ -446,8 +446,8 @@ export function Analytics() {
       {/* 4) Members Growth */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-slate-800">Members Growth</h2>
-          <p className="text-sm text-slate-500">New members per month</p>
+          <h2 className="text-xl font-semibold text-ink-900">Members Growth</h2>
+          <p className="text-sm text-ink-500">New members per month</p>
         </CardHeader>
         <CardContent>
           <ChartCard
@@ -473,8 +473,8 @@ export function Analytics() {
       {/* Cashflow */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold text-slate-800">Cashflow</h2>
-          <p className="text-sm text-slate-500">Inflow vs outflow by month</p>
+          <h2 className="text-xl font-semibold text-ink-900">Cashflow</h2>
+          <p className="text-sm text-ink-500">Inflow vs outflow by month</p>
         </CardHeader>
         <CardContent>
           <ChartCard

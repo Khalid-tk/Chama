@@ -69,9 +69,9 @@ export function MpesaPaymentWidget({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Smartphone className="text-purple-600" size={20} />
-          <h3 className="font-semibold text-slate-800">Mpesa Payment</h3>
+          <h3 className="font-semibold text-ink-900">Mpesa Payment</h3>
         </div>
-        <p className="text-sm text-slate-500">Initiate STK push payment</p>
+        <p className="text-sm text-ink-500">Initiate STK push payment</p>
       </CardHeader>
       <CardContent className="space-y-4">
         {status === 'idle' && (
@@ -102,8 +102,8 @@ export function MpesaPaymentWidget({
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             <Loader2 className="animate-spin text-purple-600" size={48} />
             <div className="text-center">
-              <p className="font-medium text-slate-800">Processing payment...</p>
-              <p className="text-sm text-slate-500">Please check your phone and enter your M-Pesa PIN</p>
+              <p className="font-medium text-ink-900">Processing payment...</p>
+              <p className="text-sm text-ink-500">Please check your phone and enter your M-Pesa PIN</p>
             </div>
             <Badge variant="warning">Pending</Badge>
           </div>
@@ -113,8 +113,8 @@ export function MpesaPaymentWidget({
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             <CheckCircle2 className="text-emerald-600" size={48} />
             <div className="text-center">
-              <p className="font-medium text-slate-800">Payment Successful!</p>
-              <p className="text-sm text-slate-500">
+              <p className="font-medium text-ink-900">Payment Successful!</p>
+              <p className="text-sm text-ink-500">
                 {formatKES(amount)} has been processed
               </p>
             </div>
@@ -129,8 +129,8 @@ export function MpesaPaymentWidget({
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             <XCircle className="text-red-600" size={48} />
             <div className="text-center">
-              <p className="font-medium text-slate-800">Payment Failed</p>
-              <p className="text-sm text-slate-500">{error || 'Please try again'}</p>
+              <p className="font-medium text-ink-900">Payment Failed</p>
+              <p className="text-sm text-ink-500">{error || 'Please try again'}</p>
             </div>
             <Badge variant="danger">Failed</Badge>
             <div className="flex gap-2 w-full">

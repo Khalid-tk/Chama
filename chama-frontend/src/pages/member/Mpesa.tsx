@@ -249,8 +249,8 @@ export function MemberMpesa() {
     <div className="space-y-6">
       <ToastContainer />
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Mpesa Payments</h1>
-        <p className="text-sm text-slate-500">Make payments and view your payment history</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Mpesa Payments</h1>
+        <p className="text-sm text-ink-500">Make payments and view your payment history</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -258,10 +258,10 @@ export function MemberMpesa() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Smartphone className="text-blue-600" size={20} />
-              <h2 className="font-semibold text-slate-800">Make Payment</h2>
+              <Smartphone className="text-brown" size={20} />
+              <h2 className="font-semibold text-ink-900">Make Payment</h2>
             </div>
-            <p className="text-sm text-slate-500">Initiate STK push payment</p>
+            <p className="text-sm text-ink-500">Initiate STK push payment</p>
           </CardHeader>
           <CardContent className="space-y-4">
             {status === 'idle' && (
@@ -282,13 +282,13 @@ export function MemberMpesa() {
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-ink-700">
                     Purpose
                   </label>
                   <select
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value as 'CONTRIBUTION' | 'REPAYMENT')}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   >
                     <option value="CONTRIBUTION">Contribution</option>
                     <option value="REPAYMENT">Loan Repayment</option>
@@ -296,9 +296,9 @@ export function MemberMpesa() {
                 </div>
                 {purpose === 'REPAYMENT' && (
                   <div className="min-w-0 overflow-visible">
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Select loan to repay</label>
+                    <label className="mb-1 block text-sm font-medium text-ink-700">Select loan to repay</label>
                     {loadingLoans ? (
-                      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">
+                      <div className="flex items-center gap-2 rounded-lg border border-ink-300 bg-warm-bg px-3 py-3 text-sm text-ink-700">
                         <Loader2 size={18} className="animate-spin shrink-0" />
                         Loading active loans…
                       </div>
@@ -307,7 +307,7 @@ export function MemberMpesa() {
                         <select
                           value={loanId}
                           onChange={(e) => setLoanId(e.target.value)}
-                          className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 min-h-[44px]"
+                          className="w-full min-w-0 rounded-lg border border-ink-300 bg-warm-card px-3 py-2.5 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20 min-h-[44px]"
                           aria-label="Select loan to repay"
                         >
                           <option value="">Select loan</option>
@@ -318,10 +318,10 @@ export function MemberMpesa() {
                           ))}
                         </select>
                         {repayableLoans.length === 0 && !loadingLoans && (
-                          <p className="mt-2 text-sm text-slate-500">No active loans to repay. Request a loan and have it disbursed first.</p>
+                          <p className="mt-2 text-sm text-ink-500">No active loans to repay. Request a loan and have it disbursed first.</p>
                         )}
                         {loanId && repayableLoans.find((l) => l.id === loanId) && (
-                          <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm text-slate-700 min-w-0">
+                          <div className="mt-2 rounded-lg border border-ink-200 bg-warm-bg p-3 text-sm text-ink-700 min-w-0">
                             <p><strong>Outstanding:</strong> KES {repayableLoans.find((l) => l.id === loanId)!.outstandingBalance.toLocaleString()}</p>
                             <p><strong>Due:</strong> {repayableLoans.find((l) => l.id === loanId)!.dueDate ? new Date(repayableLoans.find((l) => l.id === loanId)!.dueDate!).toLocaleDateString() : '—'}</p>
                           </div>
@@ -339,12 +339,12 @@ export function MemberMpesa() {
 
             {status === 'pending' && (
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                <Loader2 className="animate-spin text-blue-600" size={48} />
+                <Loader2 className="animate-spin text-brown" size={48} />
                 <div className="text-center">
-                  <p className="font-medium text-slate-800">Processing payment...</p>
-                  <p className="text-sm text-slate-500">Please check your phone and enter your M-Pesa PIN</p>
+                  <p className="font-medium text-ink-900">Processing payment...</p>
+                  <p className="text-sm text-ink-500">Please check your phone and enter your M-Pesa PIN</p>
                   {import.meta.env.DEV && (
-                    <p className="mt-2 text-xs text-slate-400">Dev: payment will complete automatically in a few seconds.</p>
+                    <p className="mt-2 text-xs text-ink-400">Dev: payment will complete automatically in a few seconds.</p>
                   )}
                 </div>
                 <Badge variant="warning">Pending</Badge>
@@ -355,8 +355,8 @@ export function MemberMpesa() {
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
                 <CheckCircle2 className="text-emerald-600" size={48} />
                 <div className="text-center">
-                  <p className="font-medium text-slate-800">Payment Successful!</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="font-medium text-ink-900">Payment Successful!</p>
+                  <p className="text-sm text-ink-500">
                     {formatKES(parseFloat(amount) || 0)} has been processed
                   </p>
                 </div>
@@ -371,8 +371,8 @@ export function MemberMpesa() {
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
                 <XCircle className="text-red-600" size={48} />
                 <div className="text-center">
-                  <p className="font-medium text-slate-800">Payment Failed</p>
-                  <p className="text-sm text-slate-500">{error || 'Please try again'}</p>
+                  <p className="font-medium text-ink-900">Payment Failed</p>
+                  <p className="text-sm text-ink-500">{error || 'Please try again'}</p>
                 </div>
                 <Badge variant="danger">Failed</Badge>
                 <Button variant="secondary" onClick={handleRetry} className="w-full">
@@ -387,29 +387,29 @@ export function MemberMpesa() {
         {/* Payment Status Summary */}
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-slate-800">Payment Summary</h2>
-            <p className="text-sm text-slate-500">Your payment statistics</p>
+            <h2 className="font-semibold text-ink-900">Payment Summary</h2>
+            <p className="text-sm text-ink-500">Your payment statistics</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-slate-600">Total Payments</span>
-              <span className="font-semibold text-slate-800">{payments.length}</span>
+              <span className="text-ink-700">Total Payments</span>
+              <span className="font-semibold text-ink-900">{payments.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-600">Successful</span>
+              <span className="text-ink-700">Successful</span>
               <span className="font-semibold text-emerald-600">
                 {payments.filter((p) => p.status === 'SUCCESS').length}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-600">Failed</span>
+              <span className="text-ink-700">Failed</span>
               <span className="font-semibold text-red-600">
                 {payments.filter((p) => p.status === 'FAILED').length}
               </span>
             </div>
-            <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-              <span className="text-slate-600">Total Amount</span>
-              <span className="font-bold text-blue-600">
+            <div className="flex items-center justify-between border-t border-ink-200 pt-4">
+              <span className="text-ink-700">Total Amount</span>
+              <span className="font-bold text-brown">
                 {formatKES(
                   payments.reduce(
                     (sum, p) => sum + (p.status === 'SUCCESS' ? p.amount : 0),
@@ -427,8 +427,8 @@ export function MemberMpesa() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-semibold text-slate-800">Recent Payments</h2>
-              <p className="text-sm text-slate-500">Your payment history</p>
+              <h2 className="font-semibold text-ink-900">Recent Payments</h2>
+              <p className="text-sm text-ink-500">Your payment history</p>
             </div>
             <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loadingPayments}>
               <RefreshCw size={16} className={loadingPayments ? 'animate-spin' : ''} />
@@ -438,7 +438,7 @@ export function MemberMpesa() {
         </CardHeader>
         <CardContent>
           {loadingPayments ? (
-            <div className="p-8 text-center text-slate-500">Loading payments...</div>
+            <div className="p-8 text-center text-ink-500">Loading payments...</div>
           ) : (
             <RecentMpesaPayments payments={payments} isAdmin={false} />
           )}

@@ -41,7 +41,7 @@ export function ChamaHealthWidget({ showFullChart = false }: ChamaHealthWidgetPr
     growthLabel === 'Growing'
       ? 'bg-emerald-100 text-emerald-700'
       : growthLabel === 'Stable'
-      ? 'bg-blue-100 text-blue-700'
+      ? 'bg-brown-light text-brown-dark'
       : 'bg-amber-100 text-amber-700'
 
   return (
@@ -49,8 +49,8 @@ export function ChamaHealthWidget({ showFullChart = false }: ChamaHealthWidgetPr
       <CardHeader>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between min-w-0">
           <div className="min-w-0">
-            <h2 className="font-semibold text-slate-800 truncate">Chama Health</h2>
-            <p className="text-sm text-slate-500 truncate">Membership growth and health indicators</p>
+            <h2 className="font-semibold text-ink-900 truncate">Chama Health</h2>
+            <p className="text-sm text-ink-500 truncate">Membership growth and health indicators</p>
           </div>
           <Badge className={`${growthColor} shrink-0`}>{growthLabel}</Badge>
         </div>
@@ -85,8 +85,8 @@ export function ChamaHealthWidget({ showFullChart = false }: ChamaHealthWidgetPr
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-600">Total Members</span>
-              <span className="text-lg font-semibold text-slate-800">{memberCount}</span>
+              <span className="text-sm text-ink-700">Total Members</span>
+              <span className="text-lg font-semibold text-ink-900">{memberCount}</span>
             </div>
             <div className="h-32">
               <ResponsiveContainer width="100%" height="100%">
@@ -111,13 +111,13 @@ export function ChamaHealthWidget({ showFullChart = false }: ChamaHealthWidgetPr
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-500">
               Membership is <span className="font-medium">{growthLabel.toLowerCase()}</span> based
               on recent trends
             </p>
             <Link
               to={`/member/${chamaId}/chama-health`}
-              className="mt-3 inline-block text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="mt-3 inline-block text-sm font-medium text-brown hover:text-brown-dark"
             >
               View full report →
             </Link>

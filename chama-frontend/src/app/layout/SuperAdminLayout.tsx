@@ -29,19 +29,19 @@ export function SuperAdminLayout() {
     <div className="flex min-h-screen bg-[#F6F7FB] overflow-x-hidden">
       {/* Desktop sidebar - hidden on mobile */}
       <aside
-        className={`hidden md:flex fixed inset-y-0 left-0 z-30 flex-col border-r border-slate-200 bg-white transition-all duration-200 ${
+        className={`hidden md:flex fixed inset-y-0 left-0 z-30 flex-col border-r border-ink-300 bg-warm-card transition-all duration-200 ${
           sidebarOpen ? 'w-56' : 'w-20'
         }`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+        <div className="flex h-16 items-center justify-between border-b border-ink-300 px-4">
           <NavLink to="/super/dashboard" className="flex items-center gap-2 min-w-0">
             <Shield className="h-8 w-8 shrink-0 text-blue-600" />
-            {sidebarOpen && <span className="font-semibold text-slate-800 truncate">Platform Admin</span>}
+            {sidebarOpen && <span className="font-semibold text-ink-900 truncate">Platform Admin</span>}
           </NavLink>
           <button
             type="button"
             onClick={() => setSidebarOpen((o) => !o)}
-            className="rounded p-1.5 text-slate-500 hover:bg-slate-100"
+            className="rounded p-1.5 text-ink-500 hover:bg-warm-deep"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -53,7 +53,7 @@ export function SuperAdminLayout() {
               to={item.to}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                  isActive ? 'bg-blue-600 text-white' : 'text-ink-700 hover:bg-warm-deep hover:text-ink-900'
                 }`
               }
             >
@@ -61,11 +61,11 @@ export function SuperAdminLayout() {
               {sidebarOpen && <span>{item.label}</span>}
             </NavLink>
           ))}
-          <div className="border-t border-slate-200 my-2" />
+          <div className="border-t border-ink-300 my-2" />
           <button
             type="button"
             onClick={() => navigate('/select-chama')}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-warm-deep hover:text-ink-900 transition-colors"
           >
             <Home className="h-5 w-5 shrink-0" />
             {sidebarOpen && <span>Chama dashboard</span>}
@@ -75,13 +75,13 @@ export function SuperAdminLayout() {
 
       {/* Mobile drawer */}
       <Drawer open={drawerOpen} onClose={closeDrawer} side="left">
-        <div className="flex flex-col h-full bg-white">
-          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+        <div className="flex flex-col h-full bg-warm-card">
+          <div className="flex h-16 items-center justify-between border-b border-ink-300 px-4">
             <div className="flex items-center gap-2">
               <Shield className="h-8 w-8 text-blue-600" />
-              <span className="font-semibold text-slate-800">Platform Admin</span>
+              <span className="font-semibold text-ink-900">Platform Admin</span>
             </div>
-            <button type="button" onClick={closeDrawer} className="rounded p-2 text-slate-500 hover:bg-slate-100" aria-label="Close menu">
+            <button type="button" onClick={closeDrawer} className="rounded p-2 text-ink-500 hover:bg-warm-deep" aria-label="Close menu">
               <PanelLeftClose size={24} />
             </button>
           </div>
@@ -93,7 +93,7 @@ export function SuperAdminLayout() {
                 onClick={closeDrawer}
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors min-h-[44px] ${
-                    isActive ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    isActive ? 'bg-blue-600 text-white' : 'text-ink-700 hover:bg-warm-deep'
                   }`
                 }
               >
@@ -101,11 +101,11 @@ export function SuperAdminLayout() {
                 <span>{item.label}</span>
               </NavLink>
             ))}
-            <div className="border-t border-slate-200 my-2" />
+            <div className="border-t border-ink-300 my-2" />
             <button
               type="button"
               onClick={() => { closeDrawer(); navigate('/select-chama'); }}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-600 hover:bg-slate-100 min-h-[44px]"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-ink-700 hover:bg-warm-deep min-h-[44px]"
             >
               <Home className="h-5 w-5 shrink-0" />
               <span>Chama dashboard</span>
@@ -115,7 +115,7 @@ export function SuperAdminLayout() {
       </Drawer>
 
       <div className={`flex flex-1 flex-col min-w-0 transition-all duration-200 ${sidebarOpen ? 'md:pl-56' : 'md:pl-20'}`}>
-        <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 shadow-sm sm:px-6 min-w-0 overflow-hidden">
+        <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center justify-between gap-2 border-b border-ink-300 bg-warm-card px-3 shadow-sm sm:px-6 min-w-0 overflow-hidden">
           <Button variant="ghost" size="sm" onClick={openNav} className="md:hidden shrink-0 h-10 w-10 p-0" aria-label="Open menu">
             <Menu size={22} />
           </Button>

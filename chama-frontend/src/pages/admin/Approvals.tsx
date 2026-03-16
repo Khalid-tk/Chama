@@ -117,8 +117,8 @@ export function Approvals() {
     <div className="space-y-6">
       <ToastContainer />
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Approvals</h1>
-        <p className="text-sm text-slate-500">Review and approve pending requests</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Approvals</h1>
+        <p className="text-sm text-ink-500">Review and approve pending requests</p>
       </div>
 
       {/* Filter Tabs */}
@@ -127,8 +127,8 @@ export function Approvals() {
           onClick={() => setTypeFilter('loans')}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             typeFilter === 'loans'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              ? 'bg-brown text-white shadow-md'
+              : 'bg-warm-card border border-ink-300 text-ink-700 hover:bg-warm-bg'
           }`}
         >
           Loan Applications ({pendingLoans.length})
@@ -137,8 +137,8 @@ export function Approvals() {
           onClick={() => setTypeFilter('members')}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
             typeFilter === 'members'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              ? 'bg-brown text-white shadow-md'
+              : 'bg-warm-card border border-ink-300 text-ink-700 hover:bg-warm-bg'
           }`}
         >
           Member Requests (0)
@@ -162,8 +162,8 @@ export function Approvals() {
           {/* Loans Table */}
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-slate-800">Pending Loan Applications</h2>
-              <p className="text-sm text-slate-500">Review loan requests and risk assessments</p>
+              <h2 className="font-semibold text-ink-900">Pending Loan Applications</h2>
+              <p className="text-sm text-ink-500">Review loan requests and risk assessments</p>
             </CardHeader>
             <CardContent className="overflow-hidden p-0">
               <div className="max-h-[600px] overflow-auto">
@@ -182,7 +182,7 @@ export function Approvals() {
                   <TableBody>
                     {loading ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                        <TableCell colSpan={7} className="text-center py-8 text-ink-500">
                           Loading...
                         </TableCell>
                       </TableRow>
@@ -215,10 +215,10 @@ export function Approvals() {
                                 ) : (
                                   <XCircle className="text-red-600" size={16} />
                                 )}
-                                <span className="text-sm text-slate-700">{risk.recommendation}</span>
+                                <span className="text-sm text-ink-700">{risk.recommendation}</span>
                               </div>
                               {risk.reasons.length > 0 && (
-                                <div className="mt-1 text-xs text-slate-500">{risk.reasons[0]}</div>
+                                <div className="mt-1 text-xs text-ink-500">{risk.reasons[0]}</div>
                               )}
                             </TableCell>
                             <TableCell className="text-right">
@@ -259,8 +259,8 @@ export function Approvals() {
       {typeFilter === 'members' && (
         <Card>
           <CardContent className="p-12 text-center">
-            <Users className="text-slate-300 mx-auto mb-4" size={48} />
-            <p className="text-slate-500">No pending member join requests</p>
+            <Users className="text-ink-300 mx-auto mb-4" size={48} />
+            <p className="text-ink-500">No pending member join requests</p>
           </CardContent>
         </Card>
       )}

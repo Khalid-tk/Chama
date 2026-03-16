@@ -125,7 +125,7 @@ export function JoinChama() {
 
   return (
     <div className="min-h-screen bg-[#F6F7FB]">
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-ink-300 bg-warm-card">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <BrandLogo size="md" showWordmark variant="dark" />
@@ -134,7 +134,7 @@ export function JoinChama() {
                 <ArrowLeft size={18} />
                 Back to My Chamas
               </Button>
-              <span className="text-sm text-slate-600">{user?.fullName}</span>
+              <span className="text-sm text-ink-700">{user?.fullName}</span>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut size={18} />
                 Logout
@@ -146,8 +146,8 @@ export function JoinChama() {
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-semibold text-slate-800">Explore & Join Chamas</h1>
-          <p className="mt-2 text-slate-600">
+          <h1 className="text-3xl font-semibold text-ink-900">Explore & Join Chamas</h1>
+          <p className="mt-2 text-ink-700">
             All available chamas are listed below. Search to filter, then request to join. Admins will approve your request.
           </p>
         </div>
@@ -158,7 +158,7 @@ export function JoinChama() {
               key={t}
               onClick={() => setTab(t)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                tab === t ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                tab === t ? 'bg-brown text-white shadow-md' : 'bg-warm-card border border-ink-300 text-ink-700 hover:bg-warm-bg'
               }`}
             >
               {t === 'explore' ? 'Explore Chamas' : 'My Join Requests'}
@@ -170,7 +170,7 @@ export function JoinChama() {
           <>
             <div className="mb-6 flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
                 <Input
                   placeholder="Search by chama name or code..."
                   value={query}
@@ -184,13 +184,13 @@ export function JoinChama() {
             </div>
 
             {searchLoading && (
-              <div className="py-8 text-center text-slate-500">Loading chamas...</div>
+              <div className="py-8 text-center text-ink-500">Loading chamas...</div>
             )}
             {!searchLoading && searchResults.length === 0 && (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Building2 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
-                  <p className="text-slate-600">
+                  <Building2 className="mx-auto mb-4 h-12 w-12 text-ink-400" />
+                  <p className="text-ink-700">
                     {query.trim() ? 'No chamas found. Try a different search.' : 'No chamas available yet.'}
                   </p>
                 </CardContent>
@@ -208,8 +208,8 @@ export function JoinChama() {
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="text-lg font-semibold text-slate-800">{chama.name}</h3>
-                            <p className="text-sm text-slate-500">Code: {chama.chamaCode}</p>
+                            <h3 className="text-lg font-semibold text-ink-900">{chama.name}</h3>
+                            <p className="text-sm text-ink-500">Code: {chama.chamaCode}</p>
                           </div>
                           {status && (
                             <Badge
@@ -222,9 +222,9 @@ export function JoinChama() {
                           )}
                         </div>
                         {chama.description && (
-                          <p className="text-sm text-slate-600 mb-4 line-clamp-2">{chama.description}</p>
+                          <p className="text-sm text-ink-700 mb-4 line-clamp-2">{chama.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mb-4 text-sm text-slate-600">
+                        <div className="flex items-center gap-4 mb-4 text-sm text-ink-700">
                           <div className="flex items-center gap-1">
                             {chama.joinMode === 'OPEN' ? (
                               <Unlock size={14} />
@@ -265,11 +265,11 @@ export function JoinChama() {
           <Card>
             <CardContent className="p-6">
               {myRequestsLoading ? (
-                <div className="py-8 text-center text-slate-500">Loading...</div>
+                <div className="py-8 text-center text-ink-500">Loading...</div>
               ) : myRequests.length === 0 ? (
                 <div className="py-12 text-center">
-                  <Building2 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
-                  <p className="text-slate-600">You have no join requests yet.</p>
+                  <Building2 className="mx-auto mb-4 h-12 w-12 text-ink-400" />
+                  <p className="text-ink-700">You have no join requests yet.</p>
                   <Button variant="secondary" className="mt-4" onClick={() => setTab('explore')}>
                     Explore Chamas
                   </Button>
@@ -279,12 +279,12 @@ export function JoinChama() {
                   {myRequests.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4"
+                      className="flex items-center justify-between rounded-lg border border-ink-300 bg-warm-card p-4"
                     >
                       <div>
-                        <p className="font-medium text-slate-800">{r.chama.name}</p>
-                        <p className="text-sm text-slate-500">Code: {r.chama.chamaCode}</p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="font-medium text-ink-900">{r.chama.name}</p>
+                        <p className="text-sm text-ink-500">Code: {r.chama.chamaCode}</p>
+                        <p className="text-xs text-ink-400 mt-1">
                           Requested {new Date(r.createdAt).toLocaleDateString()}
                         </p>
                       </div>

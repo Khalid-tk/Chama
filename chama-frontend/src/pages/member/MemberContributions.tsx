@@ -69,10 +69,10 @@ export function MemberContributions() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">My Contributions</h1>
-          <p className="text-sm text-slate-500">Track your personal contributions</p>
+          <h1 className="text-2xl font-semibold text-ink-900">My Contributions</h1>
+          <p className="text-sm text-ink-500">Track your personal contributions</p>
         </div>
-        <div className="text-center py-12 text-slate-500">Loading contributions...</div>
+        <div className="text-center py-12 text-ink-500">Loading contributions...</div>
       </div>
     )
   }
@@ -81,8 +81,8 @@ export function MemberContributions() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">My Contributions</h1>
-          <p className="text-sm text-slate-500">Track your personal contributions</p>
+          <h1 className="text-2xl font-semibold text-ink-900">My Contributions</h1>
+          <p className="text-sm text-ink-500">Track your personal contributions</p>
         </div>
         <Button onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
           <Plus size={18} />
@@ -93,20 +93,20 @@ export function MemberContributions() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-500">Total Contributed</div>
-            <div className="text-2xl font-bold text-slate-800">{formatKES(totalContributed)}</div>
+            <div className="text-sm text-ink-500">Total Contributed</div>
+            <div className="text-2xl font-bold text-ink-900">{formatKES(totalContributed)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-500">Total Contributions</div>
-            <div className="text-2xl font-bold text-slate-800">{memberContributions.length}</div>
+            <div className="text-sm text-ink-500">Total Contributions</div>
+            <div className="text-2xl font-bold text-ink-900">{memberContributions.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-500">Average per Contribution</div>
-            <div className="text-2xl font-bold text-slate-800">
+            <div className="text-sm text-ink-500">Average per Contribution</div>
+            <div className="text-2xl font-bold text-ink-900">
               {formatKES(Math.round(totalContributed / memberContributions.length) || 0)}
             </div>
           </CardContent>
@@ -119,32 +119,32 @@ export function MemberContributions() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Contribution History</h2>
-          <p className="text-sm text-slate-500">Your recent contributions</p>
+          <h2 className="font-semibold text-ink-900">Contribution History</h2>
+          <p className="text-sm text-ink-500">Your recent contributions</p>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {/* Mobile: card list */}
           <div className="space-y-3 p-4 lg:hidden">
             {paginated.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No contributions found.</p>
+              <p className="py-8 text-center text-sm text-ink-500">No contributions found.</p>
             ) : (
               paginated.map((c) => (
                 <div
                   key={c.id}
-                  className="rounded-lg border border-slate-200 bg-slate-50/50 p-4"
+                  className="rounded-lg border border-ink-300 bg-warm-bg/50 p-4"
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div>
-                      <p className="text-xs text-slate-500">Date</p>
-                      <p className="font-medium text-slate-800">{formatDateShort(c.date)}</p>
+                      <p className="text-xs text-ink-500">Date</p>
+                      <p className="font-medium text-ink-900">{formatDateShort(c.date)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-slate-500">Amount</p>
-                      <p className="font-semibold text-slate-800 amount-cell">{formatKES(c.amount)}</p>
+                      <p className="text-xs text-ink-500">Amount</p>
+                      <p className="font-semibold text-ink-900 amount-cell">{formatKES(c.amount)}</p>
                     </div>
                   </div>
                   <div className="mt-2">
-                    <p className="text-xs text-slate-500">Status</p>
+                    <p className="text-xs text-ink-500">Status</p>
                     <Badge variant={statusChipColor(c.status)}>{c.status}</Badge>
                   </div>
                 </div>
@@ -179,8 +179,8 @@ export function MemberContributions() {
             </TableShell>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-              <div className="text-sm text-slate-600">
+            <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+              <div className="text-sm text-ink-700">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(currentPage * ITEMS_PER_PAGE, memberContributions.length)} of {memberContributions.length} contributions
               </div>

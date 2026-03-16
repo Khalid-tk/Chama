@@ -5,6 +5,9 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { Modal, ModalBody, ModalFooter } from '../components/ui/Modal'
+import { PageHeader } from '../components/ui/PageHeader'
+import { FilterBar } from '../components/ui/FilterBar'
 import {
   TableShell,
   TableHeader,
@@ -124,64 +127,77 @@ export function Contributions() {
   }, [filtered, currentPage])
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  const stats = useMemo(() => {
+    const total = filtered.reduce((sum, c) => sum + Number(c.amount || 0), 0)
+    const month = new Date().getMonth()
+    const year = new Date().getFullYear()
+    const thisMonth = filtered
+      .filter((c) => {
+        const d = new Date(c.paidAt || c.createdAt)
+        return d.getMonth() === month && d.getFullYear() === year
+      })
+      .reduce((sum, c) => sum + Number(c.amount || 0), 0)
+    return { total, thisMonth, count: filtered.length }
+  }, [filtered])
 
   return (
     <div className="space-y-6">
       <ToastContainer />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Contributions</h1>
-          <p className="text-sm text-slate-500">Track and manage member contributions</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => { setLoading(true); loadContributions(); }} disabled={loading}>
-            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-            Refresh
-          </Button>
-          <Button onClick={() => {
-            setShowRecordModal(true)
-            if (fixedContributionAmount != null) setRecordAmount(String(fixedContributionAmount))
-          }}>
-            <Plus size={18} />
-            Record Contribution
-          </Button>
-        </div>
+
+      <PageHeader
+        title="Contributions"
+        description="Track and manage member contribution payments."
+        actions={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => { setLoading(true); loadContributions() }} disabled={loading}>
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+            </Button>
+            <Button size="sm" onClick={() => { setShowRecordModal(true); if (fixedContributionAmount != null) setRecordAmount(String(fixedContributionAmount)) }}>
+              <Plus size={14} /> Record contribution
+            </Button>
+          </>
+        }
+      />
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Total collected', value: formatKES(stats.total) },
+          { label: 'This month',      value: formatKES(stats.thisMonth) },
+          { label: 'Entries',         value: stats.count },
+        ].map(s => (
+          <div key={s.label} className="rounded-lg border border-ink-300 bg-warm-card px-4 py-4" style={{ boxShadow: 'var(--shadow-xs)' }}>
+            <p className="text-xs font-medium text-ink-500 uppercase tracking-wide">{s.label}</p>
+            <p className="mt-1 text-xl font-bold text-ink-900" style={{ fontVariantNumeric: 'tabular-nums' }}>{s.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex-1 max-w-xs">
-          <Input
-            placeholder="Search contributions..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setCurrentPage(1)
-            }}
-          />
-        </div>
-      </div>
+      <FilterBar
+        search={{ value: search, onChange: v => { setSearch(v); setCurrentPage(1) }, placeholder: 'Search by member name or email…' }}
+      />
 
       <Card>
         <CardContent className="overflow-hidden p-0">
           {loading ? (
-            <div className="p-8 text-center text-slate-500">Loading...</div>
+            <div className="p-8 text-center text-ink-500">Loading...</div>
           ) : (
             <>
               <div className="space-y-3 p-4 lg:hidden">
                 {paginated.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-slate-500">No contributions found.</p>
+                  <p className="py-8 text-center text-sm text-ink-500">No contributions found.</p>
                 ) : (
                   paginated.map((c) => (
-                    <div key={c.id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+                    <div key={c.id} className="rounded-lg border border-ink-300 bg-warm-bg/50 p-4">
                       <div className="flex justify-between items-start gap-2">
                         <div>
-                          <p className="text-xs text-slate-500">Member</p>
-                          <p className="font-medium text-slate-800">{c.user?.fullName ?? '—'}</p>
+                          <p className="text-xs text-ink-500">Member</p>
+                          <p className="font-medium text-ink-900">{c.user?.fullName ?? '—'}</p>
                         </div>
-                        <p className="font-semibold text-slate-800 amount-cell">{formatKES(c.amount)}</p>
+                        <p className="font-semibold text-ink-900 amount-cell">{formatKES(c.amount)}</p>
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="text-xs text-slate-500">{formatDateShort(c.paidAt || c.createdAt)}</span>
+                        <span className="text-xs text-ink-500">{formatDateShort(c.paidAt || c.createdAt)}</span>
                         <Badge variant="neutral">{c.method}</Badge>
                       </div>
                     </div>
@@ -217,8 +233,8 @@ export function Contributions() {
                 </TableShell>
               </div>
               {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                  <div className="text-sm text-slate-600">
+                <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+                  <div className="text-sm text-ink-700">
                     Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                     {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} contributions
                   </div>
@@ -237,48 +253,30 @@ export function Contributions() {
         </CardContent>
       </Card>
 
-      {showRecordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
-            <CardContent className="p-4 sm:p-6">
-              <h2 className="mb-4 text-xl font-semibold text-slate-800">Record Contribution</h2>
-              <p className="mb-4 text-sm text-slate-500">
-                {fixedContributionAmount != null
-                  ? `Fixed contribution for this chama: ${formatKES(fixedContributionAmount)}`
-                  : 'Record your own contribution (manual entry).'}
-              </p>
-              <form onSubmit={handleRecordContribution} className="space-y-4">
-                <Input
-                  label="Amount (KES)"
-                  type="number"
-                  min="1"
-                  value={recordAmount}
-                  onChange={(e) => setRecordAmount(e.target.value)}
-                  required
-                  disabled={recordLoading}
-                />
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Method</label>
-                  <select
-                    value={recordMethod}
-                    onChange={(e) => setRecordMethod(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm"
-                  >
-                    <option value="MANUAL">Manual</option>
-                    <option value="MPESA">M-Pesa</option>
-                    <option value="BANK">Bank</option>
-                    <option value="CASH">Cash</option>
-                  </select>
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit" loading={recordLoading} className="flex-1">Save</Button>
-                  <Button type="button" variant="secondary" onClick={() => setShowRecordModal(false)} disabled={recordLoading}>Cancel</Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <Modal open={showRecordModal} onClose={() => setShowRecordModal(false)}
+        title="Record contribution"
+        description={fixedContributionAmount != null ? `Fixed contribution: ${formatKES(fixedContributionAmount)}` : 'Manual entry for this period.'}>
+        <form onSubmit={handleRecordContribution}>
+          <ModalBody className="space-y-4">
+            <Input label="Amount (KES)" type="number" min="1" required
+              value={recordAmount} onChange={e => setRecordAmount(e.target.value)} disabled={recordLoading} />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-700">Payment method</label>
+              <select value={recordMethod} onChange={e => setRecordMethod(e.target.value)} disabled={recordLoading}
+                className="h-9 w-full rounded-md border border-ink-300 bg-warm-card px-3 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-1 focus:ring-brown/20 transition-colors">
+                <option value="MANUAL">Manual</option>
+                <option value="MPESA">M-Pesa</option>
+                <option value="BANK">Bank transfer</option>
+                <option value="CASH">Cash</option>
+              </select>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button type="button" variant="secondary" size="sm" onClick={() => setShowRecordModal(false)} disabled={recordLoading}>Cancel</Button>
+            <Button type="submit" size="sm" loading={recordLoading}>Save contribution</Button>
+          </ModalFooter>
+        </form>
+      </Modal>
     </div>
   )
 }

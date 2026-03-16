@@ -108,8 +108,8 @@ export function AcceptInvite() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F6F7FB]">
         <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-slate-600">Loading invite...</p>
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-brown border-t-transparent"></div>
+          <p className="text-ink-700">Loading invite...</p>
         </div>
       </div>
     )
@@ -118,7 +118,7 @@ export function AcceptInvite() {
   if (error && !inviteData) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F6F7FB] p-4">
-        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-lg">
+        <div className="w-full max-w-md rounded-xl border border-ink-300 bg-warm-card p-8 shadow-lg">
           <div className="mb-8 flex justify-center">
             <BrandLogo size="lg" showWordmark variant="dark" />
           </div>
@@ -130,7 +130,7 @@ export function AcceptInvite() {
             <p className="text-sm">{error}</p>
           </div>
           <div className="mt-6 text-center">
-            <Link to="/login" className="text-blue-600 hover:text-blue-700">
+            <Link to="/login" className="text-brown hover:text-brown-dark">
               Go to Login
             </Link>
           </div>
@@ -143,7 +143,7 @@ export function AcceptInvite() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F6F7FB] p-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-xl border border-ink-300 bg-warm-card p-8 shadow-lg">
         <div className="mb-8 flex justify-center">
           <BrandLogo size="lg" showWordmark variant="dark" />
         </div>
@@ -155,35 +155,35 @@ export function AcceptInvite() {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
             </div>
-            <h1 className="mb-2 text-2xl font-bold text-slate-900">Invite Accepted!</h1>
-            <p className="text-slate-600">Redirecting to dashboard...</p>
+            <h1 className="mb-2 text-2xl font-bold text-ink-900">Invite Accepted!</h1>
+            <p className="text-ink-700">Redirecting to dashboard...</p>
           </div>
         ) : (
           <>
             <div className="mb-6 text-center">
               <div className="mb-4 flex justify-center">
-                <div className="rounded-full bg-blue-100 p-3">
-                  <Users className="h-8 w-8 text-blue-600" />
+                <div className="rounded-full bg-brown-light p-3">
+                  <Users className="h-8 w-8 text-brown" />
                 </div>
               </div>
-              <h1 className="mb-2 text-2xl font-bold text-slate-900">You've been invited!</h1>
-              <p className="text-slate-600">Join a chama and start managing your finances together.</p>
+              <h1 className="mb-2 text-2xl font-bold text-ink-900">You've been invited!</h1>
+              <p className="text-ink-700">Join a chama and start managing your finances together.</p>
             </div>
 
-            <div className="mb-6 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-6 space-y-3 rounded-lg border border-ink-300 bg-warm-bg p-4">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-slate-500" />
-                <span className="text-sm text-slate-600">Email:</span>
-                <span className="font-medium text-slate-900">{inviteData?.email}</span>
+                <Mail className="h-4 w-4 text-ink-500" />
+                <span className="text-sm text-ink-700">Email:</span>
+                <span className="font-medium text-ink-900">{inviteData?.email}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-slate-500" />
-                <span className="text-sm text-slate-600">Chama:</span>
-                <span className="font-medium text-slate-900">{inviteData?.chamaName}</span>
+                <Users className="h-4 w-4 text-ink-500" />
+                <span className="text-sm text-ink-700">Chama:</span>
+                <span className="font-medium text-ink-900">{inviteData?.chamaName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600">Role:</span>
-                <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                <span className="text-sm text-ink-700">Role:</span>
+                <span className="rounded bg-brown-light px-2 py-1 text-xs font-medium text-blue-800">
                   {inviteData?.role}
                 </span>
               </div>
@@ -198,7 +198,7 @@ export function AcceptInvite() {
 
             {!isAuthed ? (
               <div className="space-y-3">
-                <p className="text-center text-sm text-slate-600">
+                <p className="text-center text-sm text-ink-700">
                   Please login or signup to accept this invite.
                 </p>
                 <Button
@@ -207,7 +207,7 @@ export function AcceptInvite() {
                 >
                   Login / Signup
                 </Button>
-                <p className="text-center text-xs text-slate-500">
+                <p className="text-center text-xs text-ink-500">
                   The invite is for: <strong>{inviteData?.email}</strong>
                 </p>
               </div>
@@ -230,7 +230,7 @@ export function AcceptInvite() {
             )}
 
             <div className="mt-6 text-center text-sm">
-              <Link to="/login" className="text-blue-600 hover:text-blue-700">
+              <Link to="/login" className="text-brown hover:text-brown-dark">
                 Back to Login
               </Link>
             </div>

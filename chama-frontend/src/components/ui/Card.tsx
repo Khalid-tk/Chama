@@ -1,29 +1,29 @@
 import type { HTMLAttributes } from 'react'
 
+/** Card — warm parchment surface with framed styling. */
 export function Card({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-white shadow-sm ${className}`}
+      className={`rounded-lg border border-ink-300 bg-warm-card ${className}`}
+      style={{ boxShadow: 'var(--shadow-sm)' }}
       {...props}
     />
   )
 }
 
-export function CardHeader({
-  className = '',
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
+/**
+ * CardHeader — deeper parchment tone for the header section,
+ * creating a visual document-section feel.
+ */
+export function CardHeader({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`flex flex-col gap-1 border-b border-slate-100 px-6 py-4 ${className}`}
+      className={`flex items-center justify-between gap-4 border-b border-ink-300 bg-warm-deep px-5 py-4 ${className}`}
       {...props}
     />
   )
 }
 
-export function CardContent({
-  className = '',
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
-  return <div className={`p-6 ${className}`} {...props} />
+export function CardContent({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={`px-5 py-5 ${className}`} {...props} />
 }

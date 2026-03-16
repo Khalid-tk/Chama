@@ -1,10 +1,13 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Search, Plus, Mail, UserPlus, CreditCard, Wallet, X } from 'lucide-react'
+import { Plus, Mail, CreditCard, Wallet } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent, CardHeader } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { Modal, ModalBody, ModalFooter } from '../components/ui/Modal'
+import { PageHeader } from '../components/ui/PageHeader'
+import { FilterBar, FilterSelect } from '../components/ui/FilterBar'
 import {
   TableShell,
   TableHeader,
@@ -140,83 +143,74 @@ export function Members() {
   }, [filteredMembers, currentPage])
 
   const totalPages = Math.ceil(filteredMembers.length / ITEMS_PER_PAGE)
+  const memberStats = useMemo(() => {
+    const active = members.filter((m) => m.isActive).length
+    const inactive = members.length - active
+    const admins = members.filter((m) => ['ADMIN', 'CHAIR', 'TREASURER', 'AUDITOR'].includes(m.role)).length
+    return { total: members.length, active, inactive, admins }
+  }, [members])
 
   return (
     <div className="space-y-6">
       <ToastContainer />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Members</h1>
-          <p className="text-sm text-slate-500">Manage Chama members and invites</p>
-        </div>
-        <Button onClick={() => setShowInviteModal(true)}>
-          <Plus size={18} />
-          Invite Member
-        </Button>
+
+      <PageHeader
+        title="Members"
+        description="Manage chama members and pending invites."
+        actions={
+          <Button size="sm" onClick={() => setShowInviteModal(true)}>
+            <Plus size={14} /> Invite member
+          </Button>
+        }
+      />
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: 'Total', value: memberStats.total },
+          { label: 'Active', value: memberStats.active },
+          { label: 'Leadership', value: memberStats.admins },
+          { label: 'Inactive', value: memberStats.inactive },
+        ].map(s => (
+          <div key={s.label} className="rounded-lg border border-ink-300 bg-warm-card px-4 py-4" style={{ boxShadow: 'var(--shadow-xs)' }}>
+            <p className="text-xs font-medium text-ink-500 uppercase tracking-wide">{s.label}</p>
+            <p className="mt-1 text-2xl font-bold text-ink-900" style={{ fontVariantNumeric: 'tabular-nums' }}>{s.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200">
-        <button
-          onClick={() => {
-            setActiveTab('members')
-            setCurrentPage(1)
-          }}
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === 'members'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Members ({members.length})
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab('invites')
-            setCurrentPage(1)
-          }}
-          className={`px-4 py-2 font-medium transition-colors ${
-            activeTab === 'invites'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          Invites ({invites.length})
-        </button>
+      <div className="flex gap-0 border-b border-ink-300">
+        {(['members', 'invites'] as const).map(tab => (
+          <button key={tab} type="button"
+            onClick={() => { setActiveTab(tab); setCurrentPage(1) }}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors -mb-px ${
+              activeTab === tab
+                ? 'border-b-2 border-brown text-brown-dark'
+                : 'text-ink-500 hover:text-ink-700'
+            }`}>
+            {tab === 'members' ? `Members (${members.length})` : `Invites (${invites.length})`}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'members' ? (
         <>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex-1 max-w-xs">
-              <Input
-                placeholder="Search members..."
-                icon={<Search size={18} />}
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value)
-                  setCurrentPage(1)
-                }}
-              />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
+          <FilterBar
+            search={{ value: search, onChange: v => { setSearch(v); setCurrentPage(1) }, placeholder: 'Search members…' }}
+            filters={
+              <FilterSelect value={statusFilter} onChange={e => { setStatusFilter((e.target as HTMLSelectElement).value); setCurrentPage(1) }}>
+                <option value="all">All status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </FilterSelect>
+            }
+          />
 
           <Card>
             <CardContent className="overflow-hidden p-0">
               {loading ? (
-                <div className="p-8 text-center text-slate-500">Loading...</div>
+                <div className="p-8 text-center text-ink-500">Loading...</div>
               ) : (
                 <>
                   <div className="max-h-[600px] overflow-auto">
@@ -245,7 +239,7 @@ export function Members() {
                                 <select
                                   value={m.role}
                                   onChange={(e) => handleRoleChange(m.userId, e.target.value)}
-                                  className="rounded border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700 focus:border-blue-500 focus:outline-none"
+                                  className="rounded border border-ink-300 bg-warm-card px-2 py-1 text-sm text-ink-700 focus:border-brown focus:outline-none"
                                 >
                                   {ROLES.map((role) => (
                                     <option key={role} value={role}>
@@ -276,8 +270,8 @@ export function Members() {
                     </TableShell>
                   </div>
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-                      <div className="text-sm text-slate-600">
+                    <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+                      <div className="text-sm text-ink-700">
                         Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                         {Math.min(currentPage * ITEMS_PER_PAGE, filteredMembers.length)} of{' '}
                         {filteredMembers.length} members
@@ -310,11 +304,11 @@ export function Members() {
       ) : (
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-slate-800">Invites ({invites.length})</h2>
+            <h2 className="font-semibold text-ink-900">Invites ({invites.length})</h2>
           </CardHeader>
           <CardContent className="overflow-hidden p-0">
             {loading ? (
-              <div className="p-8 text-center text-slate-500">Loading...</div>
+              <div className="p-8 text-center text-ink-500">Loading...</div>
             ) : invites.length === 0 ? (
               <TableEmpty colSpan={5} message="No invites found" />
             ) : (
@@ -362,111 +356,61 @@ export function Members() {
       )}
 
       {/* View Member Modal */}
-      {viewMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-start justify-between">
-              <h2 className="text-xl font-semibold text-slate-800">Member details</h2>
-              <button
-                onClick={() => setViewMember(null)}
-                className="rounded p-1 text-slate-500 hover:bg-slate-100"
-                aria-label="Close"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="space-y-3 text-sm">
-              <p><span className="font-medium text-slate-600">Name:</span> {viewMember.user.fullName}</p>
-              <p><span className="font-medium text-slate-600">Email:</span> {viewMember.user.email}</p>
-              <p><span className="font-medium text-slate-600">Phone:</span> {viewMember.user.phone || '—'}</p>
-              <p><span className="font-medium text-slate-600">Role:</span> {viewMember.role}</p>
-              <p><span className="font-medium text-slate-600">Joined:</span> {formatDateShort(viewMember.joinedAt)}</p>
-              <p><span className="font-medium text-slate-600">Status:</span>{' '}
+      <Modal open={!!viewMember} onClose={() => setViewMember(null)} title="Member details">
+        {viewMember && (
+          <>
+            <ModalBody className="space-y-3">
+              {[
+                { label: 'Name',   value: viewMember.user.fullName },
+                { label: 'Email',  value: viewMember.user.email },
+                { label: 'Phone',  value: viewMember.user.phone || '—' },
+                { label: 'Role',   value: viewMember.role },
+                { label: 'Joined', value: formatDateShort(viewMember.joinedAt) },
+              ].map(row => (
+                <div key={row.label} className="flex items-center gap-3">
+                  <span className="w-16 shrink-0 text-xs font-medium text-ink-500 uppercase tracking-wide">{row.label}</span>
+                  <span className="text-sm text-ink-900">{row.value}</span>
+                </div>
+              ))}
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-xs font-medium text-ink-500 uppercase tracking-wide">Status</span>
                 <Badge variant={viewMember.isActive ? 'success' : 'danger'}>{viewMember.isActive ? 'Active' : 'Inactive'}</Badge>
-              </p>
-            </div>
-            <div className="mt-6 flex flex-col gap-2">
-              <Button
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => {
-                  if (chamaId) navigate(`/admin/${chamaId}/loans?userId=${viewMember.userId}`)
-                  setViewMember(null)
-                }}
-              >
-                <CreditCard size={18} />
-                View loans
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" size="sm" onClick={() => { if (chamaId) navigate(`/admin/${chamaId}/contributions?userId=${viewMember.userId}`); setViewMember(null) }}>
+                <Wallet size={14} /> Contributions
               </Button>
-              <Button
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => {
-                  if (chamaId) navigate(`/admin/${chamaId}/contributions?userId=${viewMember.userId}`)
-                  setViewMember(null)
-                }}
-              >
-                <Wallet size={18} />
-                View contributions
+              <Button variant="secondary" size="sm" onClick={() => { if (chamaId) navigate(`/admin/${chamaId}/loans?userId=${viewMember.userId}`); setViewMember(null) }}>
+                <CreditCard size={14} /> Loans
               </Button>
-              <Button variant="ghost" onClick={() => setViewMember(null)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+              <Button size="sm" onClick={() => setViewMember(null)}>Close</Button>
+            </ModalFooter>
+          </>
+        )}
+      </Modal>
 
       {/* Invite Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-semibold text-slate-800">Invite Member</h2>
-            <form onSubmit={handleInvite} className="space-y-4">
-              <Input
-                label="Email"
-                type="email"
-                icon={<Mail size={18} />}
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                required
-                placeholder="member@example.com"
-              />
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Role</label>
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                >
-                  {ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setShowInviteModal(false)
-                    setInviteEmail('')
-                    setInviteRole('MEMBER')
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" loading={inviteLoading} className="flex-1">
-                  <UserPlus size={18} />
-                  Send Invite
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal open={showInviteModal} onClose={() => { setShowInviteModal(false); setInviteEmail(''); setInviteRole('MEMBER') }}
+        title="Invite member" description="Send an email invite to join this chama.">
+        <form onSubmit={handleInvite}>
+          <ModalBody className="space-y-4">
+            <Input label="Email address" type="email" placeholder="member@example.com" icon={<Mail size={14} />}
+              value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} required />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-ink-700">Role</label>
+              <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
+                className="h-9 w-full rounded-md border border-ink-300 bg-warm-card px-3 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-1 focus:ring-brown/20 transition-colors">
+                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button type="button" variant="secondary" size="sm" onClick={() => { setShowInviteModal(false); setInviteEmail(''); setInviteRole('MEMBER') }}>Cancel</Button>
+            <Button type="submit" size="sm" loading={inviteLoading}>Send invite</Button>
+          </ModalFooter>
+        </form>
+      </Modal>
     </div>
   )
 }

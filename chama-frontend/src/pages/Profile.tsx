@@ -94,8 +94,8 @@ export function Profile() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Profile</h1>
-          <p className="text-sm text-slate-500">Your account and profile picture</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Profile</h1>
+          <p className="text-sm text-ink-500">Your account and profile picture</p>
         </div>
         <Button variant="secondary" size="sm" onClick={goToDashboard} className="gap-2">
           <ArrowLeft size={18} />
@@ -106,8 +106,8 @@ export function Profile() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <User className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Profile picture</h2>
+            <User className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Profile picture</h2>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -117,10 +117,10 @@ export function Profile() {
                 <img
                   src={avatarUrl}
                   alt=""
-                  className="h-24 w-24 rounded-full object-cover border-4 border-slate-100"
+                  className="h-24 w-24 rounded-full object-cover border-4 border-ink-200"
                 />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-blue-600 text-2xl font-semibold text-white">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brown text-2xl font-semibold text-white">
                   {getInitials(user?.fullName ?? '')}
                 </div>
               )}
@@ -161,7 +161,7 @@ export function Profile() {
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-slate-500">JPEG, PNG or WebP. Max 2MB.</p>
+              <p className="text-xs text-ink-500">JPEG, PNG or WebP. Max 2MB.</p>
             </div>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -170,12 +170,12 @@ export function Profile() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Account info</h2>
+          <h2 className="font-semibold text-ink-900">Account info</h2>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p className="text-sm"><span className="text-slate-500">Name:</span> {user?.fullName}</p>
-          <p className="text-sm"><span className="text-slate-500">Email:</span> {user?.email}</p>
-          <p className="text-sm"><span className="text-slate-500">Phone:</span> {user?.phone || '—'}</p>
+          <p className="text-sm"><span className="text-ink-500">Name:</span> {user?.fullName}</p>
+          <p className="text-sm"><span className="text-ink-500">Email:</span> {user?.email}</p>
+          <p className="text-sm"><span className="text-ink-500">Phone:</span> {user?.phone || '—'}</p>
         </CardContent>
       </Card>
     </div>

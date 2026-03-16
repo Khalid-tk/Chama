@@ -1,14 +1,8 @@
 import { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Wallet,
   CreditCard,
-  Calendar,
-  TrendingUp,
-  Smartphone,
-  Award,
   Plus,
-  FileText,
 } from 'lucide-react'
 import { formatKES, formatDateShort } from '../../lib/format'
 import { useAuthStore } from '../../store/authStore'
@@ -16,7 +10,6 @@ import { useChamaId } from '../../hooks/useChamaId'
 import { chamaRoute } from '../../lib/api'
 import api from '../../lib/api'
 import { Button } from '../../components/ui/Button'
-import { StatCard } from '../../components/ui/StatCard'
 import { ChartCard } from '../../components/charts/ChartCard'
 import { ContributionsTrendChart } from '../../components/charts/ContributionsTrendChart'
 import { ContributionConsistencyChart } from '../../components/charts/ContributionConsistencyChart'
@@ -262,116 +255,79 @@ export function MemberDashboard() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-800">Dashboard</h1>
-            <p className="text-sm text-slate-500">Your Chama overview and insights</p>
+            <h1 className="font-display text-2xl font-bold text-ink-900">Dashboard</h1>
+            <p className="text-sm text-ink-500">Your Chama overview and insights</p>
           </div>
         </div>
-        <div className="text-center py-12 text-slate-500">Loading dashboard data...</div>
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
+            <p className="text-ink-500">Loading dashboard...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-8 min-w-0 w-full max-w-full overflow-x-hidden page-enter">
+      {/* Page header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Dashboard</h1>
-          <p className="text-sm text-slate-500">Your Chama overview and insights</p>
+          <h1 className="font-display text-xl font-bold tracking-tight text-ink-900 sm:text-2xl lg:text-3xl truncate">Dashboard</h1>
+          <p className="mt-1 text-sm text-ink-500">Your Chama overview and insights</p>
         </div>
-        <div className="shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
             <Plus size={18} />
             Pay Contribution
           </Button>
+          <Button variant="secondary" onClick={() => navigate(`/member/${chamaId}/loans`)}>
+            <CreditCard size={18} />
+            Request Loan
+          </Button>
         </div>
       </div>
 
-      {/* KPI Row 1 - Balance, This Month, Active Loan (full row each on mobile, like admin) */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-        <StatCard
-          icon={Wallet}
-          label="Current Balance"
-          value={formatKES(kpis.totalBalance)}
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="This Month"
-          value={
-            <div>
-              <div>{formatKES(kpis.thisMonthContributions)}</div>
-              <div className="text-xs text-slate-500">{kpis.thisMonthCount} contribution{kpis.thisMonthCount !== 1 ? 's' : ''}</div>
-            </div>
-          }
-        />
-        <StatCard
-          icon={CreditCard}
-          label="Active Loan"
-          value={
-            activeLoan ? (
-              <div>
-                <div>{formatKES(kpis.loanBalance)}</div>
-                <div className="text-xs text-slate-500">Due: {formatDateShort(kpis.nextDue)}</div>
-              </div>
-            ) : (
-              <span className="text-slate-500">None</span>
-            )
-          }
-        />
+      {/* Hero KPI section */}
+      <div className="rounded-2xl border border-ink-300/80 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 text-white shadow-lg">
+        <div className="flex flex-col gap-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-ink-400">Your Balance</p>
+          <p className="font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{formatKES(kpis.totalBalance)}</p>
+          <p className="text-sm text-ink-400">Personal savings in this Chama</p>
+        </div>
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-xs font-medium text-ink-400">This Month</p>
+            <p className="font-display mt-1 text-lg font-bold">{formatKES(kpis.thisMonthContributions)}</p>
+            <p className="text-xs text-ink-400">{kpis.thisMonthCount} contribution{kpis.thisMonthCount !== 1 ? 's' : ''}</p>
+          </div>
+          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-xs font-medium text-ink-400">Active Loan</p>
+            <p className="font-display mt-1 text-lg font-bold">{activeLoan ? formatKES(kpis.loanBalance) : 'None'}</p>
+            {activeLoan && <p className="text-xs text-ink-400">Due {formatDateShort(kpis.nextDue)}</p>}
+          </div>
+          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-xs font-medium text-ink-400">Repayment</p>
+            <p className="font-display mt-1 text-lg font-bold">{activeLoan ? `${kpis.loanProgress}%` : 'N/A'}</p>
+            <p className="text-xs text-ink-400">{activeLoan ? 'Complete' : '—'}</p>
+          </div>
+          <div className="rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-xs font-medium text-ink-400">Mpesa</p>
+            <p className="font-display mt-1 text-lg font-bold">{formatKES(kpis.thisMonthMpesaTotal)}</p>
+            <p className="text-xs text-ink-400">{kpis.mpesaSuccessRate.toFixed(0)}% success</p>
+          </div>
+          <div className="col-span-2 sm:col-span-1 rounded-xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <p className="text-xs font-medium text-ink-400">Consistency</p>
+            <p className="font-display mt-1 text-lg font-bold">{kpis.consistencyScore}/100</p>
+            <p className="text-xs text-ink-400">
+              {kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs Improvement'}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* KPI Row 2 - Repayment, Mpesa, Consistency (full row each on mobile) */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-        <StatCard
-          icon={Calendar}
-          label="Repayment Progress"
-          value={
-            activeLoan ? (
-              <div>
-                <div>{kpis.loanProgress}%</div>
-                <div className="text-xs text-slate-500">Complete</div>
-              </div>
-            ) : (
-              <span className="text-slate-500">N/A</span>
-            )
-          }
-        />
-        <StatCard
-          icon={Smartphone}
-          label="Mpesa This Month"
-          value={
-            <div>
-              <div>{formatKES(kpis.thisMonthMpesaTotal)}</div>
-              <div className="text-xs text-slate-500">{kpis.mpesaSuccessRate.toFixed(0)}% success</div>
-            </div>
-          }
-        />
-        <StatCard
-          icon={Award}
-          label="Consistency Score"
-          value={
-            <div>
-              <div>{kpis.consistencyScore}/100</div>
-              <div className="text-xs text-slate-500">
-                {kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs Improvement'}
-              </div>
-            </div>
-          }
-        />
-      </div>
-
-      {/* Secondary actions - moved below KPIs to reduce top overcrowding */}
-      <div className="flex flex-wrap gap-2">
-        <Button variant="secondary" size="sm" onClick={() => navigate(`/member/${chamaId}/loans`)}>
-          <CreditCard size={18} />
-          Request Loan
-        </Button>
-        <Button variant="secondary" size="sm" onClick={() => navigate(`/member/${chamaId}/analytics`)}>
-          <FileText size={18} />
-          View Statement
-        </Button>
-      </div>
-
-      {/* Chart Grid - 5+ Charts (single column on small, 2 on lg+) */}
+      {/* Chart Grid - featured first, then rest */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <ChartCard title="Contributions Trend" description="Your contributions over the last 6 months">
           <ContributionsTrendChart data={contributionsTrend} />

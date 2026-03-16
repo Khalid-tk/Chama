@@ -1,12 +1,12 @@
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
-    <div className={`animate-pulse rounded bg-slate-200 ${className}`} />
+    <div className={`animate-pulse rounded bg-warm-deep ${className}`} />
   )
 }
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6">
+    <div className="rounded-xl border border-ink-300 bg-warm-card p-6">
       <Skeleton className="h-4 w-1/3 mb-4" />
       <Skeleton className="h-8 w-1/2 mb-2" />
       <Skeleton className="h-4 w-2/3" />
@@ -16,8 +16,8 @@ export function SkeletonCard() {
 
 export function SkeletonTable() {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      <div className="p-4 border-b border-slate-200">
+    <div className="rounded-xl border border-ink-300 bg-warm-card overflow-hidden">
+      <div className="p-4 border-b border-ink-300">
         <Skeleton className="h-4 w-1/4" />
       </div>
       <div className="p-4 space-y-3">

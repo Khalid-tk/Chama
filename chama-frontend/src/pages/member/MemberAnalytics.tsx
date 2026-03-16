@@ -80,11 +80,11 @@ export function MemberAnalytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics</h1>
-          <p className="text-sm text-slate-500">Your personal analytics</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics</h1>
+          <p className="text-sm text-ink-500">Your personal analytics</p>
         </div>
         <div className="flex justify-center py-12">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
         </div>
       </div>
     )
@@ -94,13 +94,13 @@ export function MemberAnalytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics</h1>
-          <p className="text-sm text-slate-500">Your personal analytics</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics</h1>
+          <p className="text-sm text-ink-500">Your personal analytics</p>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="font-medium text-slate-700">Could not load analytics</p>
-            <p className="text-sm text-slate-500 mt-1">{loadError}</p>
+            <p className="font-medium text-ink-700">Could not load analytics</p>
+            <p className="text-sm text-ink-500 mt-1">{loadError}</p>
             <Button className="mt-4" onClick={() => loadData()}>Try again</Button>
           </CardContent>
         </Card>
@@ -152,15 +152,15 @@ export function MemberAnalytics() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Analytics Deep Dive</h1>
-          <p className="text-sm text-slate-500">Your personal analytics from backend</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Analytics Deep Dive</h1>
+          <p className="text-sm text-ink-500">Your personal analytics from backend</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-600">Range:</span>
+          <span className="text-sm text-ink-700">Range:</span>
           <select
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            className="rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm"
           >
             {RANGE_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -175,7 +175,7 @@ export function MemberAnalytics() {
 
       {!hasData && (
         <Card>
-          <CardContent className="py-12 text-center text-slate-500">
+          <CardContent className="py-12 text-center text-ink-500">
             <p className="font-medium">No analytics data yet</p>
             <p className="text-sm mt-1">Your contributions, loans, and M-Pesa activity will appear here.</p>
           </CardContent>
@@ -186,51 +186,51 @@ export function MemberAnalytics() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">This month</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(kpis.myContributionThisMonth)}</p>
+            <p className="text-xs font-medium text-ink-500">This month</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(kpis.myContributionThisMonth)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Total contributions</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(kpis.myTotalContributions)}</p>
+            <p className="text-xs font-medium text-ink-500">Total contributions</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(kpis.myTotalContributions)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Loan remaining</p>
-            <p className="text-xl font-semibold text-slate-800">{formatKES(kpis.myLoanRemaining)}</p>
+            <p className="text-xs font-medium text-ink-500">Loan remaining</p>
+            <p className="text-xl font-semibold text-ink-900">{formatKES(kpis.myLoanRemaining)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Next due date</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.nextDueDate ? formatDateShort(kpis.nextDueDate) : '—'}</p>
+            <p className="text-xs font-medium text-ink-500">Next due date</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.nextDueDate ? formatDateShort(kpis.nextDueDate) : '—'}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">M-Pesa success (30d)</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.mpesaSuccessRate30d}%</p>
+            <p className="text-xs font-medium text-ink-500">M-Pesa success (30d)</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.mpesaSuccessRate30d}%</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <p className="text-xs font-medium text-slate-500">Contribution streak</p>
-            <p className="text-xl font-semibold text-slate-800">{kpis.contributionStreakMonths} months</p>
+            <p className="text-xs font-medium text-ink-500">Contribution streak</p>
+            <p className="text-xl font-semibold text-ink-900">{kpis.contributionStreakMonths} months</p>
           </CardContent>
         </Card>
         {(loanProgress.totalDue > 0 || loanProgress.paidSoFar > 0) && (
           <>
             <Card>
               <CardContent className="pt-4">
-                <p className="text-xs font-medium text-slate-500">Money loaned</p>
-                <p className="text-xl font-semibold text-slate-800">{formatKES(loanProgress.totalDue)}</p>
+                <p className="text-xs font-medium text-ink-500">Money loaned</p>
+                <p className="text-xl font-semibold text-ink-900">{formatKES(loanProgress.totalDue)}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-4">
-                <p className="text-xs font-medium text-slate-500">Repaid loans</p>
+                <p className="text-xs font-medium text-ink-500">Repaid loans</p>
                 <p className="text-xl font-semibold text-emerald-600">{formatKES(loanProgress.paidSoFar)}</p>
               </CardContent>
             </Card>
@@ -298,8 +298,8 @@ export function MemberAnalytics() {
         <Card>
           <CardContent className="pt-6">
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-slate-800">Chama growth</h2>
-              <p className="text-sm text-slate-500">New members joining per month</p>
+              <h2 className="text-lg font-semibold text-ink-900">Chama growth</h2>
+              <p className="text-sm text-ink-500">New members joining per month</p>
             </div>
             <ChartCard
               title="New members monthly"

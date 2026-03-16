@@ -5,6 +5,8 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { PageHeader } from '../components/ui/PageHeader'
+import { FilterBar } from '../components/ui/FilterBar'
 import {
   TableShell,
   TableHeader,
@@ -246,6 +248,13 @@ export function Loans() {
   }, [filtered, currentPage])
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE)
+  const loanStats = useMemo(() => {
+    const totalRequested = loans.reduce((sum, l) => sum + Number(l.principal || 0), 0)
+    const activeCount = loans.filter((l) => ['ACTIVE', 'LATE'].includes(l.status)).length
+    const pendingCount = loans.filter((l) => l.status === 'PENDING').length
+    const repaidCount = loans.filter((l) => l.status === 'PAID').length
+    return { totalRequested, activeCount, pendingCount, repaidCount }
+  }, [loans])
 
   const getRisk = (loan: Loan) => {
     if (loan.status !== 'PENDING' || !loan.user?.id) return null
@@ -268,38 +277,51 @@ export function Loans() {
   return (
     <div className="space-y-6">
       <ToastContainer />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Loans</h1>
-          <p className="text-sm text-slate-500">Manage loan requests and disbursements</p>
-        </div>
-        <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading} className="shrink-0 w-full sm:w-auto justify-center">
-          <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-          Refresh
-        </Button>
+
+      <PageHeader
+        title="Loans"
+        description="Review loan requests, approve disbursements, and track repayments."
+        actions={
+          <Button variant="secondary" size="sm" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+          </Button>
+        }
+      />
+
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: 'Loan volume',      value: formatKES(loanStats.totalRequested) },
+          { label: 'Pending',          value: loanStats.pendingCount },
+          { label: 'Active',           value: loanStats.activeCount },
+          { label: 'Repaid',           value: loanStats.repaidCount },
+        ].map(s => (
+          <div key={s.label} className="rounded-lg border border-ink-300 bg-warm-card px-4 py-4" style={{ boxShadow: 'var(--shadow-xs)' }}>
+            <p className="text-xs font-medium text-ink-500 uppercase tracking-wide">{s.label}</p>
+            <p className="mt-1 text-xl font-bold text-ink-900" style={{ fontVariantNumeric: 'tabular-nums' }}>{s.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex flex-wrap gap-2">
-          {(['pending', 'active', 'history'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => {
-                setTab(t)
-                setCurrentPage(1)
-              }}
-              className={`rounded-lg px-3 py-2 sm:px-4 text-sm font-medium capitalize transition-all shrink-0 ${
-                tab === t
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <div className="w-full sm:flex-1 sm:max-w-xs min-w-0">
-          <Input
+      <FilterBar
+        filters={
+          <div className="flex flex-wrap gap-1.5">
+            {(['pending', 'active', 'history'] as const).map(t => (
+              <button key={t} type="button" onClick={() => { setTab(t); setCurrentPage(1) }}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                  tab === t ? 'bg-warm-sidebar text-white' : 'border border-ink-300 bg-warm-card text-ink-700 hover:bg-warm-bg'
+                }`}>
+                {t}
+              </button>
+            ))}
+          </div>
+        }
+        search={{ value: search, onChange: v => { setSearch(v); setCurrentPage(1) }, placeholder: 'Search by name or ID…' }}
+      />
+
+      {/* legacy: keep Input below for small-screen compatibility until fully removed */}
+      <div className="sr-only">
+        <Input
             placeholder="Search loans..."
             value={search}
             onChange={(e) => {
@@ -307,33 +329,32 @@ export function Loans() {
               setCurrentPage(1)
             }}
           />
-        </div>
       </div>
 
       <Card>
         <CardContent className="overflow-hidden p-0">
           {loading ? (
-            <div className="p-8 text-center text-slate-500">Loading...</div>
+            <div className="p-8 text-center text-ink-500">Loading...</div>
           ) : (
             <>
               {/* Mobile: card layout */}
               <div className="space-y-3 p-4 lg:hidden max-h-[600px] overflow-auto">
                 {paginated.length === 0 ? (
-                  <p className="py-8 text-center text-sm text-slate-500">No {tab} loans.</p>
+                  <p className="py-8 text-center text-sm text-ink-500">No {tab} loans.</p>
                 ) : (
                   paginated.map((l) => {
                     const risk = getRisk(l)
                     const statusLabel = l.status === 'PENDING' ? 'Pending' : l.status === 'APPROVED' ? 'Approved' : l.status === 'ACTIVE' ? 'Active' : l.status === 'PAID' ? 'Paid' : l.status === 'REJECTED' ? 'Rejected' : l.status
                     return (
-                      <div key={l.id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                      <div key={l.id} className="rounded-lg border border-ink-300 bg-warm-bg/50 p-4 space-y-3">
                         <div className="flex flex-wrap justify-between items-start gap-2">
                           <div className="min-w-0">
-                            <p className="text-xs text-slate-500">Member</p>
-                            <p className="font-semibold text-slate-800 truncate">{l.user?.fullName ?? '—'}</p>
+                            <p className="text-xs text-ink-500">Member</p>
+                            <p className="font-semibold text-ink-900 truncate">{l.user?.fullName ?? '—'}</p>
                           </div>
                           <div className="text-right shrink-0">
-                            <p className="text-xs text-slate-500">Amount</p>
-                            <p className="font-semibold text-slate-800">{formatKES(l.principal)}</p>
+                            <p className="text-xs text-ink-500">Amount</p>
+                            <p className="font-semibold text-ink-900">{formatKES(l.principal)}</p>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2 items-center text-sm">
@@ -343,10 +364,10 @@ export function Loans() {
                               {risk.level} Risk
                             </Badge>
                           )}
-                          <span className="text-slate-500">{formatDateShort(l.createdAt)}</span>
-                          <span className="text-slate-400 text-xs truncate">ID: {l.id.slice(0, 8)}</span>
+                          <span className="text-ink-500">{formatDateShort(l.createdAt)}</span>
+                          <span className="text-ink-400 text-xs truncate">ID: {l.id.slice(0, 8)}</span>
                         </div>
-                        <div className="flex flex-col gap-2 pt-2 border-t border-slate-200">
+                        <div className="flex flex-col gap-2 pt-2 border-t border-ink-300">
                           {l.status === 'PENDING' && (
                             <>
                               <div className="flex flex-wrap gap-2">
@@ -424,7 +445,7 @@ export function Loans() {
                           )}
                         </div>
                         {expandedLoanId === l.id && (
-                          <div className="pt-3 border-t border-slate-200">
+                          <div className="pt-3 border-t border-ink-300">
                             <AILoanAssessment
                               chamaId={chamaId!}
                               loanId={l.id}
@@ -483,10 +504,10 @@ export function Loans() {
                                   >
                                     {risk.level} Risk
                                   </Badge>
-                                  <span className="text-xs text-slate-500">{risk.recommendation}</span>
+                                  <span className="text-xs text-ink-500">{risk.recommendation}</span>
                                 </div>
                               ) : (
-                                <span className="text-sm text-slate-400">—</span>
+                                <span className="text-sm text-ink-400">—</span>
                               )}
                             </TableCell>
                             <TableCell className="text-right">
@@ -560,7 +581,7 @@ export function Loans() {
                             </TableCell>
                           </TableRow>
                           {expandedLoanId === l.id && (
-                            <TableRow className="bg-slate-50/80">
+                            <TableRow className="bg-warm-bg/80">
                               <TableCell colSpan={7} className="p-4">
                                 <AILoanAssessment
                                   chamaId={chamaId!}
@@ -582,8 +603,8 @@ export function Loans() {
                 </TableShell>
               </div>
               {totalPages > 1 && (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 px-4 sm:px-6 py-4">
-                  <div className="text-sm text-slate-600 order-2 sm:order-1">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-ink-200 px-4 sm:px-6 py-4">
+                  <div className="text-sm text-ink-700 order-2 sm:order-1">
                     Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                     {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} loans
                   </div>
@@ -617,26 +638,26 @@ export function Loans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-slate-800">Disburse loan</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-lg font-semibold text-ink-900">Disburse loan</h3>
+              <p className="mt-1 text-sm text-ink-500">
                 {disburseModal.loan.user?.fullName} · {formatKES(disburseModal.loan.principal)}
               </p>
               <div className="mt-4 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Due date</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Due date</label>
                   <input
                     type="date"
                     value={disburseDueDate}
                     onChange={(e) => setDisburseDueDate(e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Disbursement method</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Disbursement method</label>
                   <select
                     value={disburseMethod}
                     onChange={(e) => setDisburseMethod(e.target.value as 'MPESA' | 'CASH' | 'BANK' | 'OTHER')}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   >
                     <option value="MPESA">M-Pesa (send to member&apos;s number)</option>
                     <option value="CASH">Cash</option>
@@ -645,22 +666,22 @@ export function Loans() {
                   </select>
                 </div>
                 {disburseMethod === 'MPESA' && (
-                  <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3 space-y-2">
-                    <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <div className="rounded-lg border border-ink-300 bg-warm-bg/80 p-3 space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-ink-700">
                       <Smartphone className="h-4 w-4 text-emerald-600" />
                       Send via M-Pesa to member
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-ink-500">
                       Amount {formatKES(disburseModal.loan.principal)} will be sent to the number below (from member profile or override).
                     </p>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-600">M-Pesa number</label>
+                      <label className="mb-1 block text-xs font-medium text-ink-700">M-Pesa number</label>
                       <input
                         type="tel"
                         value={disbursePhone}
                         onChange={(e) => setDisbursePhone(e.target.value)}
                         placeholder={(disburseModal.loan.user as { phone?: string })?.phone || '254712345678'}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                       />
                       {!(disburseModal.loan.user as { phone?: string })?.phone && (
                         <p className="mt-1 text-xs text-amber-600">Member has no phone on file — enter number above.</p>
@@ -692,13 +713,13 @@ export function Loans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-slate-800">Record repayment</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-lg font-semibold text-ink-900">Record repayment</h3>
+              <p className="mt-1 text-sm text-ink-500">
                 {recordRepayModal.loan.user?.fullName} · Loan {recordRepayModal.loanId.slice(0, 8)}…
               </p>
               <form onSubmit={handleRecordRepayment} className="mt-4 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Amount (KES)</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Amount (KES)</label>
                   <input
                     type="number"
                     min="1"
@@ -706,15 +727,15 @@ export function Loans() {
                     onChange={(e) => setRecordRepayAmount(e.target.value)}
                     required
                     disabled={recordRepayLoading}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Method</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Method</label>
                   <select
                     value={recordRepayMethod}
                     onChange={(e) => setRecordRepayMethod(e.target.value as 'CASH' | 'BANK' | 'MPESA' | 'OTHER')}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   >
                     <option value="CASH">Cash</option>
                     <option value="BANK">Bank</option>
@@ -723,13 +744,13 @@ export function Loans() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Reference (optional)</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Reference (optional)</label>
                   <input
                     type="text"
                     value={recordRepayRef}
                     onChange={(e) => setRecordRepayRef(e.target.value)}
                     placeholder="e.g. receipt number"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
                   />
                 </div>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -747,12 +768,12 @@ export function Loans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-slate-800">High risk loan</h3>
-              <p className="mt-2 text-sm text-slate-600">
+              <h3 className="text-lg font-semibold text-ink-900">High risk loan</h3>
+              <p className="mt-2 text-sm text-ink-700">
                 AI Assessment recommends <strong>REJECT</strong> for this application (high risk).
                 Approve anyway?
               </p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-ink-500">
                 {highRiskApproveModal.loan.user?.fullName} · {formatKES(highRiskApproveModal.loan.principal)}
               </p>
               <div className="mt-6 flex justify-end gap-2">

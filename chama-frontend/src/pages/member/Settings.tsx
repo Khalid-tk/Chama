@@ -85,8 +85,8 @@ export function MemberSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">Settings</h1>
-        <p className="text-sm text-slate-500">Manage your account settings and preferences</p>
+        <h1 className="text-2xl font-semibold text-ink-900">Settings</h1>
+        <p className="text-sm text-ink-500">Manage your account settings and preferences</p>
       </div>
 
       {message && (
@@ -106,10 +106,10 @@ export function MemberSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <User className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Profile Information</h2>
+            <User className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Profile Information</h2>
           </div>
-          <p className="text-sm text-slate-500">Update your personal information</p>
+          <p className="text-sm text-ink-500">Update your personal information</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Input
@@ -142,10 +142,10 @@ export function MemberSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Security</h2>
+            <Lock className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Security</h2>
           </div>
-          <p className="text-sm text-slate-500">Change your password</p>
+          <p className="text-sm text-ink-500">Change your password</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <Input
@@ -173,7 +173,7 @@ export function MemberSettings() {
             <Lock size={18} />
             {saving ? 'Changing...' : 'Change Password'}
           </Button>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             Note: Password change endpoint not yet implemented. This is a UI placeholder.
           </p>
         </CardContent>
@@ -183,16 +183,16 @@ export function MemberSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bell className="text-blue-600" size={20} />
-            <h2 className="font-semibold text-slate-800">Notifications</h2>
+            <Bell className="text-brown" size={20} />
+            <h2 className="font-semibold text-ink-900">Notifications</h2>
           </div>
-          <p className="text-sm text-slate-500">Manage your notification preferences</p>
+          <p className="text-sm text-ink-500">Manage your notification preferences</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-slate-800">Due Date Reminders</p>
-              <p className="text-sm text-slate-500">Get notified before contribution due dates</p>
+              <p className="font-medium text-ink-900">Due Date Reminders</p>
+              <p className="text-sm text-ink-500">Get notified before contribution due dates</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -201,13 +201,13 @@ export function MemberSettings() {
                 onChange={(e) => handleToggleNotification('dueReminders', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-warm-deep peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brown rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-card after:border-ink-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brown"></div>
             </label>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-slate-800">Mpesa Payment Updates</p>
-              <p className="text-sm text-slate-500">Receive notifications for payment status changes</p>
+              <p className="font-medium text-ink-900">Mpesa Payment Updates</p>
+              <p className="text-sm text-ink-500">Receive notifications for payment status changes</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -216,7 +216,7 @@ export function MemberSettings() {
                 onChange={(e) => handleToggleNotification('mpesaUpdates', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <div className="w-11 h-6 bg-warm-deep peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brown rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-card after:border-ink-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brown"></div>
             </label>
           </div>
         </CardContent>

@@ -7,14 +7,14 @@ export function AccountLayout() {
 
   return (
     <div className="min-h-screen bg-[#F6F7FB]">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white">
+      <header className="sticky top-0 z-20 border-b border-ink-300 bg-warm-card">
         <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
           <button
             type="button"
             onClick={() => navigate('/select-chama')}
             className="flex items-center gap-2 min-w-0"
           >
-            <BrandLogo size="nav" showWordmark variant="dark" />
+            <BrandLogo size="md" showWordmark variant="dark" />
           </button>
           <AvatarDropdown />
         </div>

@@ -86,8 +86,8 @@ export function JoinRequests() {
       <ToastContainer />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Join Requests</h1>
-          <p className="text-sm text-slate-500">Manage member join requests for this chama</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Join Requests</h1>
+          <p className="text-sm text-ink-500">Manage member join requests for this chama</p>
         </div>
         <Button variant="secondary" size="sm" onClick={() => loadRequests()} disabled={loading}>
           <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -102,8 +102,8 @@ export function JoinRequests() {
             onClick={() => setStatusFilter(status)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
               statusFilter === status
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                ? 'bg-brown text-white shadow-md'
+                : 'bg-warm-card border border-ink-300 text-ink-700 hover:bg-warm-bg'
             }`}
           >
             {status}
@@ -113,13 +113,13 @@ export function JoinRequests() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">
+          <h2 className="font-semibold text-ink-900">
             {statusFilter} Requests ({requests.length})
           </h2>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {loading ? (
-            <div className="p-8 text-center text-slate-500">Loading...</div>
+            <div className="p-8 text-center text-ink-500">Loading...</div>
           ) : requests.length === 0 ? (
             <TableEmpty colSpan={5} message={`No ${statusFilter.toLowerCase()} requests`} />
           ) : (

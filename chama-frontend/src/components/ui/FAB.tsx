@@ -28,7 +28,7 @@ export function FAB({ actions }: FABProps) {
                     action.onClick()
                     setIsOpen(false)
                   }}
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-ink-700 hover:bg-warm-bg transition-colors"
                 >
                   {action.icon}
                   <span>{action.label}</span>
@@ -40,7 +40,7 @@ export function FAB({ actions }: FABProps) {
       )}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700 ${
+        className={`flex h-14 w-14 items-center justify-center rounded-full bg-brown text-white shadow-lg transition-all hover:bg-brown-dark ${
           isOpen ? 'rotate-45' : ''
         }`}
         aria-label="Quick Actions"

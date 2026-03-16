@@ -50,8 +50,8 @@ export function SuperUsers() {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-slate-600">Loading users...</p>
+          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-brown border-t-transparent"></div>
+          <p className="text-ink-700">Loading users...</p>
         </div>
       </div>
     )
@@ -60,13 +60,13 @@ export function SuperUsers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800">All Users</h1>
-        <p className="text-sm text-slate-500">Manage users and their global roles</p>
+        <h1 className="text-2xl font-semibold text-ink-900">All Users</h1>
+        <p className="text-sm text-ink-500">Manage users and their global roles</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {users.length === 0 ? (
-          <div className="col-span-full rounded-lg border border-slate-200 bg-white p-8 text-center text-slate-500">
+          <div className="col-span-full rounded-lg border border-ink-300 bg-warm-card p-8 text-center text-ink-500">
             No users found
           </div>
         ) : (
@@ -75,12 +75,12 @@ export function SuperUsers() {
               <CardContent className="p-6">
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-full bg-blue-100 p-2">
-                      <Users className="h-5 w-5 text-blue-600" />
+                    <div className="rounded-full bg-brown-light p-2">
+                      <Users className="h-5 w-5 text-brown" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-800">{user.fullName}</h3>
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <h3 className="font-semibold text-ink-900">{user.fullName}</h3>
+                      <div className="flex items-center gap-2 text-sm text-ink-500">
                         <Mail className="h-3 w-3" />
                         <span>{user.email}</span>
                       </div>
@@ -90,16 +90,16 @@ export function SuperUsers() {
 
                 <div className="space-y-2">
                   {user.phone && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-ink-700">
                       <Phone className="h-4 w-4" />
                       <span>{user.phone}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="flex items-center gap-2 text-sm text-ink-700">
                     <Shield className="h-4 w-4" />
                     <span>{user.memberCount} memberships</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="flex items-center gap-2 text-sm text-ink-700">
                     <Calendar className="h-4 w-4" />
                     <span>Joined {formatDateShort(user.createdAt)}</span>
                   </div>

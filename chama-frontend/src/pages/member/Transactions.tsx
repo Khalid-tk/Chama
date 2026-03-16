@@ -127,10 +127,10 @@ export function MemberTransactions() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">Transactions</h1>
-          <p className="text-sm text-slate-500">View your transaction history</p>
+          <h1 className="text-2xl font-semibold text-ink-900">Transactions</h1>
+          <p className="text-sm text-ink-500">View your transaction history</p>
         </div>
-        <div className="text-center py-12 text-slate-500">Loading transactions...</div>
+        <div className="text-center py-12 text-ink-500">Loading transactions...</div>
       </div>
     )
   }
@@ -138,8 +138,8 @@ export function MemberTransactions() {
   return (
     <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
       <div className="min-w-0">
-        <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Transactions</h1>
-        <p className="text-sm text-slate-500">View your transaction history</p>
+        <h1 className="text-xl sm:text-2xl font-semibold text-ink-900 truncate">Transactions</h1>
+        <p className="text-sm text-ink-500">View your transaction history</p>
       </div>
 
       {/* Stats Cards - full row each on mobile like admin dashboard */}
@@ -189,14 +189,14 @@ export function MemberTransactions() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter size={18} className="text-slate-500" />
+              <Filter size={18} className="text-ink-500" />
               <select
                 value={typeFilter}
                 onChange={(e) => {
                   setTypeFilter(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20"
               >
                 <option value="all">All Types</option>
                 <option value="credit">Credits</option>
@@ -210,22 +210,22 @@ export function MemberTransactions() {
       {/* Transactions Table */}
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Transaction History</h2>
-          <p className="text-sm text-slate-500">Your recent transactions</p>
+          <h2 className="font-semibold text-ink-900">Transaction History</h2>
+          <p className="text-sm text-ink-500">Your recent transactions</p>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {/* Mobile: card list */}
           <div className="space-y-3 p-4 lg:hidden min-w-0">
             {paginated.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No transactions found.</p>
+              <p className="py-8 text-center text-sm text-ink-500">No transactions found.</p>
             ) : (
               paginated.map((t) => (
-                <div key={t.id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+                <div key={t.id} className="rounded-lg border border-ink-300 bg-warm-bg/50 p-4">
                   <div className="flex justify-between items-start gap-2">
-                    <p className="font-medium text-slate-800 text-sm line-clamp-2">{t.desc}</p>
+                    <p className="font-medium text-ink-900 text-sm line-clamp-2">{t.desc}</p>
                     <span
                       className={`text-right font-semibold shrink-0 amount-cell ${
-                        t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-slate-800'
+                        t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-ink-900'
                       }`}
                     >
                       {t.type === 'credit' ? '+' : '-'}
@@ -233,7 +233,7 @@ export function MemberTransactions() {
                     </span>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">{formatDateShort(t.date)}</span>
+                    <span className="text-xs text-ink-500">{formatDateShort(t.date)}</span>
                     <Badge variant={t.type === 'credit' ? 'success' : t.type === 'repayment' ? 'warning' : 'neutral'}>
                       {t.type === 'repayment' ? 'Repayment' : t.type}
                     </Badge>
@@ -263,7 +263,7 @@ export function MemberTransactions() {
                       <TableCell className="font-medium">{t.desc}</TableCell>
                       <TableCell
                         className={`text-right font-semibold amount-cell ${
-                          t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-slate-800'
+                          t.type === 'credit' ? 'text-emerald-600' : t.type === 'repayment' ? 'text-amber-600' : 'text-ink-900'
                         }`}
                       >
                         {t.type === 'credit' ? '+' : '-'}
@@ -281,8 +281,8 @@ export function MemberTransactions() {
             </TableShell>
           </div>
           {totalPages > 1 && (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 px-4 sm:px-6 py-4">
-              <div className="text-sm text-slate-600">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-ink-200 px-4 sm:px-6 py-4">
+              <div className="text-sm text-ink-700">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} transactions
               </div>
@@ -290,14 +290,14 @@ export function MemberTransactions() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg border border-ink-300 bg-warm-card px-4 py-2 text-sm text-ink-700 hover:bg-warm-bg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

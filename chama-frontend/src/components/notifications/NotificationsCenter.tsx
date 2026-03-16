@@ -55,16 +55,16 @@ export function NotificationsCenter({
       case 'LOAN_APPROVED':
       case 'LOAN_DISBURSED':
       case 'JOIN_APPROVED':
-        return <CheckCircle className="text-blue-600" size={20} />
+        return <CheckCircle className="text-brown" size={20} />
       case 'LOAN_REJECTED':
       case 'JOIN_REJECTED':
         return <AlertCircle className="text-amber-600" size={20} />
       case 'INVITE':
       case 'JOIN_REQUEST':
       case 'LOAN_REQUEST':
-        return <Bell className="text-blue-600" size={20} />
+        return <Bell className="text-brown" size={20} />
       default:
-        return <Bell className="text-slate-500" size={20} />
+        return <Bell className="text-ink-500" size={20} />
     }
   }
 
@@ -81,10 +81,10 @@ export function NotificationsCenter({
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
       <Card className="relative z-10 w-full max-w-md shadow-xl">
         <CardContent className="p-0">
-          <div className="flex items-center justify-between border-b border-slate-200 p-4">
+          <div className="flex items-center justify-between border-b border-ink-300/40 p-4">
             <div className="flex items-center gap-2">
-              <Bell className="text-blue-600" size={20} />
-              <h3 className="font-semibold text-slate-800">Notifications</h3>
+              <Bell className="text-gold" size={18} />
+              <h3 className="font-semibold text-ink-900">Notifications</h3>
               {unreadCount > 0 && (
                 <Badge variant="danger" className="ml-2">
                   {unreadCount > 99 ? '99+' : unreadCount}
@@ -93,13 +93,13 @@ export function NotificationsCenter({
             </div>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"
+              className="rounded-lg p-1 text-ink-500 hover:bg-warm-card/[0.05] hover:text-ink-300 transition-colors"
               aria-label="Close"
             >
               <X size={20} />
             </button>
           </div>
-          <div className="border-b border-slate-100 px-4 py-2 flex items-center justify-between gap-2">
+          <div className="border-b border-ink-300/30 px-4 py-2 flex items-center justify-between gap-2">
             {unreadCount > 0 && (
               <Button variant="ghost" size="sm" onClick={onMarkAllRead}>
                 Mark all as read
@@ -119,15 +119,15 @@ export function NotificationsCenter({
           <div className="max-h-[500px] overflow-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <p className="text-slate-500">Loading...</p>
+                <p className="text-ink-500">Loading...</p>
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Bell className="text-slate-300 mb-2" size={48} />
-                <p className="text-slate-500">No notifications</p>
+                <Bell className="text-ink-300 mb-2" size={48} />
+                <p className="text-ink-500">No notifications</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-ink-200/25">
                 {notifications.map((n) => (
                   <div
                     key={n.id}
@@ -135,16 +135,16 @@ export function NotificationsCenter({
                     tabIndex={0}
                     onClick={() => handleClick(n)}
                     onKeyDown={(e) => e.key === 'Enter' && handleClick(n)}
-                    className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer ${
-                      !n.isRead ? 'bg-blue-50/50' : ''
+                    className={`p-4 hover:bg-warm-card/[0.03] transition-colors cursor-pointer ${
+                      !n.isRead ? 'bg-brown-light0/[0.04]' : ''
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5">{getIcon(n.type)}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-800 text-sm">{n.title}</p>
-                        <p className="text-sm text-slate-600 mt-1">{n.message}</p>
-                        <p className="text-xs text-slate-400 mt-1">{formatTimeAgo(n.createdAt)}</p>
+                        <p className="font-semibold text-ink-900 text-sm">{n.title}</p>
+                        <p className="text-sm text-ink-700 mt-0.5 leading-relaxed">{n.message}</p>
+                        <p className="text-xs text-ink-500 mt-1">{formatTimeAgo(n.createdAt)}</p>
                       </div>
                     </div>
                   </div>

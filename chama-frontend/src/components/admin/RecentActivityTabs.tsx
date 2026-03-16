@@ -1,16 +1,8 @@
 import { useState } from 'react'
-import { Card, CardHeader, CardContent } from '../ui/Card'
 import { Badge } from '../ui/Badge'
-import {
-  TableShell,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '../ui/TableShell'
+import { TableShell, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../ui/TableShell'
 import { formatKES, formatDateShort, statusChipColor } from '../../lib/format'
-import { ChevronDown, ChevronUp, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 
 type ActivityTab = 'transactions' | 'loans' | 'mpesa'
 
@@ -19,170 +11,128 @@ type RecentActivityTabsProps = {
   loans: Array<{ id: string; date: string; member: string; amount: number; status: string }>
   mpesaPayments: Array<{ id: string; date: string; phoneNumber: string; amount: number; status: string; description?: string }>
   onRefresh?: () => void
+  className?: string
 }
 
-export function RecentActivityTabs({ transactions, loans, mpesaPayments, onRefresh }: RecentActivityTabsProps) {
-  const [activeTab, setActiveTab] = useState<ActivityTab>('transactions')
-  const [collapsed, setCollapsed] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
+const TABS: { key: ActivityTab; label: string }[] = [
+  { key: 'transactions', label: 'Transactions' },
+  { key: 'loans',        label: 'Loans' },
+  { key: 'mpesa',        label: 'M-Pesa' },
+]
 
-  const recentTransactions = transactions.slice(0, 8)
-  const recentLoans = loans.slice(0, 8)
-  const recentPayments = mpesaPayments.slice(0, 8)
+export function RecentActivityTabs({ transactions, loans, mpesaPayments, onRefresh, className = '' }: RecentActivityTabsProps) {
+  const [activeTab, setActiveTab]   = useState<ActivityTab>('transactions')
+  const [refreshing, setRefreshing] = useState(false)
 
   const handleRefresh = async () => {
     if (!onRefresh) return
     setRefreshing(true)
-    try {
-      await onRefresh()
-    } finally {
-      setRefreshing(false)
-    }
+    try { await onRefresh() } finally { setRefreshing(false) }
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
-          <button
-            type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            className="flex flex-1 items-center gap-2 text-left"
-            aria-expanded={!collapsed}
-          >
-            {collapsed ? (
-              <ChevronDown className="h-5 w-5 text-slate-500 shrink-0" />
-            ) : (
-              <ChevronUp className="h-5 w-5 text-slate-500 shrink-0" />
-            )}
-            <div className="min-w-0">
-              <h3 className="font-semibold text-slate-800">Recent Activity</h3>
-              <p className="text-sm text-slate-500">Latest transactions, loans, and payments</p>
-            </div>
+    <div className={`flex flex-col rounded-lg border border-ink-300 bg-warm-card overflow-hidden ${className}`} style={{ boxShadow: 'var(--shadow-xs)' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 border-b border-ink-200 px-4 py-3">
+        <div className="flex gap-1">
+          {TABS.map(({ key, label }) => (
+            <button key={key} type="button"
+              onClick={() => setActiveTab(key)}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                activeTab === key
+                  ? 'bg-warm-sidebar text-white'
+                  : 'text-ink-500 hover:bg-warm-deep hover:text-ink-700'
+              }`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        {onRefresh && (
+          <button type="button" onClick={handleRefresh} disabled={refreshing}
+            className="rounded p-1 text-ink-400 hover:bg-warm-deep hover:text-ink-700 disabled:opacity-40 transition-colors"
+            title="Refresh">
+            <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} />
           </button>
-          <div className="flex shrink-0 flex-wrap items-center gap-1">
-            {onRefresh && (
-              <button
-                type="button"
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
-                title="Refresh data"
-                aria-label="Refresh"
-              >
-                <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-              </button>
-            )}
-            {(['transactions', 'loans', 'mpesa'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab)
-                  setCollapsed(false)
-                }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-all ${
-                  activeTab === tab
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </CardHeader>
-      {!collapsed && (
-      <CardContent className="overflow-hidden p-0">
-        <div className="max-h-80 overflow-auto">
-          {activeTab === 'transactions' && (
-            <TableShell>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentTransactions.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell>{formatDateShort(t.date)}</TableCell>
-                    <TableCell className="font-medium">{(t as any).member || 'N/A'}</TableCell>
-                    <TableCell>{t.desc}</TableCell>
-                    <TableCell
-                      className={`text-right font-medium ${
-                        t.type === 'credit' ? 'text-emerald-600' : 'text-slate-800'
-                      }`}
-                    >
-                      {t.type === 'credit' ? '+' : '-'}
-                      {formatKES(t.amount)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={t.type === 'credit' ? 'success' : 'neutral'}>
-                        {t.type}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableShell>
-          )}
+        )}
+      </div>
 
-          {activeTab === 'loans' && (
-            <TableShell>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Member</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Status</TableHead>
+      {/* Table */}
+      <div className="overflow-auto flex-1">
+        {activeTab === 'transactions' && (
+          <TableShell className="rounded-none border-0 shadow-none">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Member</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.slice(0, 8).map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell className="text-ink-500 whitespace-nowrap">{formatDateShort(t.date)}</TableCell>
+                  <TableCell className="font-medium text-ink-900">{(t as any).member || 'N/A'}</TableCell>
+                  <TableCell className="text-ink-700">{t.desc}</TableCell>
+                  <TableCell className={`text-right font-medium tabular-nums ${t.type === 'credit' ? 'text-emerald-700' : 'text-ink-700'}`}>
+                    {t.type === 'credit' ? '+' : '-'}{formatKES(t.amount)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={t.type === 'credit' ? 'success' : 'neutral'}>{t.type}</Badge>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentLoans.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell>{formatDateShort(l.date)}</TableCell>
-                    <TableCell className="font-medium">{l.member}</TableCell>
-                    <TableCell className="text-right font-semibold">{formatKES(l.amount)}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusChipColor(l.status)}>{l.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableShell>
-          )}
+              ))}
+            </TableBody>
+          </TableShell>
+        )}
 
-          {activeTab === 'mpesa' && (
-            <TableShell>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Status</TableHead>
+        {activeTab === 'loans' && (
+          <TableShell className="rounded-none border-0 shadow-none">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Member</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loans.slice(0, 8).map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell className="text-ink-500 whitespace-nowrap">{formatDateShort(l.date)}</TableCell>
+                  <TableCell className="font-medium text-ink-900">{l.member}</TableCell>
+                  <TableCell className="text-right font-medium tabular-nums text-ink-900">{formatKES(l.amount)}</TableCell>
+                  <TableCell><Badge variant={statusChipColor(l.status)}>{l.status}</Badge></TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentPayments.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell>{formatDateShort(p.date)}</TableCell>
-                    <TableCell>{p.phoneNumber}</TableCell>
-                    <TableCell className="text-right font-semibold">{formatKES(p.amount)}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusChipColor(p.status)}>{p.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableShell>
-          )}
-        </div>
-      </CardContent>
-      )}
-    </Card>
+              ))}
+            </TableBody>
+          </TableShell>
+        )}
+
+        {activeTab === 'mpesa' && (
+          <TableShell className="rounded-none border-0 shadow-none">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mpesaPayments.slice(0, 8).map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell className="text-ink-500 whitespace-nowrap">{formatDateShort(p.date)}</TableCell>
+                  <TableCell className="text-ink-700">{p.phoneNumber}</TableCell>
+                  <TableCell className="text-right font-medium tabular-nums text-ink-900">{formatKES(p.amount)}</TableCell>
+                  <TableCell><Badge variant={statusChipColor(p.status)}>{p.status}</Badge></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </TableShell>
+        )}
+      </div>
+    </div>
   )
 }

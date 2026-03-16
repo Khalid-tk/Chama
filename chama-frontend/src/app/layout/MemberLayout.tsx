@@ -1,19 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, useParams } from 'react-router-dom'
 import {
-  LayoutDashboard,
-  Wallet,
-  CreditCard,
-  TrendingUp,
-  Smartphone,
-  PieChart,
-  Menu,
-  PanelLeftClose,
-  Building2,
-  ChevronDown,
+  LayoutDashboard, Wallet, CreditCard, TrendingUp, Smartphone, PieChart,
+  Menu, X, Building2, ChevronDown, ChevronLeft, Activity, Settings,
 } from 'lucide-react'
 import { BrandLogo } from '../../components/BrandLogo'
-import { Button } from '../../components/ui/Button'
 import { Drawer } from '../../components/ui/Drawer'
 import { NotificationBell } from '../../components/notifications/NotificationBell'
 import { QuickActionsFAB } from '../../components/layout/QuickActionsFAB'
@@ -22,228 +13,173 @@ import { useAuthStore } from '../../store/authStore'
 import { useChamaStore } from '../../store/chamaStore'
 import type { ChamaMembership } from '../../store/authStore'
 
-const getMemberNavItems = (chamaId: string) => [
-  { to: `/member/${chamaId}/dashboard`, icon: LayoutDashboard, label: 'Dashboard' },
-  { to: `/member/${chamaId}/contributions`, icon: Wallet, label: 'Contributions' },
-  { to: `/member/${chamaId}/loans`, icon: CreditCard, label: 'Loans' },
-  { to: `/member/${chamaId}/transactions`, icon: TrendingUp, label: 'Transactions' },
-  { to: `/member/${chamaId}/mpesa`, icon: Smartphone, label: 'Mpesa' },
-  { to: `/member/${chamaId}/analytics`, icon: PieChart, label: 'Analytics' },
+const getNavItems = (chamaId: string) => [
+  { to: `/member/${chamaId}/dashboard`,     icon: LayoutDashboard, label: 'Dashboard' },
+  { to: `/member/${chamaId}/contributions`, icon: Wallet,          label: 'Contributions' },
+  { to: `/member/${chamaId}/loans`,         icon: CreditCard,      label: 'Loans' },
+  { to: `/member/${chamaId}/transactions`,  icon: TrendingUp,      label: 'Transactions' },
+  { to: `/member/${chamaId}/mpesa`,         icon: Smartphone,      label: 'M-Pesa' },
+  { to: `/member/${chamaId}/analytics`,     icon: PieChart,        label: 'Analytics' },
+  { to: `/member/${chamaId}/chama-health`,  icon: Activity,        label: 'Chama Health' },
 ]
+
+function NavItem({ to, icon: Icon, label, collapsed, onClick }: {
+  to: string; icon: any; label: string; collapsed: boolean; onClick?: () => void
+}) {
+  return (
+    <NavLink to={to} title={collapsed ? label : undefined} onClick={onClick}
+      className={({ isActive }) => [
+        'flex items-center gap-2.5 rounded-md text-sm transition-colors',
+        collapsed ? 'justify-center px-2 py-2' : 'px-2.5 py-2',
+        isActive
+          ? 'bg-brown text-warm-card'
+          : 'text-ink-300 hover:bg-white/[0.06] hover:text-warm-card',
+      ].join(' ')}
+    >
+      <Icon size={16} strokeWidth={1.75} className="shrink-0" />
+      {!collapsed && <span className="truncate">{label}</span>}
+    </NavLink>
+  )
+}
 
 export function MemberLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [showChamaSwitcher, setShowChamaSwitcher] = useState(false)
-  const navigate = useNavigate()
+  const [drawerOpen, setDrawerOpen]   = useState(false)
+  const [chamaSwitcher, setChamaSwitcher] = useState(false)
+  const switcherRef = useRef<HTMLDivElement>(null)
+  const navigate    = useNavigate()
   const { chamaId } = useParams<{ chamaId: string }>()
   const { logout, memberships } = useAuthStore()
   const { activeChama, setActiveChama, clearActiveChama } = useChamaStore()
 
   useEffect(() => {
     if (chamaId && activeChama?.chamaId !== chamaId) {
-      // Find membership for this chama
-      const membership = memberships.find((m) => m.chamaId === chamaId)
-      if (membership) {
-        setActiveChama({
-          chamaId: membership.chamaId,
-          chamaName: membership.chama.name,
-          chamaCode: membership.chama.chamaCode,
-          role: membership.role,
-          joinMode: membership.chama.joinMode,
-        })
-      }
+      const m = memberships.find((m) => m.chamaId === chamaId)
+      if (m) setActiveChama({ chamaId: m.chamaId, chamaName: m.chama.name, chamaCode: m.chama.chamaCode, role: m.role, joinMode: m.chama.joinMode })
     }
   }, [chamaId, memberships, activeChama, setActiveChama])
 
-  const handleLogout = () => {
-    logout()
-    clearActiveChama()
-    navigate('/login')
+  useEffect(() => {
+    const fn = (e: MouseEvent) => { if (switcherRef.current && !switcherRef.current.contains(e.target as Node)) setChamaSwitcher(false) }
+    if (chamaSwitcher) { document.addEventListener('click', fn); return () => document.removeEventListener('click', fn) }
+  }, [chamaSwitcher])
+
+  const handleLogout = () => { logout(); clearActiveChama(); navigate('/login') }
+  const switchChama  = (m: ChamaMembership) => {
+    setActiveChama({ chamaId: m.chamaId, chamaName: m.chama.name, chamaCode: m.chama.chamaCode, role: m.role, joinMode: m.chama.joinMode })
+    setChamaSwitcher(false)
+    navigate(['ADMIN','TREASURER','CHAIR','AUDITOR'].includes(m.role) ? `/admin/${m.chamaId}/dashboard` : `/member/${m.chamaId}/dashboard`)
   }
 
-  const handleSwitchChama = (membership: ChamaMembership) => {
-    setActiveChama({
-      chamaId: membership.chamaId,
-      chamaName: membership.chama.name,
-      chamaCode: membership.chama.chamaCode,
-      role: membership.role,
-      joinMode: membership.chama.joinMode,
-    })
-    setShowChamaSwitcher(false)
+  const navItems = chamaId ? getNavItems(chamaId) : []
 
-    // Navigate to appropriate dashboard
-    if (['ADMIN', 'TREASURER', 'CHAIR', 'AUDITOR'].includes(membership.role)) {
-      navigate(`/admin/${membership.chamaId}/dashboard`)
-    } else {
-      navigate(`/member/${membership.chamaId}/dashboard`)
-    }
-  }
-
-  const navItems = chamaId ? getMemberNavItems(chamaId) : []
-
-  const openNav = () => {
-    if (window.innerWidth < 768) {
-      setDrawerOpen(true)
-    } else {
-      setSidebarOpen((o) => !o)
-    }
-  }
-  const closeDrawer = () => setDrawerOpen(false)
-
-  return (
-    <div className="flex min-h-screen bg-[#F6F7FB] overflow-x-hidden">
-      {/* Desktop sidebar - hidden on mobile */}
-      <aside
-        className={`hidden md:flex md:flex-col bg-gradient-to-b from-blue-700 to-blue-800 text-white transition-all duration-300 ${
-          sidebarOpen ? 'w-[260px]' : 'w-0 overflow-hidden'
-        }`}
-      >
-        <div className="flex min-h-[72px] items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
-          {sidebarOpen && <BrandLogo size="nav" showWordmark variant="light" />}
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((o) => !o)}
-            className="rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white"
-            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-          >
-            {sidebarOpen ? <PanelLeftClose size={20} /> : null}
+  const SidebarContent = ({ inDrawer = false }: { inDrawer?: boolean }) => {
+    const wide = sidebarOpen || inDrawer
+    return (
+      <div className="flex h-full flex-col bg-warm-sidebar">
+        <div className="flex h-[56px] shrink-0 items-center justify-between border-b border-white/[0.07] px-4">
+          {wide && <BrandLogo size="sm" showWordmark variant="light" />}
+          <button onClick={inDrawer ? () => setDrawerOpen(false) : () => setSidebarOpen(o => !o)}
+            className="ml-auto rounded-md p-1.5 text-ink-300 hover:bg-white/[0.07] hover:text-warm-card transition-colors">
+            {inDrawer ? <X size={15} /> : <ChevronLeft size={15} />}
           </button>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
-                  isActive
-                    ? 'bg-white/20 text-white shadow-lg'
-                    : 'text-blue-100 hover:bg-white/10 hover:text-white'
-                }`
-              }
-            >
-              <Icon size={20} strokeWidth={2} />
-              <span className="font-medium">{label}</span>
-            </NavLink>
+
+        {wide && activeChama && (
+          <div className="mx-3 mt-3 mb-1 rounded-md border border-white/[0.08] bg-white/[0.04] px-3 py-2.5">
+            <p className="text-[9px] font-semibold uppercase tracking-widest text-ink-300 mb-1">My chama</p>
+            <p className="text-sm font-medium text-warm-card truncate">{activeChama.chamaName}</p>
+            <p className="text-xs text-ink-300 mt-0.5">Member · {activeChama.chamaCode}</p>
+          </div>
+        )}
+
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
+          {navItems.map(({ to, icon, label }) => (
+            <NavItem key={to} to={to} icon={icon} label={label} collapsed={!wide}
+              onClick={inDrawer ? () => setDrawerOpen(false) : undefined} />
           ))}
         </nav>
+
+        {wide && chamaId && (
+          <div className="border-t border-white/[0.07] px-2 py-3">
+            <NavLink to={`/member/${chamaId}/settings`}
+              onClick={inDrawer ? () => setDrawerOpen(false) : undefined}
+              className={({ isActive }) => `flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors ${isActive ? 'bg-brown text-warm-card' : 'text-ink-300 hover:bg-white/[0.06] hover:text-warm-card'}`}>
+              <Settings size={15} strokeWidth={1.75} />
+              <span>Settings</span>
+            </NavLink>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen overflow-x-hidden bg-warm-bg">
+      <aside className={`hidden md:flex md:flex-col shrink-0 sidebar-transition ${sidebarOpen ? 'w-[220px]' : 'w-[52px]'}`}
+        style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        {sidebarOpen ? <SidebarContent /> : (
+          <div className="flex h-full flex-col bg-warm-sidebar">
+            <div className="flex h-[56px] items-center justify-center border-b border-white/[0.07]">
+              <button onClick={() => setSidebarOpen(true)} className="rounded-md p-2 text-ink-300 hover:bg-white/[0.07] hover:text-warm-card transition-colors"><Menu size={16} /></button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5">
+              {navItems.map(({ to, icon, label }) => <NavItem key={to} to={to} icon={icon} label={label} collapsed />)}
+            </nav>
+          </div>
+        )}
       </aside>
 
-      {/* Mobile drawer */}
-      <Drawer open={drawerOpen} onClose={closeDrawer} side="left">
-        <div className="flex flex-col h-full">
-          <div className="flex min-h-[72px] items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
-            <BrandLogo size="nav" showWordmark variant="light" />
-            <button
-              type="button"
-              onClick={closeDrawer}
-              className="rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white"
-              aria-label="Close menu"
-            >
-              <PanelLeftClose size={24} />
-            </button>
-          </div>
-          {activeChama && (
-            <div className="border-b border-white/10 px-4 py-3">
-              <p className="text-xs font-semibold uppercase text-blue-200">Chama</p>
-              <p className="font-medium text-white">{activeChama.chamaName}</p>
-            </div>
-          )}
-          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-            {navItems.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={closeDrawer}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
-                    isActive
-                      ? 'bg-white/20 text-white shadow-lg'
-                      : 'text-blue-100 hover:bg-white/10 hover:text-white'
-                  }`
-                }
-              >
-                <Icon size={20} strokeWidth={2} />
-                <span className="font-medium">{label}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} side="left">
+        <SidebarContent inDrawer />
       </Drawer>
 
-      <div className="flex flex-1 flex-col min-w-0">
-        {/* Header - sticky */}
-        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white shrink-0">
-          <div className="flex h-14 sm:h-16 items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={openNav}
-                className="shrink-0 h-10 w-10 p-0 md:h-9 md:w-9"
-                aria-label="Open menu"
-              >
-                <Menu size={22} className="md:w-5 md:h-5" />
-              </Button>
-              {activeChama && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowChamaSwitcher(!showChamaSwitcher)}
-                    className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-2 sm:px-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
-                  >
-                    <Building2 size={18} className="shrink-0" />
-                    <span className="truncate max-w-[140px] sm:max-w-[200px]">{activeChama.chamaName}</span>
-                    <ChevronDown size={16} className="shrink-0" />
-                  </button>
-                  {showChamaSwitcher && (
-                    <div className="absolute left-0 top-full z-50 mt-2 w-64 rounded-lg border border-slate-200 bg-white shadow-lg">
-                      <div className="p-2">
-                        <div className="mb-2 px-3 py-2 text-xs font-semibold text-slate-500 uppercase">
-                          Switch Chama
-                        </div>
-                        {memberships.map((membership) => (
-                          <button
-                            key={membership.chamaId}
-                            onClick={() => handleSwitchChama(membership)}
-                            className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                              membership.chamaId === activeChama.chamaId
-                                ? 'bg-blue-50 text-blue-700'
-                                : 'text-slate-700 hover:bg-slate-50'
-                            }`}
-                          >
-                            <div className="font-medium">{membership.chama.name}</div>
-                            <div className="text-xs text-slate-500">
-                              {membership.role} • {membership.chama.chamaCode}
-                            </div>
-                          </button>
-                        ))}
-                        <div className="mt-2 border-t border-slate-200 pt-2">
-                          <button
-                            onClick={() => {
-                              setShowChamaSwitcher(false)
-                              navigate('/select-chama')
-                            }}
-                            className="w-full rounded-lg px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50"
-                          >
-                            + Create or Join Chama
-                          </button>
-                        </div>
-                      </div>
+      <div className="flex flex-1 min-w-0 flex-col">
+        <header className="sticky top-0 z-30 flex h-[56px] shrink-0 items-center justify-between gap-3 border-b border-ink-300 bg-warm-deep px-4 sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <button onClick={() => window.innerWidth < 768 ? setDrawerOpen(true) : setSidebarOpen(o => !o)}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-ink-500 hover:bg-warm-deep transition-colors md:hidden">
+              <Menu size={17} />
+            </button>
+
+            {activeChama && (
+              <div className="relative min-w-0" ref={switcherRef}>
+                <button onClick={() => setChamaSwitcher(s => !s)}
+                  className="flex max-w-[220px] items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium text-ink-700 hover:bg-warm-deep transition-colors">
+                  <Building2 size={14} className="shrink-0 text-ink-400" />
+                  <span className="truncate">{activeChama.chamaName}</span>
+                  <ChevronDown size={13} className={`shrink-0 text-ink-400 transition-transform ${chamaSwitcher ? 'rotate-180' : ''}`} />
+                </button>
+
+                {chamaSwitcher && (
+                  <div className="absolute left-0 top-full mt-1 w-64 rounded-lg border border-ink-300 bg-warm-card py-1 z-50"
+                    style={{ boxShadow: 'var(--shadow-md)' }}>
+                    <p className="px-3.5 py-2 text-[10px] font-semibold uppercase tracking-wider text-ink-400">Switch chama</p>
+                    {memberships.map((m) => (
+                      <button key={m.chamaId} onClick={() => switchChama(m)}
+                        className={`flex w-full flex-col px-3.5 py-2.5 text-left text-sm transition-colors ${m.chamaId === activeChama.chamaId ? 'bg-brown-light text-brown-dark' : 'text-ink-700 hover:bg-warm-bg'}`}>
+                        <span className="font-medium">{m.chama.name}</span>
+                        <span className="text-xs text-ink-400">{m.role} · {m.chama.chamaCode}</span>
+                      </button>
+                    ))}
+                    <div className="border-t border-ink-200 pt-1 px-1.5 pb-1">
+                      <button onClick={() => { setChamaSwitcher(false); navigate('/select-chama') }}
+                        className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-brown hover:bg-brown-light transition-colors">
+                        + Create or join chama
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <NotificationBell />
-              <AvatarDropdown onLogout={handleLogout} chamaSettingsTo={chamaId ? `/member/${chamaId}/settings` : null} chamaSettingsLabel="Chama settings" />
-            </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <NotificationBell />
+            <AvatarDropdown onLogout={handleLogout} chamaSettingsTo={chamaId ? `/member/${chamaId}/settings` : null} chamaSettingsLabel="Chama settings" />
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto overflow-x-hidden page-container">
+        <main className="flex-1 overflow-auto overflow-x-hidden page-container page-enter">
           <Outlet />
         </main>
       </div>

@@ -102,10 +102,7 @@ export function AdminDashboard() {
       ])
       const raw = analyticsRes.data?.data
       if (raw?.kpis && raw?.series) {
-        setAnalytics({
-          kpis: raw.kpis,
-          series: raw.series,
-        })
+        setAnalytics({ kpis: raw.kpis, series: raw.series })
       } else {
         setAnalytics(null)
       }
@@ -150,23 +147,12 @@ export function AdminDashboard() {
 
   const loanPortfolioData = useMemo(() => {
     const counts = analytics?.series?.loanStatusCounts ?? {}
-    return [
-      {
-        month: 'Current',
-        active: Number(counts.ACTIVE) || 0,
-        late: Number(counts.LATE) || 0,
-        repaid: Number(counts.PAID) || 0,
-      },
-    ]
+    return [{ month: 'Current', active: Number(counts.ACTIVE) || 0, late: Number(counts.LATE) || 0, repaid: Number(counts.PAID) || 0 }]
   }, [analytics?.series?.loanStatusCounts])
 
   const cashflowData = useMemo(() => {
     const s = analytics?.series?.cashflowMonthly ?? []
-    return s.map((m) => ({
-      month: m.month,
-      in: Number(m.inflow) || 0,
-      out: Number(m.outflow) || 0,
-    }))
+    return s.map((m) => ({ month: m.month, in: Number(m.inflow) || 0, out: Number(m.outflow) || 0 }))
   }, [analytics?.series?.cashflowMonthly])
 
   const defaultsTrend = useMemo(() => {
@@ -176,12 +162,7 @@ export function AdminDashboard() {
 
   const mpesaTrends = useMemo(() => {
     const s = analytics?.series?.mpesaOutcomesMonthly ?? []
-    return s.map((m) => ({
-      date: m.month,
-      success: Number(m.success) || 0,
-      failed: Number(m.failed) || 0,
-      pending: Number(m.pending) || 0,
-    }))
+    return s.map((m) => ({ date: m.month, success: Number(m.success) || 0, failed: Number(m.failed) || 0, pending: Number(m.pending) || 0 }))
   }, [analytics?.series?.mpesaOutcomesMonthly])
 
   const insights = useMemo(() => {
@@ -196,70 +177,38 @@ export function AdminDashboard() {
   const allTransactions = useMemo(() => {
     const txns: Array<{ id: string; date: string; desc: string; amount: number; type: 'credit' | 'debit'; member?: string }> = []
     contributions.forEach((c: any) => {
-      txns.push({
-        id: `c-${c.id}`,
-        date: c.paidAt || c.createdAt,
-        desc: `Contribution - ${c.method ?? 'Payment'}`,
-        amount: c.amount,
-        type: 'credit',
-        member: c.user?.fullName,
-      })
+      txns.push({ id: `c-${c.id}`, date: c.paidAt || c.createdAt, desc: `Contribution - ${c.method ?? 'Payment'}`, amount: c.amount, type: 'credit', member: c.user?.fullName })
     })
-    loans
-      .filter((l: any) => l.status === 'ACTIVE' || l.status === 'APPROVED')
-      .forEach((l: any) => {
-        txns.push({
-          id: `l-${l.id}`,
-          date: l.approvedAt || l.requestedAt,
-          desc: `Loan Disbursement`,
-          amount: l.principal ?? l.totalDue,
-          type: 'debit',
-          member: l.user?.fullName,
-        })
-      })
+    loans.filter((l: any) => l.status === 'ACTIVE' || l.status === 'APPROVED').forEach((l: any) => {
+      txns.push({ id: `l-${l.id}`, date: l.approvedAt || l.requestedAt, desc: 'Loan Disbursement', amount: l.principal ?? l.totalDue, type: 'debit', member: l.user?.fullName })
+    })
     return txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [contributions, loans])
 
   const loansForTabs = useMemo(() => {
-    return loans.slice(0, 20).map((l: any) => ({
-      id: l.id,
-      date: l.requestedAt || l.approvedAt,
-      member: l.user?.fullName ?? 'Member',
-      amount: l.principal ?? l.totalDue,
-      status: l.status,
-    }))
+    return loans.slice(0, 20).map((l: any) => ({ id: l.id, date: l.requestedAt || l.approvedAt, member: l.user?.fullName ?? 'Member', amount: l.principal ?? l.totalDue, status: l.status }))
   }, [loans])
 
   const mpesaForTabs = useMemo(() => {
-    return mpesaPayments.slice(0, 20).map((p: any) => ({
-      id: p.id,
-      date: p.createdAt,
-      phoneNumber: p.phone,
-      amount: p.amount,
-      status: p.status,
-      description: `${p.purpose ?? ''}`,
-    }))
+    return mpesaPayments.slice(0, 20).map((p: any) => ({ id: p.id, date: p.createdAt, phoneNumber: p.phone, amount: p.amount, status: p.status, description: `${p.purpose ?? ''}` }))
   }, [mpesaPayments])
 
   if (loading && !analytics) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
-          <p className="text-slate-600">Loading dashboard...</p>
-        </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-slate-800">Admin Dashboard</h1>
+      <div className="space-y-4">
+        <h1 className="text-xl font-semibold text-ink-900">Dashboard</h1>
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-slate-600">{error}</p>
-            <Button className="mt-4" onClick={loadData}>Try again</Button>
+            <p className="text-ink-500 text-sm">{error}</p>
+            <Button variant="secondary" size="sm" className="mt-4" onClick={loadData}>Try again</Button>
           </CardContent>
         </Card>
       </div>
@@ -268,159 +217,105 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+      {/* ─── Page Header ─── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-semibold text-slate-800 truncate">Admin Dashboard</h1>
-          <p className="text-sm text-slate-500">Chama overview and key performance indicators</p>
+          <h1 className="text-xl font-semibold text-ink-900">Dashboard</h1>
+          <p className="text-sm text-ink-500 mt-0.5">Financial overview for your chama</p>
         </div>
+
         <div className="flex flex-wrap items-center gap-2 sm:flex-shrink-0">
+          <DateRangeFilter value={dateRange} onChange={setDateRange} />
+
           <div className="relative" ref={plusMenuRef}>
-            <Button
-              onClick={() => setPlusMenuOpen((o) => !o)}
-              className="inline-flex items-center gap-2"
-            >
-              <Plus size={18} />
-              Admin actions
-              <ChevronDown size={16} className={plusMenuOpen ? 'rotate-180' : ''} />
+            <Button variant="secondary" onClick={() => setPlusMenuOpen((o) => !o)} size="sm">
+              <Plus size={14} />
+              Actions
+              <ChevronDown size={13} className={`transition-transform ${plusMenuOpen ? 'rotate-180' : ''}`} />
             </Button>
             {plusMenuOpen && (
-              <div className="absolute right-0 top-full z-20 mt-1 min-w-[200px] max-w-[min(200px,100vw-2rem)] rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusMenuOpen(false)
-                    navigate(`/admin/${chamaId}/members`)
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <UserPlus size={18} />
-                  Invite member
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusMenuOpen(false)
-                    navigate(`/admin/${chamaId}/members`)
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <UserCog size={18} />
-                  Manage members
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusMenuOpen(false)
-                    navigate(`/admin/${chamaId}/contributions`)
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <Coins size={18} />
-                  Record contribution
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlusMenuOpen(false)
-                    navigate(`/admin/${chamaId}/join-requests`)
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  <Inbox size={18} />
-                  Join requests
-                </button>
+              <div className="absolute right-0 top-full z-20 mt-1 min-w-[180px] rounded-lg overflow-hidden py-1 bg-warm-card border border-ink-300"
+                style={{ boxShadow: 'var(--shadow-md)' }}>
+                {[
+                  { icon: UserPlus, label: 'Invite member',        to: 'members' },
+                  { icon: UserCog,  label: 'Manage members',       to: 'members' },
+                  { icon: Coins,    label: 'Record contribution',   to: 'contributions' },
+                  { icon: Inbox,    label: 'Join requests',         to: 'join-requests' },
+                ].map((item) => (
+                  <button key={item.label} type="button"
+                    onClick={() => { setPlusMenuOpen(false); navigate(`/admin/${chamaId}/${item.to}`) }}
+                    className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm text-ink-700 hover:bg-warm-bg transition-colors">
+                    <item.icon size={14} className="text-ink-400 shrink-0" />
+                    {item.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
-          <Button
-            variant="secondary"
+
+          <Button variant="secondary" size="sm"
             onClick={() => {
-              const reportRows = [
-                { metric: 'Total Balance', value: formatKES(kpis.totalBalance) },
-                { metric: 'This Cycle', value: formatKES(kpis.contributionsThisMonth) },
-                { metric: 'Outstanding Loans', value: formatKES(kpis.outstandingLoans) },
-                { metric: 'Late Repayments', value: kpis.lateLoansCount },
-                { metric: 'Mpesa Success Rate', value: `${kpis.mpesaSuccessRate30d}%` },
-                { metric: 'Active Members', value: kpis.activeMembers },
-              ]
-              exportToCSV(reportRows, 'chama-dashboard-report', ['metric', 'value'])
-            }}
-          >
-            <FileText size={18} />
-            Generate Report
+              exportToCSV([
+                { metric: 'Total Balance',      value: formatKES(kpis.totalBalance) },
+                { metric: 'This Cycle',          value: formatKES(kpis.contributionsThisMonth) },
+                { metric: 'Outstanding Loans',   value: formatKES(kpis.outstandingLoans) },
+                { metric: 'Late Repayments',     value: kpis.lateLoansCount },
+                { metric: 'M-Pesa Success Rate', value: `${kpis.mpesaSuccessRate30d}%` },
+                { metric: 'Active Members',      value: kpis.activeMembers },
+              ], 'chama-dashboard-report', ['metric', 'value'])
+            }}>
+            <FileText size={14} />
+            Export
           </Button>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap items-center gap-4 min-w-0">
-            <DateRangeFilter value={dateRange} onChange={setDateRange} />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* KPI Row 1 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-        <StatCard icon={Wallet} label="Total Balance" value={formatKES(kpis.totalBalance)} />
-        <StatCard
-          icon={TrendingUp}
-          label="This Cycle"
-          value={
-            <>
-              <span className="block truncate">{formatKES(kpis.contributionsThisMonth)}</span>
-              <span className={`block truncate text-xs ${cycleChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                {cycleChange >= 0 ? '+' : ''}
-                {cycleChange.toFixed(1)}%
-              </span>
-            </>
-          }
-        />
-        <StatCard icon={CreditCard} label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)} />
+      {/* ─── KPI strip — 3 primary + 3 secondary ─── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 [&>*]:min-w-0">
+        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    className="col-span-2 lg:col-span-2" />
+        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" className="col-span-2 lg:col-span-2" trend={cycleChange} trendLabel="vs last month" />
+        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   className="col-span-2 lg:col-span-2" />
+        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     className="col-span-1 lg:col-span-2" />
+        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    className="col-span-1 lg:col-span-2" />
+        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    className="col-span-2 lg:col-span-2" />
       </div>
 
-      {/* KPI Row 2 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-        <StatCard icon={AlertTriangle} label="Late Repayments" value={kpis.lateLoansCount} />
-        <StatCard icon={Smartphone} label="Mpesa Success Rate" value={`${kpis.mpesaSuccessRate30d}%`} />
-        <StatCard icon={Users} label="Active Members" value={kpis.activeMembers} />
-      </div>
-
-      {/* Chart Grid */}
-      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-        <ChartCard title="Contributions Trend" description="Contribution trends from analytics">
-          <ContributionsTrendChart data={contributionsTrend} />
-        </ChartCard>
-        <ChartCard title="Top Contributors" description="Top members by total contributions">
-          <ContributionsByMemberChart data={contributionsByMember} />
-        </ChartCard>
-        <ChartCard title="Loan Portfolio Status" description="Current loan status (active, late, repaid)">
-          <LoanPortfolioStackedChart data={loanPortfolioData} />
-        </ChartCard>
-        <ChartCard title="Cashflow Overview" description="Money in vs money out">
+      {/* ─── Primary charts — 2/3 + 1/3 ─── */}
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+        <div className="lg:col-span-2">
+          <ChartCard title="Contribution Trends" description="Monthly total collected over selected period" height="lg">
+            <ContributionsTrendChart data={contributionsTrend} />
+          </ChartCard>
+        </div>
+        <ChartCard title="Cashflow" description="Inflows vs outflows" height="lg">
           <CashflowAreaChart data={cashflowData} />
         </ChartCard>
-        <ChartCard title="Defaults Trend" description="Late repayments">
-          <DefaultsTrendChart data={defaultsTrend} />
+      </div>
+
+      {/* ─── Secondary charts — equal 3-col ─── */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
+        <ChartCard title="Top Contributors" description="Ranked by total contributions">
+          <ContributionsByMemberChart data={contributionsByMember} />
         </ChartCard>
-        <ChartCard title="Mpesa Outcomes" description="Success/failure/pending by month">
+        <ChartCard title="Loan Portfolio" description="Active, late, and repaid">
+          <LoanPortfolioStackedChart data={loanPortfolioData} />
+        </ChartCard>
+        <ChartCard title="M-Pesa Outcomes" description="Success / failure / pending">
           <MpesaTrendsChart data={mpesaTrends} />
         </ChartCard>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3 [&>*]:min-w-0">
-        <div className="lg:col-span-1 min-w-0">
-          <InsightsPanel insights={insights} />
-        </div>
-        <div className="lg:col-span-2 min-w-0">
-          <RecentActivityTabs
-            transactions={allTransactions}
-            loans={loansForTabs}
-            mpesaPayments={mpesaForTabs}
-            onRefresh={loadData}
-          />
-        </div>
+      {/* ─── Defaults + Insights + Activity ─── */}
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+        <ChartCard title="Defaults Trend" description="Late repayment count">
+          <DefaultsTrendChart data={defaultsTrend} />
+        </ChartCard>
+        <InsightsPanel insights={insights} />
+        <RecentActivityTabs transactions={allTransactions} loans={loansForTabs} mpesaPayments={mpesaForTabs} onRefresh={loadData} />
       </div>
     </div>
   )
 }
+
+

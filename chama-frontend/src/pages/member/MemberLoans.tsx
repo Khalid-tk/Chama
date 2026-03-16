@@ -179,8 +179,8 @@ export function MemberLoans() {
       <ToastContainer />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800">My Loans</h1>
-          <p className="text-sm text-slate-500">Track your loan status and repayments</p>
+          <h1 className="text-2xl font-semibold text-ink-900">My Loans</h1>
+          <p className="text-sm text-ink-500">Track your loan status and repayments</p>
         </div>
         <Button onClick={() => setShowRequestModal(true)}>
           <Plus size={18} />
@@ -191,28 +191,28 @@ export function MemberLoans() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardContent className="p-4 sm:p-6">
-            <div className="text-sm text-slate-500">Active Loan Balance</div>
-            <div className="text-2xl font-bold text-slate-800">{formatKES(outstandingBalance)}</div>
+            <div className="text-sm text-ink-500">Active Loan Balance</div>
+            <div className="text-2xl font-bold text-ink-900">{formatKES(outstandingBalance)}</div>
             {activeLoan && totalLoanAmount > 0 && (
-              <div className="text-xs text-slate-500 mt-1">of {formatKES(totalLoanAmount)} total</div>
+              <div className="text-xs text-ink-500 mt-1">of {formatKES(totalLoanAmount)} total</div>
             )}
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-ink-500">
               <Calendar size={16} />
               Next Payment Due
             </div>
-            <div className="text-2xl font-bold text-slate-800">
+            <div className="text-2xl font-bold text-ink-900">
               {nextDueDate ? formatDateShort(nextDueDate) : activeLoan ? 'Not set' : 'N/A'}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-500">Repayment Progress</div>
-            <div className="text-2xl font-bold text-slate-800">
+            <div className="text-sm text-ink-500">Repayment Progress</div>
+            <div className="text-2xl font-bold text-ink-900">
               {activeLoan && totalLoanAmount > 0 ? `${Math.round((paidAmount / totalLoanAmount) * 100)}%` : 'N/A'}
             </div>
           </CardContent>
@@ -226,16 +226,16 @@ export function MemberLoans() {
           </ChartCard>
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-slate-800">Repay this loan</h2>
-              <p className="text-sm text-slate-500">Repayments show in Analytics under money loaned and repaid.</p>
+              <h2 className="font-semibold text-ink-900">Repay this loan</h2>
+              <p className="text-sm text-ink-500">Repayments show in Analytics under money loaned and repaid.</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4">
-                <h3 className="text-sm font-medium text-slate-800 flex items-center gap-2">
+                <h3 className="text-sm font-medium text-ink-900 flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-emerald-600" />
                   Repayment through M-Pesa
                 </h3>
-                <p className="text-xs text-slate-600 mt-1">
+                <p className="text-xs text-ink-700 mt-1">
                   Pay with your M-Pesa number. You will be taken to the M-Pesa page with this loan pre-selected.
                 </p>
                 <Button
@@ -246,12 +246,12 @@ export function MemberLoans() {
                   Repay via M-Pesa
                 </Button>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4">
-                <h3 className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                  <Banknote className="h-4 w-4 text-slate-600" />
+              <div className="rounded-lg border border-ink-300 bg-warm-bg/60 p-4">
+                <h3 className="text-sm font-medium text-ink-900 flex items-center gap-2">
+                  <Banknote className="h-4 w-4 text-ink-700" />
                   Record payment (Cash / Bank / M-Pesa / Other)
                 </h3>
-                <p className="text-xs text-slate-600 mt-1">
+                <p className="text-xs text-ink-700 mt-1">
                   Already paid by cash, bank transfer, or M-Pesa? Record it here so it reflects in your loan balance and analytics.
                 </p>
                 <Button variant="secondary" onClick={() => setShowRecordRepayModal(true)} className="mt-3 gap-2">
@@ -266,27 +266,27 @@ export function MemberLoans() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-slate-800">Loan History</h2>
-          <p className="text-sm text-slate-500">Your loan requests and status</p>
+          <h2 className="font-semibold text-ink-900">Loan History</h2>
+          <p className="text-sm text-ink-500">Your loan requests and status</p>
         </CardHeader>
         <CardContent className="overflow-hidden p-0">
           {/* Mobile: card list */}
           <div className="space-y-3 p-4 lg:hidden">
             {paginated.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No loans found.</p>
+              <p className="py-8 text-center text-sm text-ink-500">No loans found.</p>
             ) : (
               paginated.map((l) => (
-                <div key={l.id} className="rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+                <div key={l.id} className="rounded-lg border border-ink-300 bg-warm-bg/50 p-4">
                   <div className="flex justify-between items-start gap-2">
                     <div>
-                      <p className="text-xs text-slate-500">Amount</p>
-                      <p className="font-semibold text-slate-800 amount-cell">{formatKES(l.amount)}</p>
+                      <p className="text-xs text-ink-500">Amount</p>
+                      <p className="font-semibold text-ink-900 amount-cell">{formatKES(l.amount)}</p>
                     </div>
                     <Badge variant={statusChipColor(l.status)}>{l.status}</Badge>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                    <span className="text-slate-500">Date: {formatDateShort(l.date)}</span>
-                    <span className="text-slate-500 truncate">ID: {String(l.id).slice(0, 8)}…</span>
+                    <span className="text-ink-500">Date: {formatDateShort(l.date)}</span>
+                    <span className="text-ink-500 truncate">ID: {String(l.id).slice(0, 8)}…</span>
                   </div>
                 </div>
               ))
@@ -324,8 +324,8 @@ export function MemberLoans() {
             </TableShell>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-6 py-4">
-              <div className="text-sm text-slate-600">
+            <div className="flex items-center justify-between border-t border-ink-200 px-6 py-4">
+              <div className="text-sm text-ink-700">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
                 {Math.min(currentPage * ITEMS_PER_PAGE, memberLoans.length)} of {memberLoans.length} loans
               </div>
@@ -356,8 +356,8 @@ export function MemberLoans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
-              <h2 className="mb-4 text-lg font-semibold text-slate-800">Record repayment</h2>
-              <p className="text-sm text-slate-500 mb-4">Outstanding: {formatKES(outstandingBalance)}</p>
+              <h2 className="mb-4 text-lg font-semibold text-ink-900">Record repayment</h2>
+              <p className="text-sm text-ink-500 mb-4">Outstanding: {formatKES(outstandingBalance)}</p>
               <form onSubmit={handleRecordRepayment} className="space-y-4">
                 <Input
                   label="Amount (KES)"
@@ -369,11 +369,11 @@ export function MemberLoans() {
                   disabled={recordLoading}
                 />
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Method</label>
+                  <label className="mb-1 block text-sm font-medium text-ink-700">Method</label>
                   <select
                     value={recordMethod}
                     onChange={(e) => setRecordMethod(e.target.value as 'CASH' | 'BANK' | 'MPESA' | 'OTHER')}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 min-h-[44px]"
+                    className="w-full rounded-lg border border-ink-300 bg-warm-card px-3 py-2.5 text-sm text-ink-900 focus:border-brown focus:outline-none focus:ring-2 focus:ring-brown/20 min-h-[44px]"
                   >
                     <option value="CASH">Cash</option>
                     <option value="BANK">Bank</option>
@@ -403,7 +403,7 @@ export function MemberLoans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
           <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto my-auto">
             <CardContent className="p-4 sm:p-6">
-              <h2 className="mb-4 text-lg font-semibold text-slate-800 sm:text-xl">Request Loan</h2>
+              <h2 className="mb-4 text-lg font-semibold text-ink-900 sm:text-xl">Request Loan</h2>
               <form onSubmit={handleRequestLoan} className="space-y-4">
                 <Input
                   label="Amount (KES)"

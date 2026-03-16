@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate, useParams } from 'react-router-dom'
 import {
   LayoutDashboard, Users, Wallet, CreditCard, TrendingUp, Smartphone,
-  FileText, PieChart, Menu, X, Building2, ChevronDown, CheckCircle,
+  FileText, PieChart, Menu, X, Building2, ChevronDown,
   FileCheck, Shield, ScrollText, ChevronLeft, Settings,
 } from 'lucide-react'
 import { BrandLogo } from '../../components/BrandLogo'
@@ -21,7 +21,6 @@ const getNavItems = (chamaId: string) => [
   { to: `/admin/${chamaId}/loans`,         icon: CreditCard,      label: 'Loans' },
   { to: `/admin/${chamaId}/transactions`,  icon: TrendingUp,      label: 'Transactions' },
   { to: `/admin/${chamaId}/mpesa`,         icon: Smartphone,      label: 'M-Pesa' },
-  { to: `/admin/${chamaId}/approvals`,     icon: CheckCircle,     label: 'Approvals' },
   { to: `/admin/${chamaId}/join-requests`, icon: FileCheck,       label: 'Join Requests' },
   { to: `/admin/${chamaId}/reports`,       icon: FileText,        label: 'Reports' },
   { to: `/admin/${chamaId}/analytics`,     icon: PieChart,        label: 'Analytics' },

@@ -27,7 +27,6 @@ import { Contributions } from '../../pages/Contributions'
 import { Loans } from '../../pages/Loans'
 import { AdminTransactions } from '../../pages/admin/Transactions'
 import { AdminMpesa } from '../../pages/admin/Mpesa'
-import { Approvals } from '../../pages/admin/Approvals'
 import { JoinRequests } from '../../pages/admin/JoinRequests'
 import { AdminSettings } from '../../pages/admin/Settings'
 import { AuditLog } from '../../pages/admin/AuditLog'
@@ -106,7 +105,6 @@ export function AppRoutes() {
               <Route path="loans" element={<Loans />} />
               <Route path="transactions" element={<AdminTransactions />} />
               <Route path="mpesa" element={<AdminMpesa />} />
-              <Route path="approvals" element={<Approvals />} />
               <Route path="join-requests" element={<JoinRequests />} />
               <Route path="reports" element={<Reports />} />
               <Route path="analytics" element={<Analytics />} />

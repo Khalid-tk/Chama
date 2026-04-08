@@ -14,12 +14,9 @@ import { ContributionsTrendChart } from '../../components/charts/ContributionsTr
 import { ContributionConsistencyChart } from '../../components/charts/ContributionConsistencyChart'
 import { TransactionDistributionChart } from '../../components/charts/TransactionDistributionChart'
 import { LoanRepaymentChart } from '../../components/charts/LoanRepaymentChart'
-import { MemberMpesaTrendChart } from '../../components/charts/MemberMpesaTrendChart'
 import { SavingsProgressChart } from '../../components/charts/SavingsProgressChart'
-import { MemberRecentActivityTabs } from '../../components/member/MemberRecentActivityTabs'
-import { InsightsPanel } from '../../components/member/InsightsPanel'
-import { ChamaHealthWidget } from '../../components/member/ChamaHealthWidget'
-import { generateMemberInsights } from '../../utils/memberInsights'
+
+const CHART_H = 168
 
 export function MemberDashboard() {
   const chamaId = useChamaId()
@@ -37,7 +34,6 @@ export function MemberDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true)
-      // Fetch real data from API
       const [contributionsRes, loansRes, paymentsRes] = await Promise.all([
         api.get(chamaRoute(chamaId, '/my/contributions')).catch(() => ({ data: { data: { data: [] } } })),
         api.get(chamaRoute(chamaId, '/my/loans')).catch(() => ({ data: { data: { data: [] } } })),
@@ -47,9 +43,7 @@ export function MemberDashboard() {
       setContributions(contributionsRes.data.data.data || [])
       setLoans(loansRes.data.data.data || [])
       setPayments(paymentsRes.data.data.data || [])
-      
-      // Transactions can be derived from contributions and loans for now
-      // In the future, add a dedicated transactions endpoint
+
       const allTransactions = [
         ...(contributionsRes.data.data.data || []).map((c: any) => ({
           id: c.id,
@@ -68,7 +62,6 @@ export function MemberDashboard() {
     }
   }
 
-  // Use real data, fallback to empty arrays if loading
   const memberContributions = useMemo(() => {
     if (loading) return []
     return contributions.map((c: any) => ({
@@ -114,17 +107,14 @@ export function MemberDashboard() {
     }))
   }, [payments, loading])
 
-  // Calculate KPIs
   const kpis = useMemo(() => {
     const totalContributions = memberContributions.reduce((sum, c) => sum + c.amount, 0)
     const active = memberLoans.find((l) => l.status === 'Active')
     const loanBalance = active ? active.amount : 0
 
-    // Next due date (simplified: 15 days from now)
     const nextDue = new Date()
     nextDue.setDate(nextDue.getDate() + 15)
 
-    // This month contributions
     const now = new Date()
     const thisMonthContributions = memberContributions.filter((c) => {
       const date = new Date(c.date)
@@ -133,39 +123,26 @@ export function MemberDashboard() {
     const thisMonthTotal = thisMonthContributions.reduce((sum, c) => sum + c.amount, 0)
     const thisMonthCount = thisMonthContributions.length
 
-    // Loan repayment progress (from actual repayments)
     const paid = active?.repayments
       ? (active.repayments as any[]).reduce((s, r) => s + Number(r.amount || 0), 0)
       : 0
     const owed = active ? Number(active.amount) : 0
     const loanProgress = owed > 0 ? Math.round((paid / owed) * 100) : 0
 
-    // Mpesa payments this month
-    const thisMonthPayments = memberPayments.filter(p => {
-      const date = new Date(p.date)
-      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-    })
-    const thisMonthMpesaTotal = thisMonthPayments.reduce((sum, p) => sum + p.amount, 0)
-    const successfulPayments = thisMonthPayments.filter(p => p.status === 'success').length
-    const mpesaSuccessRate = thisMonthPayments.length > 0 ? (successfulPayments / thisMonthPayments.length) * 100 : 0
-
-    // Member consistency score (0-100)
-    const consistencyScore = computeConsistencyScore(memberContributions)
+    const pendingLoanCount = memberLoans.filter((l) => l.status === 'Pending').length
 
     return {
-      totalBalance: totalContributions - loanBalance, // Simplified savings
+      totalBalance: totalContributions - loanBalance,
+      totalContributionsAll: totalContributions,
       thisMonthContributions: thisMonthTotal,
       thisMonthCount,
       loanBalance: active ? active.amount : 0,
       nextDue: nextDue.toISOString().split('T')[0],
       loanProgress,
-      thisMonthMpesaTotal,
-      mpesaSuccessRate,
-      consistencyScore,
+      pendingLoanCount,
     }
   }, [memberContributions, memberLoans, memberPayments])
 
-  // Chart data: Contributions Trend
   const contributionsTrend = useMemo(() => {
     const grouped: Record<string, number> = {}
     memberContributions.forEach((c) => {
@@ -179,19 +156,16 @@ export function MemberDashboard() {
       .map(([monthKey, amount]) => ({ date: monthKey, amount }))
   }, [memberContributions])
 
-  // Chart data: Contribution Consistency
   const contributionConsistency = useMemo(() => {
     const grouped: Record<string, { amount: number; missed: boolean }> = {}
     const now = new Date()
-    
-    // Build last 6 months
+
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const month = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
       grouped[month] = { amount: 0, missed: true }
     }
 
-    // Fill in actual contributions
     memberContributions.forEach((c) => {
       const month = new Date(c.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
       if (grouped[month]) {
@@ -205,32 +179,7 @@ export function MemberDashboard() {
       .map(([month, data]) => ({ month, ...data }))
   }, [memberContributions])
 
-  // Chart data: Mpesa Trends
-  const mpesaTrends = useMemo(() => {
-    const grouped: Record<string, { success: number; failed: number; pending: number }> = {}
-    memberPayments.forEach((p) => {
-      const date = new Date(p.date).toISOString().split('T')[0]
-      if (!grouped[date]) {
-        grouped[date] = { success: 0, failed: 0, pending: 0 }
-      }
-      if (p.status === 'success') grouped[date].success++
-      else if (p.status === 'failed') grouped[date].failed++
-      else grouped[date].pending++
-    })
-
-    return Object.entries(grouped)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .slice(-7)
-      .map(([date, data]) => ({
-        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        ...data,
-      }))
-  }, [memberPayments])
-
-  // Loan repayment data (from API repayments)
-  const activeLoan = useMemo(() => {
-    return memberLoans.find((l) => l.status === 'Active')
-  }, [memberLoans])
+  const activeLoan = useMemo(() => memberLoans.find((l) => l.status === 'Active'), [memberLoans])
 
   const totalPaid = useMemo(() => {
     if (!activeLoan?.repayments) return 0
@@ -238,29 +187,19 @@ export function MemberDashboard() {
   }, [activeLoan])
   const totalOwed = activeLoan ? activeLoan.amount : 0
 
-  // Generate insights
-  const insights = useMemo(() => {
-    return generateMemberInsights({
-      contributions: memberContributions,
-      loans: memberLoans,
-      transactions: memberTransactions,
-      mpesaPayments: memberPayments,
-    })
-  }, [memberContributions, memberLoans, memberTransactions, memberPayments])
-
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-display text-2xl font-bold text-ink-900">Dashboard</h1>
-            <p className="text-sm text-ink-500">Your Chama overview and insights</p>
+            <h1 className="text-lg font-semibold text-ink-900">Dashboard</h1>
+            <p className="text-xs text-ink-500">Your Chama overview</p>
           </div>
         </div>
-        <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="flex min-h-[32vh] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
-            <p className="text-ink-500">Loading dashboard...</p>
+            <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-ink-300 border-t-brown" />
+            <p className="text-sm text-ink-500">Loading dashboard…</p>
           </div>
         </div>
       </div>
@@ -268,15 +207,15 @@ export function MemberDashboard() {
   }
 
   return (
-    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden page-enter">
+    <div className="flex min-h-0 flex-col gap-3 min-w-0 w-full max-w-full overflow-x-hidden xl:max-h-[calc(100vh-7.5rem)] xl:overflow-y-auto page-enter">
 
-      {/* ─── Page header ─── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* 1. Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-ink-900 truncate">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-ink-500">Your Chama overview and insights</p>
+          <h1 className="text-lg font-semibold text-ink-900 truncate">Dashboard</h1>
+          <p className="text-xs text-ink-500">Your Chama overview</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
           <Button size="sm" onClick={() => navigate(`/member/${chamaId}/mpesa`)}>
             <Plus size={15} />
             Pay Contribution
@@ -288,104 +227,59 @@ export function MemberDashboard() {
         </div>
       </div>
 
-      {/* ─── Primary charts — dominant, data-first ─── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        <ChartCard title="Contributions Trend" description="Your contributions over the last 6 months" height="lg">
-          <ContributionsTrendChart data={contributionsTrend} />
-        </ChartCard>
-        <ChartCard title="Contribution Consistency" description="Monthly record — red bars indicate missed months" height="lg">
-          <ContributionConsistencyChart data={contributionConsistency} />
-        </ChartCard>
-      </div>
-
-      {/* ─── Secondary charts ─── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        <ChartCard title="Transaction Distribution" description="Breakdown by category">
-          <TransactionDistributionChart transactions={memberTransactions} />
-        </ChartCard>
-        {activeLoan ? (
-          <ChartCard title="Loan Repayment Progress" description="Your active loan repayment status">
-            <LoanRepaymentChart paid={totalPaid} total={totalOwed} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="Savings Progress" description="Your cumulative savings growth">
-            <SavingsProgressChart totalContributions={kpis.totalBalance} />
-          </ChartCard>
-        )}
-        {mpesaTrends.length > 0 && (
-          <ChartCard title="M-Pesa Payments Trend" description="Success / failed / pending over time">
-            <MemberMpesaTrendChart data={mpesaTrends} />
-          </ChartCard>
-        )}
-      </div>
-
-      {/* ─── KPI summary strip ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
+      {/* 2. Summary cards */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 [&>*]:min-w-0 shrink-0">
         {[
-          { label: 'Balance',      value: formatKES(kpis.totalBalance),           sub: 'Personal savings' },
-          { label: 'This Month',   value: formatKES(kpis.thisMonthContributions),  sub: `${kpis.thisMonthCount} contribution${kpis.thisMonthCount !== 1 ? 's' : ''}` },
-          { label: 'Active Loan',  value: activeLoan ? formatKES(kpis.loanBalance) : 'None', sub: activeLoan ? `Due ${formatDateShort(kpis.nextDue)}` : '—' },
-          { label: 'Repayment',    value: activeLoan ? `${kpis.loanProgress}%` : 'N/A',       sub: activeLoan ? 'Complete' : '—' },
-          { label: 'M-Pesa',       value: formatKES(kpis.thisMonthMpesaTotal),    sub: `${kpis.mpesaSuccessRate.toFixed(0)}% success` },
-          { label: 'Consistency',  value: `${kpis.consistencyScore}/100`,          sub: kpis.consistencyScore >= 80 ? 'Excellent' : kpis.consistencyScore >= 60 ? 'Good' : 'Needs improvement' },
-        ].map(k => (
-          <div key={k.label} className="rounded-lg border border-ink-300 bg-warm-card px-5 py-5 min-w-0" style={{ boxShadow: 'var(--shadow-xs)' }}>
-            <p className="text-ink-400 mb-1" style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{k.label}</p>
-            <p className="text-2xl font-bold text-ink-900 break-words" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{k.value}</p>
-            <p className="mt-1 text-xs text-ink-500">{k.sub}</p>
+          { label: 'Available Balance', value: formatKES(kpis.totalBalance), sub: 'Net position' },
+          { label: 'Total Contributions', value: formatKES(kpis.totalContributionsAll), sub: 'All time' },
+          { label: 'This Month', value: formatKES(kpis.thisMonthContributions), sub: `${kpis.thisMonthCount} payment${kpis.thisMonthCount !== 1 ? 's' : ''}` },
+          { label: 'Pending Loans', value: kpis.pendingLoanCount, sub: 'Awaiting review' },
+          {
+            label: 'Active Loan',
+            value: activeLoan ? formatKES(kpis.loanBalance) : 'None',
+            sub: activeLoan ? `Due ${formatDateShort(kpis.nextDue)} · ${kpis.loanProgress}% repaid` : '—',
+          },
+        ].map((k) => (
+          <div
+            key={k.label}
+            className="rounded-lg border border-ink-300 bg-warm-card px-3 py-2.5 min-w-0"
+            style={{ boxShadow: 'var(--shadow-xs)' }}
+          >
+            <p className="text-ink-400 mb-0.5" style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              {k.label}
+            </p>
+            <p className="text-lg font-bold text-ink-900 break-words leading-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontVariantNumeric: 'tabular-nums' }}>
+              {k.value}
+            </p>
+            <p className="mt-0.5 text-[11px] text-ink-500 line-clamp-2">{k.sub}</p>
           </div>
         ))}
       </div>
 
-      {/* ─── Chama Health + Insights + Recent Activity ─── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
-        <ChamaHealthWidget />
-        <InsightsPanel insights={insights} />
-        <MemberRecentActivityTabs
-          transactions={memberTransactions}
-          contributions={memberContributions}
-          mpesaPayments={memberPayments}
-        />
+      {/* 3. Charts */}
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 [&>*]:min-w-0">
+        <ChartCard title="Contribution Trends" description="Last 6 months" height={CHART_H}>
+          <ContributionsTrendChart data={contributionsTrend} />
+        </ChartCard>
+        <ChartCard title="Monthly Activity" description="Consistency by month" height={CHART_H}>
+          <ContributionConsistencyChart data={contributionConsistency} />
+        </ChartCard>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 [&>*]:min-w-0">
+        <ChartCard title="Transaction Distribution" description="By category" height={CHART_H}>
+          <TransactionDistributionChart transactions={memberTransactions} />
+        </ChartCard>
+        {activeLoan ? (
+          <ChartCard title="Loan Repayment" description="Progress toward settlement" height={CHART_H}>
+            <LoanRepaymentChart paid={totalPaid} total={totalOwed} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="Savings Progress" description="Cumulative contributions" height={CHART_H}>
+            <SavingsProgressChart totalContributions={kpis.totalBalance} />
+          </ChartCard>
+        )}
       </div>
     </div>
   )
-}
-
-/**
- * Compute member consistency score (0-100) based on contribution regularity
- */
-function computeConsistencyScore(contributions: Array<{ date: string; amount: number }>): number {
-  if (contributions.length === 0) return 0
-
-  // Group by month
-  const monthlyContribs: Record<string, number> = {}
-  contributions.forEach((c) => {
-    const month = new Date(c.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-    monthlyContribs[month] = (monthlyContribs[month] || 0) + 1
-  })
-
-  const months = Object.keys(monthlyContribs).length
-  if (months === 0) return 0
-
-  // Calculate consistency: expected 1 contribution per month
-  const avgPerMonth = contributions.length / months
-  const consistency = Math.min(100, Math.round((avgPerMonth / 1) * 100))
-
-  // Bonus for consecutive months
-  const sortedMonths = Object.keys(monthlyContribs).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
-  )
-  let streak = 0
-  for (const month of sortedMonths) {
-    if (monthlyContribs[month] > 0) {
-      streak++
-    } else {
-      break
-    }
-  }
-
-  // Add streak bonus (max 10 points)
-  const streakBonus = Math.min(10, streak * 2)
-
-  return Math.min(100, consistency + streakBonus)
 }

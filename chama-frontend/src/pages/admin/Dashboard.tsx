@@ -5,14 +5,12 @@ import {
   CreditCard,
   Users,
   TrendingUp,
-  AlertTriangle,
-  Smartphone,
+  Inbox,
   Plus,
   FileText,
   UserPlus,
   UserCog,
   Coins,
-  Inbox,
   ChevronDown,
 } from 'lucide-react'
 import { formatKES } from '../../lib/format'
@@ -25,10 +23,7 @@ import { ContributionsByMemberChart } from '../../components/charts/Contribution
 import { LoanPortfolioStackedChart } from '../../components/charts/LoanPortfolioStackedChart'
 import { CashflowAreaChart } from '../../components/charts/CashflowAreaChart'
 import { MpesaTrendsChart } from '../../components/charts/MpesaTrendsChart'
-import { InsightsPanel } from '../../components/admin/InsightsPanel'
-import { RecentActivityTabs } from '../../components/admin/RecentActivityTabs'
 import { DateRangeFilter, type DateRange } from '../../components/admin/DateRangeFilter'
-import { generateAdminInsights } from '../../utils/adminInsights'
 import { useChamaId } from '../../hooks/useChamaId'
 import api, { chamaRoute } from '../../lib/api'
 import { exportToCSV } from '../../utils/csvExport'
@@ -39,6 +34,9 @@ const RANGE_MAP: Record<DateRange, string> = {
   last_6_months: '6m',
   custom: '12m',
 }
+
+/** Chart body height (px) — compact for single-screen desktop layouts */
+const CHART_H = 168
 
 export function AdminDashboard() {
   const chamaId = useChamaId()
@@ -67,9 +65,9 @@ export function AdminDashboard() {
       repaymentsMonthly: Array<{ month: string; totalAmount: number }>
     }
   } | null>(null)
-  const [contributions, setContributions] = useState<any[]>([])
-  const [loans, setLoans] = useState<any[]>([])
-  const [mpesaPayments, setMpesaPayments] = useState<any[]>([])
+  const [, setContributions] = useState<any[]>([])
+  const [, setLoans] = useState<any[]>([])
+  const [, setMpesaPayments] = useState<any[]>([])
 
   const rangeParam = RANGE_MAP[dateRange] || '6m'
 
@@ -125,6 +123,11 @@ export function AdminDashboard() {
     activeMembers: 0,
   }
 
+  const pendingLoanCount = useMemo(() => {
+    const c = analytics?.series?.loanStatusCounts ?? {}
+    return Number(c.PENDING) || 0
+  }, [analytics?.series?.loanStatusCounts])
+
   const cycleChange = useMemo(() => {
     const series = analytics?.series?.contributionsMonthly
     if (!series || series.length < 2) return 0
@@ -159,48 +162,20 @@ export function AdminDashboard() {
     return s.map((m) => ({ date: m.month, success: Number(m.success) || 0, failed: Number(m.failed) || 0, pending: Number(m.pending) || 0 }))
   }, [analytics?.series?.mpesaOutcomesMonthly])
 
-  const insights = useMemo(() => {
-    return generateAdminInsights({
-      contributions: contributions.map((c: any) => ({ date: c.paidAt || c.createdAt, amount: c.amount })),
-      loans: loans.map((l: any) => ({ status: l.status, date: l.requestedAt, amount: l.principal ?? l.totalDue })),
-      mpesaPayments: mpesaPayments.map((p: any) => ({ status: p.status?.toLowerCase() ?? '', date: p.createdAt })),
-      members: Array.from({ length: kpis.activeMembers }, () => ({ joined: '' })),
-    })
-  }, [contributions, loans, mpesaPayments, kpis.activeMembers])
-
-  const allTransactions = useMemo(() => {
-    const txns: Array<{ id: string; date: string; desc: string; amount: number; type: 'credit' | 'debit'; member?: string }> = []
-    contributions.forEach((c: any) => {
-      txns.push({ id: `c-${c.id}`, date: c.paidAt || c.createdAt, desc: `Contribution - ${c.method ?? 'Payment'}`, amount: c.amount, type: 'credit', member: c.user?.fullName })
-    })
-    loans.filter((l: any) => l.status === 'ACTIVE' || l.status === 'APPROVED').forEach((l: any) => {
-      txns.push({ id: `l-${l.id}`, date: l.approvedAt || l.requestedAt, desc: 'Loan Disbursement', amount: l.principal ?? l.totalDue, type: 'debit', member: l.user?.fullName })
-    })
-    return txns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  }, [contributions, loans])
-
-  const loansForTabs = useMemo(() => {
-    return loans.slice(0, 20).map((l: any) => ({ id: l.id, date: l.requestedAt || l.approvedAt, member: l.user?.fullName ?? 'Member', amount: l.principal ?? l.totalDue, status: l.status }))
-  }, [loans])
-
-  const mpesaForTabs = useMemo(() => {
-    return mpesaPayments.slice(0, 20).map((p: any) => ({ id: p.id, date: p.createdAt, phoneNumber: p.phone, amount: p.amount, status: p.status, description: `${p.purpose ?? ''}` }))
-  }, [mpesaPayments])
-
   if (loading && !analytics) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-300 border-t-blue-600" />
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-300 border-t-brown" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <h1 className="text-xl font-semibold text-ink-900">Dashboard</h1>
+      <div className="space-y-3">
+        <h1 className="text-lg font-semibold text-ink-900">Dashboard</h1>
         <Card>
-          <CardContent className="py-12 text-center">
+          <CardContent className="py-8 text-center">
             <p className="text-ink-500 text-sm">{error}</p>
             <Button variant="secondary" size="sm" className="mt-4" onClick={loadData}>Try again</Button>
           </CardContent>
@@ -209,17 +184,19 @@ export function AdminDashboard() {
     )
   }
 
-  return (
-    <div className="space-y-6 min-w-0 w-full max-w-full overflow-x-hidden">
+  const statCompact = '!py-2.5 !px-3 [&>div.text-2xl]:!text-lg [&>div:first-child]:!mb-2'
 
-      {/* ─── Page Header ─── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  return (
+    <div className="flex min-h-0 flex-col gap-3 min-w-0 w-full max-w-full overflow-x-hidden xl:max-h-[calc(100vh-7.5rem)] xl:overflow-y-auto">
+
+      {/* 1. Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between shrink-0">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-ink-900">Dashboard</h1>
-          <p className="text-sm text-ink-500 mt-0.5">Financial overview for your chama</p>
+          <h1 className="text-lg font-semibold text-ink-900 leading-tight">Dashboard</h1>
+          <p className="text-xs text-ink-500">Financial overview for your chama</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:flex-shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5 sm:flex-shrink-0">
           <DateRangeFilter value={dateRange} onChange={setDateRange} />
 
           <div className="relative" ref={plusMenuRef}>
@@ -251,12 +228,13 @@ export function AdminDashboard() {
           <Button variant="secondary" size="sm"
             onClick={() => {
               exportToCSV([
-                { metric: 'Total Balance',      value: formatKES(kpis.totalBalance) },
-                { metric: 'This Cycle',          value: formatKES(kpis.contributionsThisMonth) },
-                { metric: 'Outstanding Loans',   value: formatKES(kpis.outstandingLoans) },
-                { metric: 'Late Repayments',     value: kpis.lateLoansCount },
+                { metric: 'Available Balance', value: formatKES(kpis.totalBalance) },
+                { metric: 'Contributions (period)', value: formatKES(kpis.contributionsThisMonth) },
+                { metric: 'Outstanding Loans', value: formatKES(kpis.outstandingLoans) },
+                { metric: 'Active Members', value: kpis.activeMembers },
+                { metric: 'Pending Loans', value: pendingLoanCount },
+                { metric: 'Late Repayments', value: kpis.lateLoansCount },
                 { metric: 'M-Pesa Success Rate', value: `${kpis.mpesaSuccessRate30d}%` },
-                { metric: 'Active Members',      value: kpis.activeMembers },
               ], 'chama-dashboard-report', ['metric', 'value'])
             }}>
             <FileText size={14} />
@@ -265,48 +243,40 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* ─── Primary charts — dominant hero area ─── */}
-      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+      {/* 2. Summary cards — first row */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 [&>*]:min-w-0 shrink-0">
+        <StatCard icon={Wallet}        label="Available Balance"   value={formatKES(kpis.totalBalance)}           accent="blue"    className={statCompact} />
+        <StatCard icon={TrendingUp}    label="Total Contributions" value={formatKES(kpis.contributionsThisMonth)} accent="emerald" trend={cycleChange} trendLabel="vs prior" className={statCompact} />
+        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}       accent="amber"   className={statCompact} />
+        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    className={statCompact} />
+        <StatCard icon={Inbox}         label="Pending Loans"     value={pendingLoanCount}                         accent="violet"  className={`col-span-2 sm:col-span-1 xl:col-span-1 ${statCompact}`} />
+      </div>
+
+      {/* 3. Charts — below summary; compact heights */}
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 [&>*]:min-w-0">
         <div className="lg:col-span-2">
-          <ChartCard title="Contribution Trends" description="Monthly total collected over selected period" height="lg">
+          <ChartCard title="Contribution Trends" description="Monthly total — selected period" height={CHART_H}>
             <ContributionsTrendChart data={contributionsTrend} />
           </ChartCard>
         </div>
-        <ChartCard title="Cashflow" description="Inflows vs outflows" height="lg">
-          <CashflowAreaChart data={cashflowData} />
-        </ChartCard>
+        <div>
+          <ChartCard title="Cashflow" description="Inflows vs outflows" height={CHART_H}>
+            <CashflowAreaChart data={cashflowData} />
+          </ChartCard>
+        </div>
       </div>
 
-      {/* ─── Secondary charts — equal 3-col ─── */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
-        <ChartCard title="Top Contributors" description="Ranked by total contributions">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3 [&>*]:min-w-0">
+        <ChartCard title="Top Contributors" description="By total contributions" height={CHART_H}>
           <ContributionsByMemberChart data={contributionsByMember} />
         </ChartCard>
-        <ChartCard title="Loan Portfolio" description="Active, late, and repaid">
+        <ChartCard title="Loan Distribution" description="Active, late, repaid" height={CHART_H}>
           <LoanPortfolioStackedChart data={loanPortfolioData} />
         </ChartCard>
-        <ChartCard title="M-Pesa Outcomes" description="Success / failure / pending">
+        <ChartCard title="M-Pesa Activity" description="Success / failed / pending" height={CHART_H}>
           <MpesaTrendsChart data={mpesaTrends} />
         </ChartCard>
-      </div>
-
-      {/* ─── KPI strip ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
-        <StatCard icon={Wallet}        label="Total Balance"     value={formatKES(kpis.totalBalance)}            accent="blue"    />
-        <StatCard icon={TrendingUp}    label="This Cycle"        value={formatKES(kpis.contributionsThisMonth)}  accent="emerald" trend={cycleChange} trendLabel="vs last month" />
-        <StatCard icon={CreditCard}    label="Outstanding Loans" value={formatKES(kpis.outstandingLoans)}         accent="amber"   />
-        <StatCard icon={AlertTriangle} label="Late Repayments"   value={kpis.lateLoansCount}                      accent="red"     />
-        <StatCard icon={Smartphone}    label="M-Pesa Rate"       value={`${kpis.mpesaSuccessRate30d}%`}           accent="cyan"    />
-        <StatCard icon={Users}         label="Active Members"    value={kpis.activeMembers}                       accent="blue"    />
-      </div>
-
-      {/* ─── Insights + Activity ─── */}
-      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        <InsightsPanel insights={insights} />
-        <RecentActivityTabs transactions={allTransactions} loans={loansForTabs} mpesaPayments={mpesaForTabs} onRefresh={loadData} />
       </div>
     </div>
   )
 }
-
-
